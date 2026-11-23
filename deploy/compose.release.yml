@@ -1,0 +1,62 @@
+# Stack rilis untuk server Linux + Docker Compose (VPS di belakang Cloudflare).
+# Pakai: cp .env.release.example .env, isi nilainya, lalu lihat deploy/README.md.
+name: ${ARUNIKA_PROJECT:-arunika}
+
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:f9cf3e1f0066f0eb0c48707d864f0ac5941e9ff454a072077d97a4d278d07d73
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?isi DB_NAME}
+      POSTGRES_USER: ${DB_USER:?isi DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?isi DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    # Tanpa port yang dipublikasikan: hanya app yang menjangkau database.
+
+  app:
+    image: arunika-app:${ARUNIKA_VERSION:?isi ARUNIKA_VERSION}
+    build: ..
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?isi BETTER_AUTH_SECRET}
+      PUBLIC_SITE_URL: https://${SITE_HOST:?isi SITE_HOST}
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:4321/readyz']
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    # Tanpa port yang dipublikasikan: hanya Caddy yang menjangkau aplikasi.
+
+  caddy:
+    image: caddy:2-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      SITE_HOST: ${SITE_HOST}
+      TLS_MODE: ${TLS_MODE:?isi TLS_MODE dengan email untuk Lets Encrypt atau internal}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:

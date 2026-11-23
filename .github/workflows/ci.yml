@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Lint, tipe, tes, build
+    name: Lint, tipe, tes unit, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -44,3 +44,72 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+
+  integration:
+    name: Tes integrasi (PostgreSQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:f9cf3e1f0066f0eb0c48707d864f0ac5941e9ff454a072077d97a4d278d07d73
+        env:
+          POSTGRES_USER: arunika
+          POSTGRES_PASSWORD: arunika-test-only
+          POSTGRES_DB: arunika_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U arunika -d arunika_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Database uji sekali pakai di dalam runner; namanya wajib mengandung "test".
+      TEST_DATABASE_URL: postgres://arunika:arunika-test-only@localhost:5432/arunika_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Jalankan tes integrasi
+        run: npm run test:integration -- --reporter=default --reporter=json --outputFile=vitest-integration.json
+
+      # Tes yang dilewati bukan bukti lulus: dianggap gagal.
+      - name: Pastikan tidak ada tes yang dilewati
+        run: node scripts/check-no-skips.mjs vitest-integration.json
+
+  docker:
+    name: Build dan jalankan image Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Nilai contoh cukup: database dan rahasia ini hanya hidup selama job berjalan.
+      - name: Siapkan .env sementara
+        run: cp .env.example .env
+
+      - name: Build image dan jalankan bersama Postgres
+        run: docker compose --profile app up -d --build --wait
+
+      - name: Cek liveness dan readiness (termasuk database)
+        run: |
+          curl -fsS http://127.0.0.1:4321/healthz
+          curl -fsS http://127.0.0.1:4321/readyz
+
+      - name: Log aplikasi bila gagal
+        if: failure()
+        run: docker compose --profile app logs --no-color
+
+      - name: Bersihkan
+        if: always()
+        run: docker compose --profile app down -v

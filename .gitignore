@@ -20,3 +20,8 @@ PRD-Arunika-Journey.md
 referensi*
 Referensi*
 screenshot-*
+
+# Rilis: rahasia server dan backup tidak pernah masuk Git.
+deploy/.env
+deploy/backups/
+!.env.release.example

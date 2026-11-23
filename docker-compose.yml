@@ -1,20 +1,42 @@
-# Lingkungan lokal: hanya Postgres. App dijalankan lewat `npm run dev`.
+# Pengembangan lokal. Postgres selalu di Docker; aplikasi biasanya jalan di host
+# (`npm run dev`, hot reload). Profil `app` menjalankan image produksi di Docker
+# untuk menguji build sebelum rilis:  docker compose --profile app up -d --build
+name: arunika-local
+
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17-alpine@sha256:f9cf3e1f0066f0eb0c48707d864f0ac5941e9ff454a072077d97a4d278d07d73
+    container_name: arunika-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: arunika
-      POSTGRES_PASSWORD: arunika
-      POSTGRES_DB: arunika
+      POSTGRES_DB: ${DB_NAME:?Isi DB_NAME di .env}
+      POSTGRES_USER: ${DB_USER:?Isi DB_USER di .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Isi DB_PASSWORD di .env}
     ports:
-      - '5432:5432'
+      - '127.0.0.1:5432:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U arunika']
-      interval: 5s
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 3s
       timeout: 3s
       retries: 10
+
+  app:
+    profiles: ['app']
+    build: .
+    container_name: arunika-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Isi BETTER_AUTH_SECRET di .env}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:4321}
+    ports:
+      - '127.0.0.1:4321:4321'
+
 volumes:
-  pgdata:
+  postgres_data:
+    name: arunika_postgres_data
