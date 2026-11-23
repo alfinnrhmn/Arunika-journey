@@ -41,6 +41,18 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
       - run: npm run check
+
+      # Skema TypeScript dan migrasi SQL harus selalu sinkron (seperti pemeriksaan OpenAPI di Stokpa).
+      - name: Verifikasi migrasi sinkron dengan skema
+        run: |
+          npx drizzle-kit check
+          npx drizzle-kit generate --name=ci_drift_check
+          if [ -n "$(git status --porcelain drizzle)" ]; then
+            echo "::error::Skema berubah tanpa migrasi. Jalankan npm run db:generate lalu commit hasilnya."
+            git status --porcelain drizzle
+            exit 1
+          fi
+
       - run: npm run lint
       - run: npm test
       - run: npm run build
@@ -105,6 +117,12 @@ jobs:
         run: |
           curl -fsS http://127.0.0.1:4321/healthz
           curl -fsS http://127.0.0.1:4321/readyz
+
+      - name: Pastikan migrasi diterapkan oleh container
+        run: |
+          tables="$(docker compose exec -T postgres psql -U arunika -d arunika -tAc "select count(*) from information_schema.tables where table_schema='public'")"
+          echo "Jumlah tabel: $tables"
+          [ "$tables" -ge 30 ] || { echo "::error::Migrasi tidak diterapkan saat container start"; exit 1; }
 
       - name: Log aplikasi bila gagal
         if: failure()
