@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+playwright-report/
+test-results/
+coverage/
+
+# Dokumen klien dan bahan referensi: JANGAN diunggah ke repo publik.
+.claude/
+*.pen
+images/
+Client Brief*
+Arunika Journey*
+PRD-Arunika-Journey.md
+referensi*
+Referensi*
+screenshot-*

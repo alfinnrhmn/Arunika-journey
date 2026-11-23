@@ -1,0 +1,73 @@
+/*
+ * Token desain Arunika Journey, diekspor dari Doop canvas D2gRU2IRuL (tema "putih",
+ * acuan resmi Design V2). Jangan menambah nilai di sini tanpa mengubah desain dahulu.
+ * `static` memastikan semua variabel CSS tetap dikeluarkan walau belum dipakai utilitas.
+ */
+@theme static {
+  /* Permukaan publik (tema putih) */
+  --color-paper: #ffffff;
+  --color-paper-2: #f4f4f2;
+  --color-bg: #f7f7f5;
+  --color-ink: #2b2623;
+  --color-ink-2: #5a524c;
+  --color-line: #d9d2c8;
+  --color-line-strong: #857b72;
+  --color-night: #1f1b19;
+  --color-dawn: #b77a6c;
+  --color-dawn-deep: #85493e;
+  --color-dawn-soft: #ecd9d2;
+  --color-status-ok: #3f6b52;
+  --color-status-ok-soft: #e1ece4;
+  --color-status-pending: #855810;
+  --color-status-pending-soft: #f3e6cb;
+  --color-status-full: #97392f;
+  --color-status-full-soft: #f2dcd8;
+  --color-on-accent: #ffffff;
+
+  /* Dashboard */
+  --color-dash-bg: #f7f7f5;
+  --color-dash-surface: #ffffff;
+  --color-dash-border: #e7e7e3;
+  --color-dash-border-strong: #d2d2cd;
+  --color-dash-hover: #efefec;
+  --color-dash-text: #1d1d1b;
+  --color-dash-muted: #6b6b66;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+
+  /* Spasi dan kontainer */
+  --spacing-section: 146px;
+  --spacing-margin: 41px;
+  --container-page: 1200px;
+
+  /* Breakpoint (mobile 390 desain, tablet 768-1023, desktop 1280, wide 1440) */
+  --breakpoint-mobile: 390px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1280px;
+  --breakpoint-wide: 1440px;
+
+  /* Tipografi */
+  --font-serif: 'Newsreader Variable', 'Newsreader', Georgia, serif;
+  --font-ui: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
+  --font-hand: 'Caveat', 'Reenie Beanie', cursive;
+  --font-dash: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  --text-caption: 12px;
+  --text-small: 14px;
+  --text-body: 16px;
+  --text-h3: 20px;
+  --text-lead: 20px;
+  --text-h2: 28px;
+  --text-heading: 32px;
+  --text-hand: 32px;
+  --text-h1: 44px;
+  --text-quote: 44px;
+  --text-title: 48px;
+  --text-list: 48px;
+  --text-subdisplay: 56px;
+  --text-display: 76px;
+}
