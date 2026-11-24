@@ -23,11 +23,11 @@ const {
 <div class="hf-ps">
   <div class="hf-ps-h">{heading}</div>
   {price.lines.map((l) => (
-    <div class="row">
-      <span>
+    <div class="row" data-ps="line">
+      <span data-ps="line-label">
         {formatRupiah(l.unitPrice)} × {l.qty} {l.label === 'Anak' ? 'anak' : 'peserta'}
       </span>
-      <span>{formatRupiah(l.amount)}</span>
+      <span data-ps="line-amount">{formatRupiah(l.amount)}</span>
     </div>
   ))}
   <div class="row">
@@ -36,15 +36,15 @@ const {
   </div>
   <div class="row total">
     <span>Total</span>
-    <strong>{formatRupiah(price.total)}</strong>
+    <strong data-ps="total">{formatRupiah(price.total)}</strong>
   </div>
   <div class="dp">
     <div class="row">
       <span>DP ({price.dpPercent}%)</span>
-      <strong>{formatRupiah(price.dp)}</strong>
+      <strong data-ps="dp">{formatRupiah(price.dp)}</strong>
     </div>
     <p>
-      Sisa {formatRupiah(price.balance)} {balanceNote}
+      Sisa <span data-ps="balance">{formatRupiah(price.balance)}</span> {balanceNote}
     </p>
   </div>
 </div>

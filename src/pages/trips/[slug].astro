@@ -14,9 +14,13 @@ import DetailAsk from '../../components/trips/detail/DetailAsk.astro';
 import DetailCta from '../../components/trips/detail/DetailCta.astro';
 import { getDb } from '../../server/db';
 import { getTripDetail } from '../../features/trips/queries';
+import { getBookingSettings, maybeHousekeep } from '../../features/booking';
 
 const { slug } = Astro.params;
+// Lepas hold yang sudah berakhir agar sisa kursi yang tampil akurat.
+maybeHousekeep();
 const trip = slug ? await getTripDetail(getDb(), slug) : null;
+const booking = await getBookingSettings(getDb());
 if (!trip) Astro.response.status = 404;
 
 const title = trip ? `${trip.title} | Arunika Journey` : 'Trip tidak ditemukan | Arunika Journey';
@@ -37,7 +41,11 @@ const description = trip
           <DetailItinerary trip={trip} />
           <DetailInfo trip={trip} />
         </div>
-        <DetailBooking trip={trip} />
+        <DetailBooking
+          trip={trip}
+          dpPercent={booking.dpPercent}
+          maxParticipants={booking.maxParticipants}
+        />
       </section>
       <DetailVoices />
       <DetailAsk />
@@ -57,4 +65,5 @@ const description = trip
 
 <script>
   import '../../scripts/trip-detail.js';
+  import '../../scripts/booking-card';
 </script>

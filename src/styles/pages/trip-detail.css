@@ -380,6 +380,10 @@
   background: var(--color-bg);
   border: 1px solid var(--color-line);
 }
+.td-sched[data-state='idle'],
+.td-sched[data-state='selected'] {
+  cursor: pointer;
+}
 .td-sched[data-state='selected'] {
   background: var(--color-dawn-soft);
   border-color: var(--color-dawn);
@@ -439,9 +443,28 @@
   justify-content: center;
   width: 44px;
   height: 44px;
+  padding: 0;
   border-radius: 50%;
   border: 1px solid var(--color-ink-2);
+  background: transparent;
   color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+.td-qty-btn:hover:not(:disabled) {
+  background: var(--color-paper-2);
+}
+.td-qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.td-qty-btn:focus-visible,
+.td-sched:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
 }
 .td-qty-n {
   font-family: var(--font-serif);
@@ -697,4 +720,14 @@
 .td-missing h1 {
   font-size: var(--text-title);
   color: var(--color-ink);
+}
+
+/* Ikon pesan kuota mengikuti nada (centang untuk lega, ikon orang untuk sisa sedikit); skrip hanya mengganti data-tone. */
+.td-quota-ic {
+  display: inline-flex;
+}
+.td-quota[data-tone='ok'] [data-ic='warn'],
+.td-quota[data-tone='pending'] [data-ic='ok'],
+.td-quota[data-tone='full'] [data-ic='ok'] {
+  display: none;
 }
