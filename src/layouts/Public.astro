@@ -7,11 +7,14 @@ interface Props {
   description?: string;
   /** Alur fokus (booking, pembayaran) memakai header/footer sendiri. */
   hideFooter?: boolean;
+  /** Halaman pribadi (booking, pesanan, Cek Status): jangan diindeks mesin pencari. */
+  noindex?: boolean;
 }
 const {
   title,
   description = 'Arunika Journey: travel beyond the itinerary.',
   hideFooter = false,
+  noindex = false,
 } = Astro.props;
 ---
 
@@ -21,6 +24,7 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href} />
     <title>{title}</title>
   </head>

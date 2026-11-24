@@ -49,7 +49,7 @@ export const isBookingCode = (s: string) => /^ARJ-\d{4}-\d{4}$/.test(s);
  * - quota        Booking: Kuota tidak mencukupi (`error.detail.seatsLeft`, `error.detail.requested`)
  * - unavailable  Booking: Tanggal tidak tersedia (`error.detail.reason`: not_open | past | cutoff)
  * - incomplete   Langkah 2: Data belum lengkap (`error.detail.issues`: peta bidang ke pesan)
- * - active_hold  Email sudah punya booking menunggu pembayaran (`error.detail.code`)
+ * - active_hold  Email sudah punya booking menunggu pembayaran (kode TIDAK diberikan: lihat Cek Status)
  * - expired      Hold sudah berakhir
  * - not_found    Draf/jadwal/booking tidak ditemukan atau sudah berakhir
  * - invalid      Masukan tidak valid (jumlah peserta, berkas bukti)

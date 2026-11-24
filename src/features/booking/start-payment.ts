@@ -95,7 +95,7 @@ export async function startPayment(db: Db, token: string, now: Date = new Date()
     // Satu hold aktif per email (anti penyalahgunaan hold, PRD 7.2).
     const email = contact.data.email;
     const [active] = await tx
-      .select({ code: bookings.code })
+      .select({ id: bookings.id })
       .from(bookings)
       .where(
         and(
@@ -106,12 +106,11 @@ export async function startPayment(db: Db, token: string, now: Date = new Date()
       )
       .limit(1);
     if (active) {
+      // Kode booking TIDAK disertakan: siapa pun bisa mengetik email orang lain di langkah 2, dan kode + email
+      // cukup untuk lolos Cek Status. Pemilik menemukan kodenya di emailnya sendiri.
       throw new BookingError(
         'active_hold_exists',
         'Email ini masih punya booking yang menunggu pembayaran',
-        {
-          code: active.code,
-        },
       );
     }
 

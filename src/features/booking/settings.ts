@@ -36,11 +36,11 @@ export const DEFAULT_BOOKING_SETTINGS: BookingSettings = {
 };
 
 const KEYS = {
-  dpPercent: 'booking.dp_percent',
-  holdMinutes: 'booking.hold_minutes',
-  maxParticipants: 'booking.max_participants',
-  draftHours: 'booking.draft_hours',
-  manualAccounts: 'payment.manual_accounts',
+  dpPercent: 'dp_percent',
+  holdMinutes: 'hold_minutes',
+  maxParticipants: 'max_participants_per_booking',
+  draftHours: 'draft_hours',
+  manualAccounts: 'manual_accounts',
 } as const;
 
 const schemas = {

@@ -349,9 +349,9 @@ describe('memulai pembayaran: hold kuota, snapshot harga, kode booking', () => {
         .insert(settings)
         .values({ key, value })
         .onConflictDoUpdate({ target: settings.key, set: { value } });
-    await put('booking.dp_percent', 50);
-    await put('booking.hold_minutes', 30);
-    await put('booking.max_participants', 'delapan'); // rusak: salah tipe, harus diabaikan
+    await put('dp_percent', 50);
+    await put('hold_minutes', 30);
+    await put('max_participants_per_booking', 'delapan'); // rusak: salah tipe, harus diabaikan
     try {
       const cfg = await getBookingSettings(db());
       expect(cfg).toMatchObject({ dpPercent: 50, holdMinutes: 30, maxParticipants: 8 });
@@ -366,9 +366,9 @@ describe('memulai pembayaran: hold kuota, snapshot harga, kode booking', () => {
       expect(r.booking.dpAmount).toBe(1_000_000);
       expect(r.booking.holdExpiresAt!.getTime()).toBe(now.getTime() + 30 * 60_000);
     } finally {
-      await db().delete(settings).where(eq(settings.key, 'booking.dp_percent'));
-      await db().delete(settings).where(eq(settings.key, 'booking.hold_minutes'));
-      await db().delete(settings).where(eq(settings.key, 'booking.max_participants'));
+      await db().delete(settings).where(eq(settings.key, 'dp_percent'));
+      await db().delete(settings).where(eq(settings.key, 'hold_minutes'));
+      await db().delete(settings).where(eq(settings.key, 'max_participants_per_booking'));
     }
   });
 
@@ -439,7 +439,8 @@ describe('memulai pembayaran: hold kuota, snapshot harga, kode booking', () => {
     const second = await readyDraft(schedule.id, { adults: 1, children: 0 }, email.toUpperCase());
     const err = await codeOf(startPayment(db(), second));
     expect(err.code).toBe('active_hold_exists');
-    expect(err.detail.code).toBe(first.booking.code);
+    // kode booking pertama tidak boleh bocor ke orang yang hanya mengetik email itu
+    expect(JSON.stringify(err.detail)).not.toContain(first.booking.code);
     expect((await reloadSchedule(schedule.id)).seatsTaken).toBe(1);
   });
 
@@ -626,7 +627,7 @@ describe('keputusan admin atas bukti bayar', () => {
   it('DP yang melunasi seluruh harga tidak meninggalkan sisa tagihan', async () => {
     await db()
       .insert(settings)
-      .values({ key: 'booking.dp_percent', value: 100 })
+      .values({ key: 'dp_percent', value: 100 })
       .onConflictDoUpdate({ target: settings.key, set: { value: 100 } });
     try {
       const admin = await makeAdmin();
@@ -636,7 +637,7 @@ describe('keputusan admin atas bukti bayar', () => {
       expect(b.status).toBe('confirmed');
       expect(b.balanceStatus).toBeNull();
     } finally {
-      await db().delete(settings).where(eq(settings.key, 'booking.dp_percent'));
+      await db().delete(settings).where(eq(settings.key, 'dp_percent'));
     }
   });
 
