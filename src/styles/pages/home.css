@@ -142,7 +142,8 @@
 }
 .fam-item {
   display: grid;
-  grid-template-columns: 520px minmax(0, 1fr) 340px;
+  /* Proporsi desain (520 : 498 : 340 pada 1358px). Skala mengikuti lebar sampai 1440px, lalu tetap. */
+  grid-template-columns: minmax(0, 520fr) minmax(0, 498fr) minmax(0, 340fr);
   align-items: start;
 }
 .fam-img {
@@ -376,7 +377,7 @@
   color: var(--color-ink);
 }
 .fam-rev {
-  grid-template-columns: minmax(0, 1fr) 520px;
+  grid-template-columns: minmax(0, 838fr) minmax(0, 520fr);
 }
 .fam-rev .fam-txt {
   padding: 0 96px 0 0;
@@ -555,6 +556,10 @@
   padding: 168px 0 146px;
 }
 .hp13 {
+  /* Komposisi dibatasi selebar desain (1440px) dan ditaruh di tengah: di layar lebar foto dan teks
+     tetap rapat, bukan menyebar ke tepi layar. */
+  max-width: 1440px;
+  margin-inline: auto;
   padding: 0 41px;
   display: flex;
   flex-direction: column;
