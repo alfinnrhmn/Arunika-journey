@@ -463,33 +463,30 @@
   }
 }
 
-/* Foto yang mengikuti kursor di daftar penginapan (src/lib/motion/follow.ts). Posisi diatur JS (translate3d). */
+/* Foto yang mengikuti kursor di daftar penginapan (src/lib/motion/follow.ts). Bentuk dan gerak mengikuti foto
+   itinerary di Trip Detail (#tip): potret 190x240 berbingkai putih; posisi dan kemiringan diatur JS. */
 .follow {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 60;
-  width: 320px;
-  height: 420px;
+  width: 190px;
+  height: 240px;
   pointer-events: none;
+  transform-origin: center;
   will-change: transform;
 }
 .follow-in {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 6px;
+  border: 6px solid var(--color-paper);
   background: var(--color-paper-2);
-  box-shadow: 0 18px 50px rgba(43, 38, 35, 0.22);
   opacity: 0;
-  transform: scale(0.82);
-  transition:
-    opacity 0.35s ease,
-    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s ease;
 }
 .follow.on .follow-in {
   opacity: 1;
-  transform: none;
 }
 .follow img {
   position: absolute;
@@ -498,7 +495,7 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.25s ease;
 }
 .follow img.on {
   opacity: 1;
@@ -519,7 +516,6 @@
   .follow-in,
   .follow img {
     transition: none;
-    transform: none;
   }
 }
 

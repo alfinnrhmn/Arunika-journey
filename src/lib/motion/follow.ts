@@ -16,13 +16,19 @@
  * Aturan:
  * - Hanya untuk perangkat dengan mouse (hover: hover dan pointer: fine). Di layar sentuh tidak ada apa pun.
  * - Murni JS + CSS (tanpa GSAP), jadi tidak menambah unduhan.
- * - "Kurangi gerakan": gambar tetap muncul di sisi kursor tetapi langsung di tempatnya, tanpa pengejaran.
+ * - Gerak mengikuti referensi desain (foto itinerary di Trip Detail): mengejar kursor dengan easing dan miring
+ *   mengikuti kecepatan gerak mouse.
+ * - "Kurangi gerakan": gambar tetap muncul di sisi kursor tetapi langsung di tempatnya, tanpa pengejaran
+ *   dan tanpa kemiringan.
  * - Gambar diunduh sekali, saat daftar mendekati layar (bukan saat halaman dimuat).
  */
 
-const OFFSET = 36; // jarak gambar dari kursor
+const OFFSET = 24; // jarak gambar dari kursor (sama dengan foto itinerary di trip-detail.js)
 const MARGIN = 16; // jarak minimal dari tepi layar
-const EASE = 0.16; // 0..1, makin besar makin cepat mengejar
+const EASE = 0.14; // 0..1, makin besar makin cepat mengejar
+/** Kemiringan mengikuti kecepatan horizontal: derajat = kecepatan (px/frame) x TILT, dibatasi +-MAX_TILT. */
+const TILT = 1.2;
+const MAX_TILT = 14;
 
 export function initFollow(root: ParentNode = document): (() => void) | undefined {
   const lists = [...root.querySelectorAll<HTMLElement>('[data-follow-list]')];
@@ -74,15 +80,16 @@ export function initFollow(root: ParentNode = document): (() => void) | undefine
       target.y = y;
     };
 
-    const paint = () => {
-      box.style.transform = `translate3d(${cur.x.toFixed(1)}px, ${cur.y.toFixed(1)}px, 0)`;
+    const paint = (tilt = 0) => {
+      box.style.transform = `translate3d(${cur.x.toFixed(1)}px, ${cur.y.toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg)`;
     };
 
     const tick = () => {
       const k = reduce ? 1 : EASE;
-      cur.x += (target.x - cur.x) * k;
+      const vx = (target.x - cur.x) * k;
+      cur.x += vx;
       cur.y += (target.y - cur.y) * k;
-      paint();
+      paint(reduce ? 0 : Math.max(-MAX_TILT, Math.min(MAX_TILT, vx * TILT)));
       const settled = Math.abs(target.x - cur.x) < 0.1 && Math.abs(target.y - cur.y) < 0.1;
       raf = active || !settled ? requestAnimationFrame(tick) : 0;
     };
