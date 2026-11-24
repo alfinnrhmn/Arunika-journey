@@ -1,0 +1,16 @@
+---
+// Kepala bagian bernomor ("01  Tanggal keberangkatan  ...  catatan kanan") dengan garis ink di atasnya.
+interface Props {
+  n: string;
+  title: string;
+  note?: string;
+  id?: string;
+}
+const { n, title, note, id } = Astro.props;
+---
+
+<div class="bf-sh">
+  <span aria-hidden="true">{n}</span>
+  <h2 id={id}>{title}</h2>
+  {note && <em>{note}</em>}
+</div>

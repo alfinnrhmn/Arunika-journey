@@ -1,0 +1,89 @@
+---
+// Bidang isian (desain: hf-field). Label terhubung ke input; teks bantuan atau galat dihubungkan lewat
+// aria-describedby; aria-invalid hanya dipasang saat ada galat. Galat menggantikan teks bantuan (seperti desain).
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  value?: string;
+  hint?: string;
+  error?: string;
+  type?: 'text' | 'email' | 'tel';
+  autocomplete?: string;
+  inputmode?: 'text' | 'email' | 'tel';
+  maxlength?: number;
+  required?: boolean;
+  multiline?: boolean;
+  optional?: boolean;
+  placeholder?: string;
+  readonly?: boolean;
+  /** Atribut data-bf-* untuk skrip. */
+  [key: `data-${string}`]: string | boolean | undefined;
+}
+const {
+  id,
+  name,
+  label,
+  value = '',
+  hint,
+  error,
+  type = 'text',
+  autocomplete,
+  inputmode,
+  maxlength,
+  required = false,
+  multiline = false,
+  optional = false,
+  placeholder,
+  readonly,
+  ...rest
+} = Astro.props;
+const noteId = `${id}-note`;
+const message = error ?? hint;
+---
+
+<div class="bf-field" data-state={error ? 'error' : 'default'}>
+  <label class="lab" for={id}>
+    {label}
+    {optional && <span class="opt"> (opsional)</span>}
+  </label>
+  {multiline ? (
+    <textarea
+      class="box"
+      id={id}
+      name={name}
+      rows="2"
+      maxlength={maxlength}
+      placeholder={placeholder}
+      required={required}
+      readonly={readonly}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={message ? noteId : undefined}
+      {...rest}
+    >
+        {value}
+      </textarea>
+  ) : (
+    <input
+      class="box"
+      id={id}
+      name={name}
+      type={type}
+      value={value}
+      autocomplete={autocomplete}
+      inputmode={inputmode}
+      maxlength={maxlength}
+      placeholder={placeholder}
+      required={required}
+      readonly={readonly}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={message ? noteId : undefined}
+      {...rest}
+    />
+  )}
+  {message && (
+    <div class="hint" id={noteId}>
+      {message}
+    </div>
+  )}
+</div>

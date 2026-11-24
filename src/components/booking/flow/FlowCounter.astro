@@ -1,0 +1,46 @@
+---
+// Penghitung jumlah (dewasa/anak). Tanpa JavaScript berupa kolom angka biasa (name=peserta/anak ikut terkirim);
+// dengan JavaScript tombol bulat muncul dan mengubah angkanya. Batas akhir tetap diputuskan server.
+import HFIcon from '../../hf/HFIcon.astro';
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  sub: string;
+  value: number;
+  min: number;
+  max: number;
+}
+const { id, name, label, sub, value, min, max } = Astro.props;
+---
+
+<div class="bf-cnt" data-bf-count={name}>
+  <label for={id}>
+    {label}
+    <small>{sub}</small>
+  </label>
+  <div class="ctl">
+    <button
+      type="button"
+      class="cb"
+      data-bf-step="-1"
+      aria-label={`Kurangi ${label.toLowerCase()}`}
+    >
+      <HFIcon name="minus" size={20} />
+    </button>
+    <input
+      class="cv"
+      id={id}
+      name={name}
+      type="number"
+      inputmode="numeric"
+      min={min}
+      max={max}
+      value={value}
+    />
+    <button type="button" class="cb" data-bf-step="1" aria-label={`Tambah ${label.toLowerCase()}`}>
+      <HFIcon name="plus" size={20} />
+    </button>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+---
+// Trip tidak ditemukan atau belum dibuka (alamat booking salah). Memakai header situs biasa seperti halaman
+// detail trip yang tidak ditemukan.
+import Public from '../../../layouts/Public.astro';
+import '../../../styles/pages/trip-detail.css';
+import HFNavRD from '../../hf/HFNavRD.astro';
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+---
+
+<Public title="Trip tidak ditemukan | Arunika Journey">
+  <HFNavRD tone="solid" cta="Lihat jadwal" ctaHref="/trips" />
+  <section class="td-missing">
+    <h1>Trip tidak ditemukan</h1>
+    <p>Trip yang Anda cari tidak ada atau belum dibuka. Lihat Open Trip yang tersedia.</p>
+    <HFArrowButton tone="dark" label="Lihat Open Trip" href="/trips" />
+  </section>
+</Public>
