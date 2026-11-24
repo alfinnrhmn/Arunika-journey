@@ -16,6 +16,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Menentukan job mana yang perlu jalan, agar perubahan kecil tidak memicu semua pemeriksaan.
+  # PR ke main selalu menjalankan semuanya (gerbang sebelum rilis).
+  changes:
+    name: Deteksi perubahan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      data: ${{ steps.f.outputs.data }}
+      infra: ${{ steps.f.outputs.infra }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: f
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          all() { echo "data=true" >> "$GITHUB_OUTPUT"; echo "infra=true" >> "$GITHUB_OUTPUT"; exit 0; }
+          if [ "$EVENT" = "pull_request" ] && [ "$BASE_REF" = "main" ]; then all; fi
+          if [ "$EVENT" = "workflow_dispatch" ]; then all; fi
+          if [ "$EVENT" = "pull_request" ]; then base="$PR_BASE"; else base="$PUSH_BEFORE"; fi
+          # Push pertama atau commit dasar tidak tersedia: anggap semua berubah.
+          if [ -z "$base" ] || echo "$base" | grep -qE '^0+$' || ! git cat-file -e "$base" 2>/dev/null; then all; fi
+          files="$(git diff --name-only "$base" "$GITHUB_SHA")"
+          echo "$files"
+          if echo "$files" | grep -qE '^(src/server/|src/features/|drizzle/|tests/integration/|scripts/|vitest\.integration\.config\.ts|package(-lock)?\.json)'; then
+            echo "data=true" >> "$GITHUB_OUTPUT"; else echo "data=false" >> "$GITHUB_OUTPUT"; fi
+          if echo "$files" | grep -qE '^(Dockerfile|entrypoint\.sh|docker-compose\.yml|\.dockerignore|deploy/|drizzle/|scripts/|package(-lock)?\.json)'; then
+            echo "infra=true" >> "$GITHUB_OUTPUT"; else echo "infra=false" >> "$GITHUB_OUTPUT"; fi
+
   verify:
     name: Lint, tipe, tes unit, build
     runs-on: ubuntu-latest
@@ -59,6 +94,8 @@ jobs:
 
   integration:
     name: Tes integrasi (PostgreSQL)
+    needs: changes
+    if: needs.changes.outputs.data == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -99,6 +136,8 @@ jobs:
 
   docker:
     name: Build dan jalankan image Docker
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
