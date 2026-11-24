@@ -759,47 +759,74 @@
   position: relative;
   background: var(--color-ink);
   color: var(--color-paper);
-  overflow: hidden;
+  /* clip, bukan hidden: hidden menjadikan section wadah scroll sehingga animasi view() pada gambar di dalamnya tidak pernah bergerak. */
+  overflow: clip;
 }
 .hp48 {
   position: relative;
   height: 780px;
 }
-.hp49 {
+/* Gambar di belakang teks: dibatasi selebar desain (1440px) dan ditaruh di tengah; ukuran proporsional. */
+.vimgs {
+  position: relative;
+  max-width: 1440px;
+  height: 100%;
+  margin-inline: auto;
+}
+.vimg {
   position: absolute;
-  left: 140px;
-  top: 96px;
-  width: 300px;
-  height: 400px;
+  width: 19%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
+}
+.hp49 {
+  left: 5%;
+  top: 96px;
 }
 .hp50 {
-  position: absolute;
-  left: 570px;
+  left: 28%;
   top: 230px;
-  width: 300px;
-  height: 400px;
-  overflow: hidden;
 }
 .hp51 {
-  position: absolute;
-  left: 1000px;
-  top: 130px;
-  width: 300px;
-  height: 400px;
-  overflow: hidden;
+  left: 51%;
+  top: 120px;
 }
+.hp51b {
+  left: 74%;
+  top: 250px;
+}
+/* Teks berjalan (marquee): dua grup identik, geser sejauh satu grup lalu ulang tanpa sambungan terlihat. */
 .hp52 {
   position: absolute;
-  left: -40px;
+  left: 0;
+  right: 0;
   top: 300px;
-  white-space: nowrap;
   font-family: var(--font-serif);
   font-weight: 300;
   font-size: 168px;
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--color-paper);
+}
+.mq-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: mq 60s linear infinite;
+}
+.mq-g {
+  white-space: nowrap;
+  flex: none;
+}
+@keyframes mq {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq-track {
+    animation: none;
+  }
 }
 .hp53 {
   padding: 40px 41px 146px;
