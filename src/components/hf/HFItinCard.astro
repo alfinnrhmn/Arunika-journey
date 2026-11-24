@@ -1,0 +1,183 @@
+---
+// Kartu itinerary Open Trip: slot gambar dengan badge opsional, lokasi + pin, judul serif, baris meta
+// (harga per orang, sudah termasuk PPN), tanggal berangkat + status kursi (ok | few | full), dan tombol
+// "Info lengkap". Memenuhi lebar induk.
+interface Props {
+  showbadge?: 'yes' | 'no';
+  status?: 'ok' | 'few' | 'full';
+  badge?: string;
+  where?: string;
+  title?: string;
+  meta?: string;
+  date?: string;
+  seats?: string;
+  href?: string;
+}
+const {
+  showbadge = 'no',
+  status = 'ok',
+  badge = 'Open Trip',
+  where = 'Jawa Timur',
+  title = 'Bromo Sunrise Experience',
+  meta = '2 hari 1 malam. Harga mulai dari Rp 1.250.000 / orang',
+  date = 'Berangkat Sab, 12 Des 2026',
+  seats = 'Sisa 9 kursi',
+  href = '/trips',
+} = Astro.props;
+---
+
+<article class="hf-itin" data-showbadge={showbadge} data-status={status}>
+  <div class="img">
+    <div class="slot">
+      <slot name="image" />
+    </div>
+    <span class="badge">{badge}</span>
+  </div>
+  <div class="body">
+    {where && (
+      <div class="where">
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M12 21s7-6.2 7-11.5a7 7 0 10-14 0C5 14.8 12 21 12 21z" />
+          <circle cx="12" cy="9.5" r="2.5" />
+        </svg>
+        <span>{where}</span>
+      </div>
+    )}
+    <h3>{title}</h3>
+    {meta && <p class="meta">{meta}</p>}
+    {(date || seats) && (
+      <div class="sched">
+        <span class="dt">{date}</span>
+        <span class="seat">{seats}</span>
+      </div>
+    )}
+    <a class="more" href={href}>
+      <span>Info lengkap</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .hf-itin {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--color-paper-2);
+    font-family: var(--font-ui);
+    color: var(--color-ink);
+  }
+  .hf-itin .img {
+    position: relative;
+    width: 100%;
+    height: 520px;
+    overflow: hidden;
+  }
+  .hf-itin .slot {
+    position: absolute;
+    inset: 0;
+  }
+  .hf-itin .badge {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    align-items: center;
+    height: 28px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hf-itin[data-showbadge='yes'] .badge {
+    display: inline-flex;
+  }
+  .hf-itin .body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 28px 28px 32px;
+  }
+  .hf-itin .where {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .hf-itin h3 {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    line-height: 36px;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .hf-itin .meta {
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--color-ink-2);
+  }
+  .hf-itin .sched {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-line);
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .hf-itin .seat {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--color-status-ok-soft);
+    color: var(--color-status-ok);
+  }
+  .hf-itin[data-status='few'] .seat {
+    background: var(--color-status-pending-soft);
+    color: var(--color-status-pending);
+  }
+  .hf-itin[data-status='full'] .seat {
+    background: var(--color-status-full-soft);
+    color: var(--color-status-full);
+  }
+  .hf-itin .more {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    margin-top: 8px;
+    padding: 0 24px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-ink-2);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-ink-2);
+    text-decoration: none;
+  }
+</style>
