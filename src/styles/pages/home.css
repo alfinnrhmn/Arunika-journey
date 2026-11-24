@@ -72,13 +72,6 @@
     transform: scaleX(1);
   }
 }
-/* Pembungkus foto latar section Destinasi: diskalakan GSAP mengikuti scroll (data-motion="zoom"). */
-.dzoom {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 50%;
-  will-change: transform;
-}
 .dbg {
   position: absolute;
   inset: 0;
@@ -434,22 +427,6 @@
     clip-path: inset(0 0 0% 0);
   }
 }
-@keyframes thumbOpen {
-  from {
-    clip-path: inset(14% 37.35% 14% 37.35% round 8px);
-  }
-  to {
-    clip-path: inset(0 0 0 0 round 0px);
-  }
-}
-@keyframes thumbImg {
-  from {
-    transform: scale(1.2);
-  }
-  to {
-    transform: scale(1);
-  }
-}
 @supports (animation-timeline: view()) {
   .rv {
     animation: rvIn linear both;
@@ -460,16 +437,6 @@
     animation: rvm linear both;
     animation-timeline: view();
     animation-range: entry 0% entry 80%;
-  }
-  .thumb-in {
-    animation: thumbOpen linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 100%;
-  }
-  .thumb-in img {
-    animation: thumbImg linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 100%;
   }
 }
 
