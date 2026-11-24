@@ -426,6 +426,17 @@
     transform: none;
   }
 }
+/* Seperti rvIn, tetapi berakhir di opacity .75: baris daftar penginapan memang dibuat redup pada desain. */
+@keyframes rvInDim {
+  from {
+    opacity: 0;
+    transform: translateY(44px);
+  }
+  to {
+    opacity: 0.75;
+    transform: none;
+  }
+}
 @keyframes rvm {
   from {
     clip-path: inset(0 0 100% 0);
@@ -444,6 +455,23 @@
     animation: rvm linear both;
     animation-timeline: view();
     animation-range: entry 0% entry 80%;
+  }
+  .rvd {
+    animation: rvInDim linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+}
+
+/* "Kurangi gerakan" (DS 18): semua elemen langsung tampil pada keadaan akhir, tanpa pergeseran dan tanpa parallax. */
+@media (prefers-reduced-motion: reduce) {
+  .rv,
+  .rvm,
+  .rvd {
+    animation: none;
+  }
+  .fpx {
+    transform: none;
   }
 }
 
@@ -989,6 +1017,7 @@
   opacity: 0.75;
 }
 .hp80 {
+  position: relative;
   flex: 1;
   height: 640px;
   overflow: hidden;
