@@ -473,7 +473,10 @@
 /* Gaya hasil konversi dari atribut style desain */
 .hp1 {
   position: relative;
-  height: 900px;
+  /* Hero memenuhi layar (tinggi viewport), bukan 900px tetap seperti frame desain. */
+  height: 100vh;
+  height: 100svh;
+  min-height: 620px;
   overflow: hidden;
   color: var(--color-paper);
 }
