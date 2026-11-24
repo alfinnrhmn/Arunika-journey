@@ -1,0 +1,42 @@
+---
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/trips-listing.css';
+import { getDb } from '../../server/db';
+import { listOpenTrips } from '../../features/trips/queries';
+import HFNavRD from '../../components/hf/HFNavRD.astro';
+import ListingHero from '../../components/trips/listing/ListingHero.astro';
+import ListingResults from '../../components/trips/listing/ListingResults.astro';
+import ListingLoadMore from '../../components/trips/listing/ListingLoadMore.astro';
+import ListingTestimonial from '../../components/trips/listing/ListingTestimonial.astro';
+import ListingTeam from '../../components/trips/listing/ListingTeam.astro';
+import ListingCta from '../../components/trips/listing/ListingCta.astro';
+
+const STEP = 12;
+const MAX = 100;
+
+// ?batas=24, 36, ... (kelipatan 12 dalam 12..100); nilai lain jatuh ke 12.
+function parseLimit(raw: string | null): number {
+  if (!raw || !/^\d{1,4}$/.test(raw)) return STEP;
+  const n = Number(raw);
+  if (n < STEP || n > MAX || n % STEP !== 0) return STEP;
+  return n;
+}
+const limit = parseLimit(Astro.url.searchParams.get('batas'));
+const { items, total } = await listOpenTrips(getDb(), { limit, offset: 0 });
+// Kelipatan 12 terbesar yang masih <= 100 adalah 96.
+const nextLimit = limit + STEP <= MAX ? limit + STEP : null;
+const moreHref = items.length < total && nextLimit ? `/trips?batas=${nextLimit}` : null;
+---
+
+<Public
+  title="Open Trip | Arunika Journey"
+  description="Jadwal Open Trip Arunika Journey: harga per orang sudah termasuk PPN, sisa kuota terlihat, booking dan DP langsung di website."
+>
+  <HFNavRD tone="solid" />
+  <ListingHero />
+  <ListingResults items={items} />
+  <ListingLoadMore shown={items.length} total={total} moreHref={moreHref} />
+  <ListingTestimonial />
+  <ListingTeam />
+  <ListingCta />
+</Public>

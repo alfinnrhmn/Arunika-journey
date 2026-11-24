@@ -1,0 +1,80 @@
+---
+// Sidebar filter (tampilan saja pada tahap ini; belum menyaring data). Akordeon memakai <details>.
+interface Props {
+  count: number;
+}
+const { count } = Astro.props;
+const categories = [
+  'Semua',
+  'Pasangan',
+  'Honeymoon',
+  'Anak kecil',
+  'Remaja',
+  'Keluarga',
+  'Solo',
+  'Pasangan muda',
+  'Premium',
+  'Alam & satwa',
+];
+const groups = [
+  'Lokasi',
+  'Bulan keberangkatan',
+  'Ketersediaan kuota',
+  'Durasi',
+  'Harga per orang',
+  'Pilihan Arunika',
+];
+---
+
+<aside class="tl5" aria-label="Filter trip">
+  <div class="tl6">
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <path d="M4 6h16M7 12h10M10 18h4"></path>
+    </svg>
+    <span>Filter trip</span>
+    <span class="tl7">{count}</span>
+  </div>
+  <div class="tl8">
+    <div class="tl9">Kategori</div>
+    <div class="tl10">
+      {categories.map((c, i) => (
+        <span class={i === 0 ? 'tl-chip on' : 'tl-chip'}>{c}</span>
+      ))}
+    </div>
+  </div>
+  {groups.map((g) => (
+    <details class="tl-acc-d">
+      <summary class="tl-acc">
+        <span>{g}</span>
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path class="tl-acc-v" d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+      </summary>
+      <p class="tl-acc-note">Penyaringan segera tersedia.</p>
+    </details>
+  ))}
+  <div class="tl11">
+    <a class="tl12" href="/trips">
+      Hapus semua filter
+    </a>
+  </div>
+</aside>
