@@ -1,11 +1,18 @@
 ---
 import '../styles/global.css';
+import HFFooterRD from '../components/hf/HFFooterRD.astro';
 
 interface Props {
   title: string;
   description?: string;
+  /** Alur fokus (booking, pembayaran) memakai header/footer sendiri. */
+  hideFooter?: boolean;
 }
-const { title, description = 'Arunika Journey: travel beyond the itinerary.' } = Astro.props;
+const {
+  title,
+  description = 'Arunika Journey: travel beyond the itinerary.',
+  hideFooter = false,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -17,7 +24,8 @@ const { title, description = 'Arunika Journey: travel beyond the itinerary.' } =
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href} />
     <title>{title}</title>
   </head>
-  <body class="bg-paper text-ink min-h-screen">
+  <body id="top">
     <slot />
+    {!hideFooter && <HFFooterRD />}
   </body>
 </html>

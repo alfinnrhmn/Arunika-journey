@@ -1,0 +1,26 @@
+---
+import { foto } from '../../lib/photo';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+---
+
+<section class="hp102">
+  <img class="cover hp103" src={foto('jip-4x4-bromo')} alt="Jip 4×4 melintasi lautan pasir Bromo" />
+  <div class="hp104"></div>
+  <div class="hp105">
+    <h2 class="hp106">
+      Pilih <i>petualanganmu</i>
+    </h2>
+    <p class="hp107">
+      Pilih jadwal sekarang atau tanya via WhatsApp. Toh, jurnal perjalananmu tidak akan menulis
+      dirinya sendiri.
+    </p>
+    <div class="hp108">
+      <div class="hp109">
+        <HFArrowButton href={'/trips'} label={'Lihat jadwal Open Trip'} tone={'light'} />
+      </div>
+      <a href="/private-trip/request" class="hp110">
+        Atau Request a Quote untuk Private Trip
+      </a>
+    </div>
+  </div>
+</section>

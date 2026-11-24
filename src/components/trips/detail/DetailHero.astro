@@ -1,0 +1,47 @@
+---
+// Hero foto penuh 900px: foto sampul, overlay gelap, nav overlay (CTA berlatar kertas), tombol kembali,
+// harga mulai dari, judul, dan baris meta. Semua dari data trip.
+import HFNavRD from '../../hf/HFNavRD.astro';
+import { photo } from '../../../lib/photo';
+import { formatDuration, formatRupiah } from '../../../lib/format';
+import type { TripDetail } from '../../../features/trips/queries';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+---
+
+<section class="td-hero">
+  {trip.coverPhoto && (
+    <img class="cover td-hero-img" src={photo(trip.coverPhoto)} alt={trip.title} />
+  )}
+  <div class="td-hero-shade"></div>
+  <HFNavRD tone="overlay" cta="Pilih tanggal" ctaHref="/trips" ctaTone="light" />
+  <a class="td-back" href="/trips">
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M19 12H5M11 6l-6 6 6 6"></path>
+    </svg>
+    Kembali ke Open Trip
+  </a>
+  <div class="td-hero-copy">
+    <div class="td-hero-price">Harga mulai dari {formatRupiah(trip.basePrice)} / orang</div>
+    <h1>{trip.title}</h1>
+    <div class="td-hero-meta">
+      {trip.where && <span>{trip.where}</span>}
+      <span>{formatDuration(trip.durationDays, trip.nights)}</span>
+      {trip.maxParticipants && <span>Maks {trip.maxParticipants} peserta</span>}
+      {trip.difficulty && <span>Tingkat: {trip.difficulty}</span>}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,63 @@
+---
+import { foto } from '../../lib/photo';
+import HFNavRD from '../hf/HFNavRD.astro';
+---
+
+<section class="hp1">
+  <div class="hs" id="hs">
+    <div class="hslide on">
+      <img src={foto('prambanan-fajar')} alt="Candi Prambanan menjulang dari kabut saat fajar" />
+    </div>
+    <div class="hslide">
+      <img src={foto('penanjakan-sunrise-grup')} alt="Rombongan menyaksikan fajar di Penanjakan" />
+    </div>
+    <div class="hslide">
+      <img
+        src={foto('sikunir-lautan-awan')}
+        alt="Lautan awan dari puncak bukit di Dieng saat fajar"
+      />
+    </div>
+    <div class="hslide">
+      <img src={foto('karimunjawa-pantai-perahu')} alt="Perahu kayu di pantai pasir putih" />
+    </div>
+  </div>
+  <div class="hp2"></div>
+  <HFNavRD />
+  <div class="hp3">
+    <h1 class="hp4">
+      Travel <i>beyond</i>
+      <br />
+      the itinerary
+    </h1>
+    <p class="hp5">
+      Perjalanan terorganisir, harga transparan, kuota terlihat. Open Trip dan Private Trip ke
+      Bromo, Dieng, Yogyakarta, dan Karimunjawa.
+    </p>
+  </div>
+  <div class="hp6">
+    <div class="hp7">
+      <span id="hlabel">Yogyakarta</span>
+      <span id="hnum" class="hp8">
+        01 / 04
+      </span>
+    </div>
+    <div id="hbar" class="hp9">
+      <span class="hseg run">
+        <i></i>
+      </span>
+      <span class="hseg">
+        <i></i>
+      </span>
+      <span class="hseg">
+        <i></i>
+      </span>
+      <span class="hseg">
+        <i></i>
+      </span>
+    </div>
+  </div>
+  <!-- Penanda gulir: ikon mouse di tengah, di antara deskripsi (kiri) dan nama destinasi (kanan). -->
+  <a href="#fam" class="hmouse" aria-label="Gulir ke bawah">
+    <span class="hmouse-w"></span>
+  </a>
+</section>

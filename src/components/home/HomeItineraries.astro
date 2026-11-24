@@ -1,0 +1,118 @@
+---
+import { foto } from '../../lib/photo';
+import HFItinCard from '../hf/HFItinCard.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+---
+
+<section class="hp39">
+  <span class="hand">Dapat inspirasi</span>
+  <h3 class="hp57">
+    Tukar buku panduan dengan <i>cerita yang baik</i>
+  </h3>
+  <p class="hp58">
+    Rasakan sendiri. Setiap itinerary berisi pengalaman yang tidak ada di buku panduan, tetapi akan
+    memenuhi halaman jurnal Anda. Berikut Open Trip terdekat. Harga mulai dari per orang, sisa kuota
+    terlihat di setiap jadwal.
+  </p>
+  <div class="hp59">
+    <div>
+      <HFItinCard href={'/trips/bromo-sunrise-experience'} showbadge={'yes'}>
+        <Fragment slot="image">
+          <img
+            class="cover"
+            src={foto('bromo-sunrise-grup')}
+            alt="Peserta Bromo Sunrise Experience menatap kaldera"
+          />
+        </Fragment>
+      </HFItinCard>
+    </div>
+    <div>
+      <HFItinCard
+        href={'/trips/bromo-sunrise-experience'}
+        date={'Berangkat Jum, 18 Des 2026'}
+        meta={'2 hari 1 malam. Harga mulai dari Rp 1.650.000 / orang'}
+        seats={'Sisa 6 kursi'}
+        showbadge={'yes'}
+        title={'Dieng Golden Sunrise'}
+        where={'Jawa Tengah'}
+      >
+        <Fragment slot="image">
+          <img
+            class="cover"
+            src={foto('dieng-sunrise-emas')}
+            alt="Dua pejalan di jalur Dieng saat fajar emas"
+          />
+        </Fragment>
+      </HFItinCard>
+    </div>
+    <div>
+      <HFItinCard
+        href={'/trips/bromo-sunrise-experience'}
+        date={'Berangkat Sab, 9 Jan 2027'}
+        meta={'3 hari 2 malam. Harga mulai dari Rp 1.450.000 / orang'}
+        seats={'Sisa 3 kursi'}
+        showbadge={'yes'}
+        status={'few'}
+        title={'Yogyakarta Heritage Weekend'}
+        where={'Yogyakarta'}
+      >
+        <Fragment slot="image">
+          <img
+            class="cover"
+            src={foto('jogja-gerbang-bata')}
+            alt="Perempuan melangkah di gerbang bata kuno"
+          />
+        </Fragment>
+      </HFItinCard>
+    </div>
+    <div>
+      <HFItinCard
+        href={'/trips/bromo-sunrise-experience'}
+        date={'Berangkat Sab, 23 Jan 2027'}
+        meta={'3 hari 2 malam. Harga mulai dari Rp 2.350.000 / orang'}
+        seats={'Sisa 8 kursi'}
+        title={'Karimunjawa Island Escape'}
+        where={'Jawa Tengah'}
+      >
+        <Fragment slot="image">
+          <img
+            class="cover"
+            src={foto('karimunjawa-pantai-perahu')}
+            alt="Perahu di pantai Karimunjawa"
+          />
+        </Fragment>
+      </HFItinCard>
+    </div>
+    <div>
+      <HFItinCard
+        href={'/trips/bromo-sunrise-experience'}
+        date={'Berangkat Sab, 6 Feb 2027'}
+        meta={'2 hari 1 malam. Harga mulai dari Rp 1.550.000 / orang'}
+        seats={'Sisa 10 kursi'}
+        title={'Ijen Blue Fire Sunrise'}
+      >
+        <Fragment slot="image">
+          <img class="cover" src={foto('ijen-api-biru')} alt="Api biru Ijen sebelum fajar" />
+        </Fragment>
+      </HFItinCard>
+    </div>
+    <div>
+      <HFItinCard
+        href={'/trips/bromo-sunrise-experience'}
+        date={'Berangkat Min, 14 Feb 2027'}
+        meta={'1 hari. Harga mulai dari Rp 650.000 / orang'}
+        seats={'Penuh'}
+        status={'full'}
+        title={'Borobudur Sunrise Day Trip'}
+        where={'Jawa Tengah'}
+      >
+        <Fragment slot="image">
+          <img class="cover" src={foto('borobudur-sunrise')} alt="Stupa Borobudur saat fajar" />
+        </Fragment>
+      </HFItinCard>
+    </div>
+  </div>
+  <div class="hp60">
+    <HFArrowButton href={'/trips'} label={'Lihat semua jadwal Open Trip'} tone={'dark'} />
+  </div>
+</section>

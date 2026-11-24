@@ -11,3 +11,10 @@ export function getDb() {
   pool ??= new Pool({ connectionString: url });
   return drizzle(pool, { schema });
 }
+
+/** Menutup koneksi (dipakai tes dan proses shutdown yang rapi). */
+export async function closeDb() {
+  const current = pool;
+  pool = undefined;
+  await current?.end();
+}

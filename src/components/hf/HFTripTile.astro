@@ -1,0 +1,150 @@
+---
+// Kartu foto penuh untuk daftar Open Trip: foto di slot, lencana opsional, lokasi, judul serif, baris meta,
+// tanggal berangkat + status kursi (ok | few | full). Seluruh kartu menjadi tautan. Kirim seats={null}
+// bila tidak ada jadwal terbuka agar lencana kursi tidak tampil.
+interface Props {
+  showbadge?: 'yes' | 'no';
+  status?: 'ok' | 'few' | 'full';
+  badge?: string;
+  where?: string;
+  title?: string;
+  meta?: string;
+  date?: string;
+  seats?: string | null;
+  href?: string;
+}
+const {
+  showbadge = 'no',
+  status = 'ok',
+  badge = 'Open Trip',
+  where = 'Jawa Timur',
+  title = 'Bromo Sunrise Experience',
+  meta = '2 hari 1 malam. Harga mulai dari Rp 1.250.000 / orang',
+  date = 'Berangkat Sab, 12 Des 2026',
+  seats = 'Sisa 9 kursi',
+  href = '/trips',
+} = Astro.props;
+---
+
+<a class="hf-tile" data-showbadge={showbadge} data-status={status} href={href}>
+  <div class="slot">
+    <slot name="image" />
+  </div>
+  <div class="shade"></div>
+  <span class="badge">{badge}</span>
+  <div class="txt">
+    {where && <div class="where">{where}</div>}
+    <h3>{title}</h3>
+    {meta && <div class="meta">{meta}</div>}
+    {(date || seats) && (
+      <div class="sched">
+        {date && <span class="dt">{date}</span>}
+        {seats && <span class="seat">{seats}</span>}
+      </div>
+    )}
+  </div>
+</a>
+
+<style>
+  .hf-tile {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 504/600;
+    overflow: hidden;
+    color: var(--color-paper);
+    font-family: var(--font-ui);
+  }
+  .hf-tile .slot {
+    position: absolute;
+    inset: 0;
+  }
+  .hf-tile .shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      transparent 38%,
+      color-mix(in srgb, var(--color-ink) 82%, transparent) 100%
+    );
+  }
+  .hf-tile .badge {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    background: var(--color-dawn-deep);
+    color: var(--color-paper);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hf-tile[data-showbadge='yes'] .badge {
+    display: inline-flex;
+  }
+  .hf-tile .txt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0 36px;
+    text-align: center;
+  }
+  .hf-tile .where {
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.02em;
+  }
+  .hf-tile h3 {
+    font-family: var(--font-serif);
+    font-size: 40px;
+    line-height: 42px;
+    font-weight: 300;
+    letter-spacing: -0.015em;
+  }
+  .hf-tile .meta {
+    font-size: 14px;
+    line-height: 20px;
+    opacity: 0.95;
+  }
+  .hf-tile .sched {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 20px;
+    opacity: 0.95;
+  }
+  .hf-tile .seat {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-status-ok-soft);
+    color: var(--color-status-ok);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .hf-tile[data-status='few'] .seat {
+    background: var(--color-status-pending-soft);
+    color: var(--color-status-pending);
+  }
+  .hf-tile[data-status='full'] .seat {
+    background: var(--color-status-full-soft);
+    color: var(--color-status-full);
+  }
+  .hf-tile {
+    text-decoration: none;
+  }
+</style>

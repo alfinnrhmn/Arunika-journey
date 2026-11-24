@@ -8,10 +8,12 @@
 @import '@fontsource/caveat/500.css';
 
 @layer base {
-  html {
+  /* Dasar situs publik mengikuti desain Doop: teks sekunder (ink-2) di atas kertas putih. */
+  body {
     background: var(--color-paper);
-    color: var(--color-ink);
+    color: var(--color-ink-2);
     font-family: var(--font-ui);
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
   }
   h1,
@@ -19,6 +21,9 @@
   h3 {
     font-family: var(--font-serif);
     font-weight: 300;
+  }
+  i {
+    font-style: italic;
   }
   :focus-visible {
     outline: 2px solid var(--color-ink);
@@ -32,5 +37,23 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* Gambar yang mengisi induk berukuran eksplisit (dipakai di slot kartu, hero, galeri). */
+  .cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Aksen tulisan tangan. */
+  .hand {
+    display: inline-block;
+    font-family: var(--font-hand);
+    font-size: var(--text-hand);
+    line-height: 1.1;
+    transform: rotate(-1deg);
+    color: var(--color-ink-2);
   }
 }

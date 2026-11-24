@@ -1,0 +1,171 @@
+---
+import { foto } from '../../lib/photo';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+---
+
+<section id="dst" class="hp19">
+  <img class="dbg on" src={foto('penanjakan-panorama')} alt="Panorama Bromo dari Penanjakan" />
+  <img
+    class="dbg"
+    src={foto('dieng-teras-kabut')}
+    alt="Teras kebun berkabut di dataran tinggi Dieng"
+  />
+  <img class="dbg" src={foto('prambanan-senja')} alt="Candi Prambanan saat senja" />
+  <img class="dbg" src={foto('sandbar-perahu')} alt="Perahu di sandbar pasir putih Karimunjawa" />
+  <img class="dbg" src={foto('kawah-ijen')} alt="Danau kawah Ijen berasap" />
+  <img class="dbg" src={foto('savana-banyuwangi')} alt="Savana kuning di bawah langit senja" />
+  <div class="hp20"></div>
+  <div class="dpan on hp21">
+    <div class="hp22">
+      <img
+        class="cover"
+        src={foto('bromo-tangga-batu')}
+        alt="Pendaki menaiki tangga batu menuju kawah Bromo"
+      />
+    </div>
+    <div class="hp23">
+      <img
+        class="cover"
+        src={foto('warga-tengger-bromo')}
+        alt="Warga Tengger menikmati minuman hangat di Bromo"
+      />
+    </div>
+    <div class="hp24">
+      <img class="cover" src={foto('roda-jip-pasir')} alt="Roda jip di lautan pasir Bromo" />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img class="cover" src={foto('sikunir-lautan-awan')} alt="Lautan awan dari puncak Sikunir" />
+    </div>
+    <div class="hp23">
+      <img class="cover" src={foto('kebun-teh')} alt="Kebun teh berundak di dataran tinggi" />
+    </div>
+    <div class="hp24">
+      <img
+        class="cover"
+        src={foto('dieng-sunrise-emas')}
+        alt="Dua pejalan di jalur Dieng saat fajar"
+      />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img class="cover" src={foto('borobudur-stupa')} alt="Stupa Borobudur berkabut" />
+    </div>
+    <div class="hp23">
+      <img class="cover" src={foto('prambanan-fajar')} alt="Prambanan saat fajar" />
+    </div>
+    <div class="hp24">
+      <img class="cover" src={foto('batik-tulis')} alt="Tangan menggambar batik tulis" />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img class="cover" src={foto('pulau-udara-perahu')} alt="Pulau Karimunjawa dari udara" />
+    </div>
+    <div class="hp23">
+      <img class="cover" src={foto('haluan-perahu-laut')} alt="Haluan perahu kayu di laut jernih" />
+    </div>
+    <div class="hp24">
+      <img class="cover" src={foto('senja-perahu-tenang')} alt="Perahu di laut tenang saat senja" />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img class="cover" src={foto('ijen-api-biru')} alt="Api biru Ijen pada malam hari" />
+    </div>
+    <div class="hp23">
+      <img
+        class="cover"
+        src={foto('pendaki-malam-headlamp')}
+        alt="Pendaki dengan headlamp di punggungan malam"
+      />
+    </div>
+    <div class="hp24">
+      <img class="cover" src={foto('ijen-kawah-pendaki')} alt="Pendaki di tepi kawah Ijen" />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img
+        class="cover"
+        src={foto('savana-pendaki-barisan')}
+        alt="Barisan pendaki menyeberangi savana"
+      />
+    </div>
+    <div class="hp23">
+      <img class="cover" src={foto('ubud-pendopo-sawah')} alt="Pendopo di tepi sawah berkabut" />
+    </div>
+    <div class="hp24">
+      <img class="cover" src={foto('sawah-teras-ubud')} alt="Sawah berteras di Ubud" />
+    </div>
+  </div>
+  <div class="hp26">
+    <div id="dcount" class="hp27">
+      Destinasi · 01 dari 06
+    </div>
+    <h2 id="dtitle" class="hp28">
+      Bromo
+    </h2>
+    <p id="ddesc" class="hp29">
+      Matahari terbit di atas lautan kabut, jip 4×4 melintasi lautan pasir, dan kawah yang masih
+      mengepulkan asap.
+    </p>
+    <div id="dbtn" class="hp30">
+      <HFArrowButton href={'/trips'} label={'Lihat trip ke Bromo'} tone={'light'} />
+    </div>
+  </div>
+  <div class="hp31">
+    <div id="dbar" class="hp32">
+      <div class="hp33">
+        <span class="hp34">01</span>Bromo
+      </div>
+      <div class="hp35">
+        <span class="hp36">02</span>Dieng
+      </div>
+      <div class="hp35">
+        <span class="hp36">03</span>Yogyakarta
+      </div>
+      <div class="hp35">
+        <span class="hp36">04</span>Karimunjawa
+      </div>
+      <div class="hp35">
+        <span class="hp36">05</span>Ijen
+      </div>
+      <div class="hp35">
+        <span class="hp36">06</span>Destinasi lainnya
+      </div>
+    </div>
+    <div id="darrows" class="hp37">
+      <span class="hp38">
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5M11 6l-6 6 6 6"></path>
+        </svg>
+      </span>
+      <span class="hp38">
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </span>
+    </div>
+  </div>
+</section>

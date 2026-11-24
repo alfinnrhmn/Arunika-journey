@@ -1,0 +1,29 @@
+---
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { photo } from '../../../lib/photo';
+import { whatsappHref } from './words';
+
+const WaTag = whatsappHref ? 'a' : 'span';
+---
+
+<section class="td-ask">
+  <div class="td-ask-text">
+    <span class="hand">Temui tim kami</span>
+    <h3>
+      Masih ada <i>pertanyaan</i> soal trip ini?
+    </h3>
+    <p>
+      Tanyakan soal kondisi fisik, penjemputan, atau menu makanan. Tim kami membalas selama jam
+      layanan, dan semua jawaban penting sudah tertulis di halaman ini.
+    </p>
+    <div class="td-ask-actions">
+      <HFArrowButton tone="outline" label="Ajukan pertanyaan" href="/contact" />
+      <WaTag class="td-link" href={whatsappHref}>
+        Tanya via WhatsApp
+      </WaTag>
+    </div>
+  </div>
+  <div class="td-ask-photo">
+    <img class="cover" src={photo('Ax465BK-8M.jpg')} alt="Tim Arunika" />
+  </div>
+</section>

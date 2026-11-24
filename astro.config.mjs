@@ -10,7 +10,14 @@ export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   integrations: [preact({ compat: true })],
   security: { checkOrigin: true },
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    // GSAP dimuat dengan import() dinamis (src/lib/motion), sehingga Vite baru "menemukannya" saat halaman
+    // pertama dibuka, lalu mengoptimasi ulang dan memuat ulang halaman; browser yang sudah terbuka bisa
+    // mendapat 504 "Outdated Optimize Dep" dan efek gerak mati diam-diam. Didaftarkan di sini agar dioptimasi
+    // sejak server dev dinyalakan. Hanya berlaku di mode dev.
+    optimizeDeps: { include: ['gsap', 'gsap/ScrollTrigger'] },
+  },
   env: {
     schema: {
       PUBLIC_SITE_URL: envField.string({

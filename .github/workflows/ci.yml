@@ -16,8 +16,43 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Menentukan job mana yang perlu jalan, agar perubahan kecil tidak memicu semua pemeriksaan.
+  # PR ke main selalu menjalankan semuanya (gerbang sebelum rilis).
+  changes:
+    name: Deteksi perubahan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      data: ${{ steps.f.outputs.data }}
+      infra: ${{ steps.f.outputs.infra }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: f
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          all() { echo "data=true" >> "$GITHUB_OUTPUT"; echo "infra=true" >> "$GITHUB_OUTPUT"; exit 0; }
+          if [ "$EVENT" = "pull_request" ] && [ "$BASE_REF" = "main" ]; then all; fi
+          if [ "$EVENT" = "workflow_dispatch" ]; then all; fi
+          if [ "$EVENT" = "pull_request" ]; then base="$PR_BASE"; else base="$PUSH_BEFORE"; fi
+          # Push pertama atau commit dasar tidak tersedia: anggap semua berubah.
+          if [ -z "$base" ] || echo "$base" | grep -qE '^0+$' || ! git cat-file -e "$base" 2>/dev/null; then all; fi
+          files="$(git diff --name-only "$base" "$GITHUB_SHA")"
+          echo "$files"
+          if echo "$files" | grep -qE '^(src/server/|src/features/|drizzle/|tests/integration/|scripts/|vitest\.integration\.config\.ts|package(-lock)?\.json)'; then
+            echo "data=true" >> "$GITHUB_OUTPUT"; else echo "data=false" >> "$GITHUB_OUTPUT"; fi
+          if echo "$files" | grep -qE '^(Dockerfile|entrypoint\.sh|docker-compose\.yml|\.dockerignore|deploy/|drizzle/|scripts/|package(-lock)?\.json)'; then
+            echo "infra=true" >> "$GITHUB_OUTPUT"; else echo "infra=false" >> "$GITHUB_OUTPUT"; fi
+
   verify:
-    name: Lint, tipe, tes, build
+    name: Lint, tipe, tes unit, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -34,13 +69,124 @@ jobs:
       # `npm ci` memasang persis sesuai lockfile; .npmrc mematikan skrip instalasi.
       - run: npm ci
 
+      # Tanda tangan yang TIDAK VALID menggagalkan build. Galat infrastruktur EMISSINGSIGNATUREKEY
+      # (kunci publik attestation tidak ditemukan; di runner galat ini muncul acak pada paket yang
+      # berbeda-beda, padahal paketnya sah dan lolos di lokal) hanya menjadi peringatan. Perlindungan
+      # utamanya tetap berjalan: `npm ci` memverifikasi hash integritas (sha512) tiap tarball di lockfile.
+      # Keputusan pemilik repo (A), 24 Nov 2026.
       - name: Verifikasi tanda tangan registry
-        run: npm audit signatures
+        run: |
+          node -v; npm -v
+          # Cache npm yang dipulihkan membawa metadata kunci (_tuf) lama; hapus agar kunci diambil baru.
+          rm -rf "$HOME/.npm/_tuf"
+          for i in 1 2 3; do
+            if out="$(npm audit signatures 2>&1)"; then echo "$out"; exit 0; fi
+            echo "$out"
+            last="$out"
+            echo "Percobaan $i gagal"; sleep 10
+          done
+          if echo "$last" | grep -q 'EMISSINGSIGNATUREKEY'; then
+            echo "::warning title=Verifikasi attestation tidak dapat diselesaikan::$(echo "$last" | tr '\n' ' ' | cut -c1-600)"
+            exit 0
+          fi
+          echo "::error title=npm audit signatures gagal::$(echo "$last" | tr '\n' ' ' | cut -c1-900)"
+          exit 1
 
       - name: Audit dependensi produksi (gagal bila ada temuan high ke atas)
         run: npm audit --omit=dev --audit-level=high
 
       - run: npm run check
+
+      # Skema TypeScript dan migrasi SQL harus selalu sinkron (seperti pemeriksaan OpenAPI di Stokpa).
+      - name: Verifikasi migrasi sinkron dengan skema
+        run: |
+          npx drizzle-kit check
+          npx drizzle-kit generate --name=ci_drift_check
+          if [ -n "$(git status --porcelain drizzle)" ]; then
+            echo "::error::Skema berubah tanpa migrasi. Jalankan npm run db:generate lalu commit hasilnya."
+            git status --porcelain drizzle
+            exit 1
+          fi
+
       - run: npm run lint
       - run: npm test
       - run: npm run build
+
+  integration:
+    name: Tes integrasi (PostgreSQL)
+    needs: changes
+    if: needs.changes.outputs.data == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:f9cf3e1f0066f0eb0c48707d864f0ac5941e9ff454a072077d97a4d278d07d73
+        env:
+          POSTGRES_USER: arunika
+          POSTGRES_PASSWORD: arunika-test-only
+          POSTGRES_DB: arunika_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U arunika -d arunika_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Database uji sekali pakai di dalam runner; namanya wajib mengandung "test".
+      TEST_DATABASE_URL: postgres://arunika:arunika-test-only@localhost:5432/arunika_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Jalankan tes integrasi
+        run: npm run test:integration -- --reporter=default --reporter=json --outputFile=vitest-integration.json
+
+      # Tes yang dilewati bukan bukti lulus: dianggap gagal.
+      - name: Pastikan tidak ada tes yang dilewati
+        run: node scripts/check-no-skips.mjs vitest-integration.json
+
+  docker:
+    name: Build dan jalankan image Docker
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Nilai contoh cukup: database dan rahasia ini hanya hidup selama job berjalan.
+      - name: Siapkan .env sementara
+        run: cp .env.example .env
+
+      - name: Build image dan jalankan bersama Postgres
+        run: docker compose --profile app up -d --build --wait
+
+      - name: Cek liveness dan readiness (termasuk database)
+        run: |
+          curl -fsS http://127.0.0.1:4321/healthz
+          curl -fsS http://127.0.0.1:4321/readyz
+
+      - name: Pastikan migrasi diterapkan oleh container
+        run: |
+          tables="$(docker compose exec -T postgres psql -U arunika -d arunika -tAc "select count(*) from information_schema.tables where table_schema='public'")"
+          echo "Jumlah tabel: $tables"
+          [ "$tables" -ge 30 ] || { echo "::error::Migrasi tidak diterapkan saat container start"; exit 1; }
+
+      - name: Log aplikasi bila gagal
+        if: failure()
+        run: docker compose --profile app logs --no-color
+
+      - name: Bersihkan
+        if: always()
+        run: docker compose --profile app down -v

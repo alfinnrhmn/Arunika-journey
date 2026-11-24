@@ -1,0 +1,18 @@
+---
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+
+interface Props {
+  shown: number;
+  total: number;
+  /** Tautan ke halaman dengan batas lebih besar; null bila semua sudah tampil. */
+  moreHref: string | null;
+}
+const { shown, total, moreHref } = Astro.props;
+---
+
+<div class="tl14">
+  {moreHref && <HFArrowButton tone="outline" label="Muat lebih banyak trip" href={moreHref} />}
+  <div class="tl15">
+    Menampilkan {shown} dari {total} trip
+  </div>
+</div>

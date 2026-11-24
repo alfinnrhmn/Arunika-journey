@@ -1,15 +1,39 @@
 ---
 import Public from '../layouts/Public.astro';
+import '../styles/pages/home.css';
+import HomeHero from '../components/home/HomeHero.astro';
+import HomeIntro from '../components/home/HomeIntro.astro';
+import HomeDestinations from '../components/home/HomeDestinations.astro';
+import HomeJournal from '../components/home/HomeJournal.astro';
+import HomeValues from '../components/home/HomeValues.astro';
+import HomeItineraries from '../components/home/HomeItineraries.astro';
+import HomeTestimonials from '../components/home/HomeTestimonials.astro';
+import HomeStays from '../components/home/HomeStays.astro';
+import HomeFieldwork from '../components/home/HomeFieldwork.astro';
+import HomeDivider from '../components/home/HomeDivider.astro';
+import HomeGallery from '../components/home/HomeGallery.astro';
+import HomeCta from '../components/home/HomeCta.astro';
 ---
 
-<Public title="Arunika Journey">
-  <main class="mx-auto flex min-h-screen max-w-page flex-col justify-center gap-6 px-6">
-    <p class="text-dawn-deep text-caption tracking-[0.14em] uppercase">Arunika Journey</p>
-    <h1 class="text-h1 md:text-display leading-[1.05]">
-      Travel <i>beyond</i> the itinerary
-    </h1>
-    <p class="text-ink-2 text-lead max-w-xl">
-      Kerangka proyek siap. Halaman publik dibangun mengikuti desain di Doop (Design V2).
-    </p>
-  </main>
+<Public
+  title="Arunika Journey | Travel beyond the itinerary"
+  description="Perjalanan terorganisir, harga transparan, kuota terlihat. Open Trip dan Private Trip ke Bromo, Dieng, Yogyakarta, dan Karimunjawa."
+>
+  <HomeHero />
+  <HomeIntro />
+  <HomeDestinations />
+  <HomeJournal />
+  <HomeValues />
+  <HomeItineraries />
+  <HomeTestimonials />
+  <HomeStays />
+  <HomeFieldwork />
+  <HomeDivider />
+  <HomeGallery />
+  <HomeCta />
 </Public>
+
+<script>
+  import '../scripts/home.js';
+  import '../scripts/motion';
+</script>

@@ -1,0 +1,67 @@
+---
+import { foto } from '../../lib/photo';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+---
+
+<section class="hp47">
+  <div class="hp48">
+    <h2 class="sr-only">Inti dari perjalananmu</h2>
+    <div class="vimgs">
+      <div class="hp49 vimg rvm">
+        <div class="fpx">
+          <img
+            class="cover"
+            src={foto('cemara-lodge-kamar')}
+            alt="Kamar kayu hangat menghadap hutan berkabut"
+          />
+        </div>
+      </div>
+      <div class="hp50 vimg rvm">
+        <div class="fpx">
+          <img
+            class="cover"
+            src={foto('hotel-heritage-teras')}
+            alt="Teras hotel heritage berhias tanaman"
+          />
+        </div>
+      </div>
+      <div class="hp51 vimg rvm">
+        <div class="fpx">
+          <img class="cover" src={foto('sarapan-teras')} alt="Sarapan sederhana di teras kayu" />
+        </div>
+      </div>
+      <div class="hp51b vimg rvm">
+        <div class="fpx">
+          <img
+            class="cover"
+            src={foto('ubud-pendopo-sawah')}
+            alt="Pendopo di tepi sawah berkabut"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="hp52" aria-hidden="true">
+      <div class="mq-track">
+        <div class="mq-g">
+          Inti dari <i>perjalananmu</i>&nbsp;&nbsp;Inti dari <i>perjalananmu</i>&nbsp;&nbsp;Inti
+          dari <i>perjalananmu</i>&nbsp;&nbsp;
+        </div>
+        <div class="mq-g" aria-hidden="true">
+          Inti dari <i>perjalananmu</i>&nbsp;&nbsp;Inti dari <i>perjalananmu</i>&nbsp;&nbsp;Inti
+          dari <i>perjalananmu</i>&nbsp;&nbsp;
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hp53">
+    <span class="hand hp54">Jadilah tamu kami</span>
+    <p class="hp55">
+      Dari homestay hangat di lereng gunung hingga hotel heritage di jantung kota, tempat menginap
+      di setiap trip kami dipilih dan dikunjungi langsung oleh tim. Untuk Private Trip, kami
+      menyesuaikannya dengan selera dan anggaran keluarga Anda.
+    </p>
+    <div class="hp56">
+      <HFArrowButton label={'Lihat tempat menginap'} tone={'light'} />
+    </div>
+  </div>
+</section>

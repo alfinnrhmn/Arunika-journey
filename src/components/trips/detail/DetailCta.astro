@@ -1,0 +1,24 @@
+---
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { photo } from '../../../lib/photo';
+---
+
+<section class="td-cta">
+  <img class="cover td-cta-img" src={photo('L1ROhOPFDQ.webp')} alt="Latar ajakan perjalanan" />
+  <div class="td-cta-shade"></div>
+  <div class="td-cta-body">
+    <h2>
+      Pilih <i>petualanganmu</i>
+    </h2>
+    <p>
+      Pilih jadwal sekarang atau tanya via WhatsApp. Toh, jurnal perjalananmu tidak akan menulis
+      dirinya sendiri.
+    </p>
+    <div class="td-cta-actions">
+      <HFArrowButton tone="light" label="Lihat jadwal Open Trip" href="/trips" />
+      <a class="td-link" href="/private-trip/request">
+        Atau Request a Quote untuk Private Trip
+      </a>
+    </div>
+  </div>
+</section>

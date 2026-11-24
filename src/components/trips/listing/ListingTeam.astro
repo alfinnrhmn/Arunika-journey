@@ -1,0 +1,26 @@
+---
+import { photo } from '../../../lib/photo';
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+---
+
+<section class="tl26">
+  <div class="tl27">
+    <span class="hand">Temui tim kami</span>
+    <h3 class="tl28">
+      Bicara dengan tim kami untuk <i>merencanakan</i> trip Anda
+    </h3>
+    <p class="tl29">
+      Belum menemukan tanggal atau rute yang pas? Tim kami meluangkan waktu untuk memahami apa yang
+      Anda cari, lalu membantu memilih Open Trip yang tepat atau menyusun Private Trip dari awal.
+    </p>
+    <div class="tl30">
+      <HFArrowButton tone={'dark'} label={'Ajukan pertanyaan'} href={'/contact'} />
+      <a class="tl31" href="/contact">
+        Tanya via WhatsApp
+      </a>
+    </div>
+  </div>
+  <div class="tl32">
+    <img class="cover" src={photo('hMxSHruhSI.jpg')} alt="Tim Arunika" />
+  </div>
+</section>

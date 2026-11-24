@@ -1,0 +1,50 @@
+---
+import { photo } from '../../../lib/photo';
+import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
+import { seatLabel } from '../../../features/schedules/seats';
+import type { TripCard } from '../../../features/trips/queries';
+import HFTripTile from '../../hf/HFTripTile.astro';
+import ListingSidebar from './ListingSidebar.astro';
+
+interface Props {
+  items: TripCard[];
+}
+const { items } = Astro.props;
+---
+
+<section class="tl4">
+  <ListingSidebar count={items.length} />
+  <div class="tl13">
+    {items.length === 0 && (
+      <p class="tl-empty">Belum ada Open Trip yang dibuka. Silakan kembali lagi tak lama lagi.</p>
+    )}
+    {items.map((card, i) => (
+      <HFTripTile
+        showbadge={card.badge ? 'yes' : 'no'}
+        badge={card.badge ?? undefined}
+        status={card.next?.status ?? 'ok'}
+        where={card.where ?? ''}
+        title={card.title}
+        meta={`${formatDuration(card.durationDays, card.nights)}. Harga mulai dari ${formatRupiah(card.basePrice)} / orang`}
+        date={
+          card.next
+            ? `Berangkat ${formatDateShort(card.next.departureDate)}`
+            : 'Belum ada jadwal terbuka'
+        }
+        seats={card.next ? seatLabel(card.next.seatsLeft) : null}
+        href={`/trips/${card.slug}`}
+      >
+        <Fragment slot="image">
+          {card.photo && (
+            <img
+              class="cover"
+              src={photo(card.photo)}
+              alt={card.title}
+              loading={i < 4 ? 'eager' : 'lazy'}
+            />
+          )}
+        </Fragment>
+      </HFTripTile>
+    ))}
+  </div>
+</section>

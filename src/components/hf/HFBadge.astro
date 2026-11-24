@@ -1,0 +1,57 @@
+---
+// Lencana pil kecil (huruf kapital, tracking lebar). tone: default (dawn) | ink | ok | pending | full |
+// outline | paper. Warna selalu disertai teks, jadi status tidak hanya dibedakan lewat warna.
+interface Props {
+  label?: string;
+  tone?: 'default' | 'ink' | 'ok' | 'pending' | 'full' | 'outline' | 'paper';
+}
+const { label = 'Sisa 9 kursi', tone = 'default' } = Astro.props;
+---
+
+<span class="hf-badge" data-tone={tone}>
+  <span>{label}</span>
+</span>
+
+<style>
+  .hf-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-ui);
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: var(--color-dawn-soft);
+    color: var(--color-dawn-deep);
+  }
+  .hf-badge[data-tone='ink'] {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .hf-badge[data-tone='ok'] {
+    background: var(--color-status-ok-soft);
+    color: var(--color-status-ok);
+  }
+  .hf-badge[data-tone='pending'] {
+    background: var(--color-status-pending-soft);
+    color: var(--color-status-pending);
+  }
+  .hf-badge[data-tone='full'] {
+    background: var(--color-status-full-soft);
+    color: var(--color-status-full);
+  }
+  .hf-badge[data-tone='outline'] {
+    background: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-line);
+  }
+  .hf-badge[data-tone='paper'] {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+</style>
