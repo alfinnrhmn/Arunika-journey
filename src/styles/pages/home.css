@@ -763,8 +763,11 @@
 }
 .hp44 {
   position: relative;
-  margin-top: 56px;
-  padding: 0 220px;
+  /* Dibatasi selebar desain (1440px) dan di tengah: di layar lebar daftar dan foto tetap berdekatan. */
+  max-width: 1440px;
+  margin: 56px auto 0;
+  /* 220px pada desain (1440px); di layar yang lebih sempit mengecil agar daftar tidak menempel ke foto. */
+  padding: 0 clamp(0px, calc(220px - (1440px - 100vw) * 0.8), 220px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1026,8 +1029,9 @@
   padding: 0 0 146px;
 }
 .hp82 {
-  padding: 0 41px;
-  max-width: 1000px;
+  /* Mulai dari tepi kiri grid desain (1440px di tengah), bukan tepi layar. */
+  padding-left: max(41px, calc((100% - 1440px) / 2 + 41px));
+  padding-right: 41px;
 }
 .hp83 {
   margin-top: 28px;
@@ -1040,7 +1044,7 @@
   margin-top: 64px;
   display: flex;
   gap: 20px;
-  padding-left: 41px;
+  padding-left: max(41px, calc((100% - 1440px) / 2 + 41px));
   overflow: hidden;
 }
 .hp85 {
