@@ -1,6 +1,66 @@
 ---
 import { foto } from '../../lib/photo';
 import HFArrowButton from '../hf/HFArrowButton.astro';
+
+// Satu sumber untuk baris daftar dan foto yang mengikuti kursor (kunci harus sama). Contoh isi: nama
+// dan foto penginapan akan diganti data klien (CMS) nanti.
+const utama = {
+  key: 'cemara',
+  img: 'cemara-lodge-kamar',
+  alt: 'Kamar kayu Cemara Hill Lodge menghadap hutan berkabut',
+};
+const lainnya = [
+  {
+    key: 'kolonial',
+    nama: 'Rumah Kolonial Kota Lama',
+    img: 'hotel-heritage-teras',
+    alt: 'Teras rumah kolonial berhias tanaman',
+  },
+  {
+    key: 'joglo',
+    nama: 'Joglo Taman Sari',
+    img: 'ubud-pendopo-sawah',
+    alt: 'Pendopo kayu di tepi sawah berkabut',
+  },
+  {
+    key: 'glamping',
+    nama: 'Glamping Pantai Karimun',
+    img: 'karimunjawa-pantai-perahu',
+    alt: 'Pantai pasir putih dengan perahu kayu',
+  },
+  {
+    key: 'embun',
+    nama: 'Pondok Embun Dieng',
+    img: 'dieng-teras-kabut',
+    alt: 'Teras kebun berkabut di dataran tinggi',
+  },
+  {
+    key: 'teh',
+    nama: 'Vila Kebun Teh',
+    img: 'kebun-teh',
+    alt: 'Kebun teh berundak di dataran tinggi',
+  },
+  {
+    key: 'savana',
+    nama: 'Camp Savana Baluran',
+    img: 'savana-banyuwangi',
+    alt: 'Savana kuning di bawah langit senja',
+  },
+  {
+    key: 'sawah',
+    nama: 'Omah Sawah Borobudur',
+    img: 'sawah-teras-ubud',
+    alt: 'Sawah berteras dengan petani',
+  },
+  { key: 'ijen', nama: 'Pondok Kawah Ijen', img: 'kawah-ijen', alt: 'Danau kawah Ijen berasap' },
+  {
+    key: 'pantai',
+    nama: 'Rumah Pantai Parangtritis',
+    img: 'banyuwangi-savana-pantai',
+    alt: 'Pantai berpasir gelap di bawah bukit savana',
+  },
+];
+const semua = [utama, ...lainnya];
 ---
 
 <section class="hp61">
@@ -15,9 +75,11 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     </p>
   </div>
   <div class="hp71">
-    <div class="hp72">
+    <div class="hp72" data-follow-list="#stay-follow">
       <div class="hp73 rv">
-        <div class="hp74">Cemara Hill Lodge</div>
+        <div class="hp74" data-follow={utama.key}>
+          Cemara Hill Lodge
+        </div>
         <div class="hp75">Bromo, Probolinggo</div>
         <p class="hp76">
           Lodge kecil berkamar enam di lereng, 20 menit dari titik pendakian Penanjakan. Hangat dan
@@ -27,15 +89,14 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
           <HFArrowButton label={'Info lengkap'} />
         </div>
       </div>
-      <div class="hp78 rvd">Rumah Kolonial Kota Lama</div>
-      <div class="hp78 rvd">Joglo Taman Sari</div>
-      <div class="hp78 rvd">Glamping Pantai Karimun</div>
-      <div class="hp78 rvd">Pondok Embun Dieng</div>
-      <div class="hp78 rvd">Vila Kebun Teh</div>
-      <div class="hp78 rvd">Camp Savana Baluran</div>
-      <div class="hp78 rvd">Omah Sawah Borobudur</div>
-      <div class="hp78 rvd">Pondok Kawah Ijen</div>
-      <div class="hp79 rvd">Rumah Pantai Parangtritis</div>
+      {lainnya.map((l, i) => (
+        <div
+          class={`${i === lainnya.length - 1 ? 'hp79' : 'hp78'} rvd hover-row`}
+          data-follow={l.key}
+        >
+          {l.nama}
+        </div>
+      ))}
     </div>
     <div class="hp80 rvm">
       <div class="fpx">
@@ -45,6 +106,15 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
           alt="Cemara Hill Lodge di lereng pada malam hari"
         />
       </div>
+    </div>
+  </div>
+  <!-- Foto yang mengikuti kursor saat kursor di nama penginapan (src/lib/motion/follow.ts). Gambar baru
+       diunduh saat daftar mendekati layar; di layar sentuh tidak tampil. -->
+  <div id="stay-follow" class="follow" aria-hidden="true">
+    <div class="follow-in">
+      {semua.map((l) => (
+        <img data-key={l.key} data-src={foto(l.img)} alt={l.alt} />
+      ))}
     </div>
   </div>
 </section>
