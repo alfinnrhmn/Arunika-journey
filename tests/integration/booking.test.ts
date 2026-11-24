@@ -22,6 +22,7 @@ import {
   expireHolds,
   findBookingByAccess,
   findBookingForLookup,
+  issueAccessToken,
   getBookingSettings,
   rejectPayment,
   saveDetails,
@@ -697,6 +698,20 @@ describe('keputusan admin atas bukti bayar', () => {
     const after = await reloadSchedule(b.schedule.id);
     expect(after.seatsTaken).toBe(2); // tetap tidak melebihi kapasitas
     expect((await reloadBooking(b.started.booking.id)).status).toBe('needs_attention');
+  });
+});
+
+describe('token akses', () => {
+  it('menerbitkan token baru dan mencabut yang lama', async () => {
+    const { started } = await bookingAwaitingVerification();
+    const code = started.booking.code;
+    const old = started.accessToken;
+    expect(await findBookingByAccess(db(), code, old)).not.toBeNull();
+
+    const fresh = await issueAccessToken(db(), started.booking.id);
+    expect(fresh).not.toBe(old);
+    expect((await findBookingByAccess(db(), code, fresh))?.code).toBe(code);
+    expect(await findBookingByAccess(db(), code, old)).toBeNull();
   });
 });
 

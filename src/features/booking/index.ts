@@ -9,3 +9,5 @@ export * from './proof';
 export * from './expire';
 export * from './verify';
 export * from './status';
+export * from './http';
+export * from './housekeeping';

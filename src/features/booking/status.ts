@@ -8,7 +8,7 @@ import {
   tripSchedules,
   trips,
 } from '../../server/db/schema';
-import { hashToken } from './draft';
+import { hashToken, newToken } from './draft';
 import { normalizePhone } from './schemas';
 
 /**
@@ -152,4 +152,20 @@ export async function findBookingForLookup(
   const phoneOk = !!last4 && last4.length === 4 && normalizePhone(row.phone).endsWith(last4);
   if (!emailOk && !phoneOk) return null;
   return viewOf(db, row.id);
+}
+
+/**
+ * Menerbitkan token akses baru untuk sebuah booking dan MENCABUT yang lama (hanya hash yang tersimpan, jadi
+ * token mentah tidak bisa dipulihkan). Dipakai setelah Cek Status berhasil memverifikasi pelanggan (kode +
+ * email/4 digit WhatsApp), supaya ia bisa membuka halaman pesanan dan mengunggah bukti dari perangkat baru.
+ * Pemanggil memasang token ini di cookie akses (lihat http.ts). Perangkat lain yang masih memegang token
+ * lama kehilangan akses dan harus memverifikasi lagi lewat Cek Status.
+ */
+export async function issueAccessToken(db: Executor, bookingId: string) {
+  const token = newToken();
+  await db
+    .update(bookings)
+    .set({ accessTokenHash: hashToken(token) })
+    .where(eq(bookings.id, bookingId));
+  return token;
 }
