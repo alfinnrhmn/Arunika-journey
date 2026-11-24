@@ -604,21 +604,56 @@
   display: flex;
   gap: 8px;
 }
-.hp10 {
-  margin-top: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  font-size: 13px;
-  letter-spacing: 0.04em;
+/* Ikon mouse penanda gulir di tengah bawah hero: sejajar dengan blok teks kiri dan blok destinasi kanan. */
+.hmouse {
+  position: absolute;
+  left: 50%;
+  bottom: 112px;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 46px;
+  border: 1.5px solid var(--color-paper);
+  border-radius: 14px;
   opacity: 0.9;
+  transition: opacity 0.3s ease;
 }
-.hp11 {
-  display: block;
-  width: 56px;
-  height: 1px;
+.hmouse:hover {
+  opacity: 1;
+}
+.hmouse:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 6px;
+}
+.hmouse-w {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 3px;
+  height: 8px;
+  margin-left: -1.5px;
+  border-radius: 2px;
   background: var(--color-paper);
+  animation: hmouse 1.9s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+}
+@keyframes hmouse {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  65%,
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hmouse-w {
+    animation: none;
+    opacity: 1;
+  }
 }
 .hp12 {
   background: var(--color-paper);
