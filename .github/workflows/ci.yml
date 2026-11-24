@@ -74,6 +74,8 @@ jobs:
       - name: Verifikasi tanda tangan registry
         run: |
           node -v; npm -v
+          # Cache npm yang dipulihkan membawa metadata kunci (_tuf) lama; hapus agar kunci diambil baru.
+          rm -rf "$HOME/.npm/_tuf"
           for i in 1 2 3; do
             if out="$(npm audit signatures 2>&1)"; then echo "$out"; exit 0; fi
             echo "$out"
