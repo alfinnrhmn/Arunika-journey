@@ -25,3 +25,6 @@ screenshot-*
 deploy/.env
 deploy/backups/
 !.env.release.example
+
+# Foto situs (hasil konversi aset Stitch): repo publik hanya berisi kode, foto tidak ikut naik.
+/public/foto/
