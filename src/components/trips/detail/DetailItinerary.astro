@@ -2,7 +2,7 @@
 // Itinerary: judul dari durasi lalu satu <details> per entri (baris pertama terbuka). Foto entri dipakai
 // skrip trip-detail.js (atribut data-img) untuk tip foto yang mengikuti kursor.
 import HFIcon from '../../hf/HFIcon.astro';
-import { photo } from '../../../lib/photo';
+import { mediaUrl } from '../../../lib/photo';
 import type { TripDetail } from '../../../features/trips/queries';
 import { itineraryHeading } from './words';
 
@@ -30,7 +30,7 @@ const paragraphs = (text: string | null) => (text ?? '').split(/\n{2,}/).filter(
     <details
       class="td-row td-iti-row"
       open={i === 0}
-      data-img={e.photo ? photo(e.photo) : undefined}
+      data-img={e.photo ? mediaUrl(e.photo) : undefined}
     >
       <summary>
         <div class="td-pills">
@@ -60,7 +60,7 @@ const paragraphs = (text: string | null) => (text ?? '').split(/\n{2,}/).filter(
               <div class="td-stay">
                 <div class="td-stay-img">
                   {e.lodging.photo && (
-                    <img class="cover" src={photo(e.lodging.photo)} alt={e.lodging.name} />
+                    <img class="cover" src={mediaUrl(e.lodging.photo)} alt={e.lodging.name} />
                   )}
                 </div>
                 <b class="td-stay-name">{e.lodging.name}</b>
