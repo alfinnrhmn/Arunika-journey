@@ -1,0 +1,700 @@
+/* Halaman Trip Detail (desktop). Diport dari frame Doop "Trip Detail / Desktop"; gaya inline desain
+   dijadikan kelas td-*. Gaya bersama (.cover, .hand, reset) ada di global.css. */
+
+/* ---- Hero ---- */
+.td-hero {
+  position: relative;
+  height: 900px;
+  overflow: hidden;
+  color: var(--color-paper);
+  background: var(--color-night);
+}
+.td-hero-img {
+  position: absolute;
+  inset: 0;
+}
+.td-hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-night) 66%, transparent) 0%,
+    color-mix(in srgb, var(--color-night) 30%, transparent) 28%,
+    color-mix(in srgb, var(--color-night) 28%, transparent) 55%,
+    color-mix(in srgb, var(--color-night) 82%, transparent) 100%
+  );
+}
+.td-back {
+  position: absolute;
+  left: 41px;
+  top: 112px;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 18px 0 14px;
+  border-radius: 19px;
+  background: color-mix(in srgb, var(--color-night) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-paper) 30%, transparent);
+  font-size: 13px;
+  color: inherit;
+  text-decoration: none;
+}
+.td-hero-copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 84px;
+  text-align: center;
+}
+.td-hero-price {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 34px;
+  opacity: 0.85;
+}
+.td-hero h1 {
+  margin-top: 14px;
+  font-size: var(--text-display);
+  line-height: 0.94;
+  letter-spacing: -0.025em;
+  color: var(--color-paper);
+}
+.td-hero-meta {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+/* ---- Breadcrumb ---- */
+.td-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 60px;
+  padding: 0 41px;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 13px;
+  color: var(--color-ink-2);
+}
+.td-crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+.td-crumb-now {
+  opacity: 0.6;
+}
+
+/* ---- Dua kolom ---- */
+.td-main {
+  display: flex;
+  gap: 80px;
+  align-items: flex-start;
+  padding: 96px 41px 110px;
+}
+.td-left {
+  flex: 1;
+  min-width: 0;
+}
+.td-lead {
+  margin-top: 18px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 34px;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+  white-space: pre-line;
+}
+.td-values {
+  margin-top: 40px;
+  display: flex;
+  gap: 40px;
+}
+.td-value {
+  flex: 1;
+  font-size: 14px;
+  line-height: 22px;
+}
+.td-value b {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.td-iti-head {
+  margin-top: 80px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.td-sub-h {
+  margin-top: 10px;
+  font-size: var(--text-subdisplay);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-2);
+}
+.td-iti {
+  position: relative;
+  margin-top: 36px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+/* ---- Baris itinerary / info (details) ---- */
+.td-row {
+  padding: 28px 0;
+  border-top: 1px solid var(--color-line);
+}
+.td-row[data-first] {
+  border-top: 0;
+}
+.td-row[data-last] {
+  border-bottom: 1px solid var(--color-line);
+}
+.td-row > summary {
+  display: block;
+  list-style: none;
+  cursor: pointer;
+}
+.td-row > summary::-webkit-details-marker {
+  display: none;
+}
+.td-iti-row {
+  transition: background 0.2s;
+}
+.td-pills {
+  display: flex;
+  gap: 10px;
+}
+.td-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 15px;
+  background: var(--color-paper-2);
+  font-size: 12px;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+.td-dtitle {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 16px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 42px;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+}
+.td-row > summary:hover .td-dtitle {
+  color: var(--color-ink);
+}
+.td-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-ink-2);
+  color: var(--color-paper);
+  flex-shrink: 0;
+}
+.td-row[open] .td-ic-plus,
+.td-row:not([open]) .td-ic-minus {
+  display: none;
+}
+.td-row-body {
+  margin-top: 24px;
+  padding-left: 60px;
+  font-size: 16px;
+  line-height: 26px;
+  max-width: 620px;
+}
+.td-row-body p + p {
+  margin-top: 12px;
+}
+.td-stay-h {
+  margin-top: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+.td-stay {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--color-line);
+}
+.td-stay-img {
+  width: 130px;
+  height: 88px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-paper-2);
+}
+.td-stay-name {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 26px;
+  color: var(--color-ink);
+}
+
+/* ---- Tip foto yang mengikuti kursor (dibuat oleh trip-detail.js) ---- */
+#tip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 190px;
+  height: 240px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  border: 6px solid var(--color-paper);
+  transform-origin: center;
+  will-change: transform;
+}
+#tip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- Fasilitas & eksklusi ---- */
+.td-ie {
+  margin-top: 28px;
+  display: flex;
+  gap: 48px;
+  padding-left: 60px;
+}
+.td-ie-col {
+  flex: 1;
+  font-size: 15px;
+  line-height: 24px;
+}
+.td-ie-col b {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.td-ie-col[data-kind='in'] b,
+.td-ie-col[data-kind='in'] .td-ie-item {
+  color: var(--color-status-ok);
+}
+.td-ie-col[data-kind='out'] b,
+.td-ie-col[data-kind='out'] .td-ie-item {
+  color: var(--color-status-full);
+}
+.td-ie-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.td-ie-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.td-ie-item span {
+  color: var(--color-ink-2);
+}
+.td-faq + .td-faq {
+  margin-top: 20px;
+}
+.td-faq b {
+  display: block;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ---- Kartu pemesanan ---- */
+.td-book {
+  flex: 0 0 440px;
+  padding: 32px;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-line);
+}
+.td-cap {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.td-book-price {
+  margin-top: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.td-book-amount {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 48px;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+.td-book-per {
+  font-size: 14px;
+}
+.td-book-note {
+  margin-top: 6px;
+  font-size: 13px;
+}
+.td-label {
+  margin-top: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.td-scheds {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.td-sched {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-line);
+}
+.td-sched[data-state='selected'] {
+  background: var(--color-dawn-soft);
+  border-color: var(--color-dawn);
+}
+.td-sched[data-state='full'] {
+  opacity: 0.65;
+}
+.td-radio {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink-2);
+}
+.td-sched[data-state='selected'] .td-radio {
+  border: 5px solid var(--color-ink);
+  background: var(--color-paper);
+}
+.td-sched[data-state='full'] .td-radio {
+  border-color: var(--color-line);
+}
+.td-sched-t {
+  flex: 1;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink);
+}
+.td-sched-t b {
+  font-weight: 600;
+}
+.td-sched[data-state='full'] .td-sched-t b {
+  text-decoration: line-through;
+}
+.td-sched-t small {
+  font-size: 12px;
+  color: var(--color-ink-2);
+}
+.td-qty {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.td-qty-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.td-qty-ctl {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.td-qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-ink-2);
+  color: var(--color-ink);
+}
+.td-qty-n {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--color-ink);
+  min-width: 24px;
+  text-align: center;
+}
+.td-quota {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-status-ok);
+  font-weight: 600;
+}
+.td-quota[data-tone='pending'] {
+  color: var(--color-status-pending);
+}
+.td-quota[data-tone='full'] {
+  color: var(--color-status-full);
+}
+.td-ps {
+  margin-top: 22px;
+}
+.td-vat {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--color-ink-2);
+}
+.td-full {
+  margin-top: 20px;
+}
+.td-full a.hf-ab {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.td-closed {
+  margin-top: 28px;
+}
+.td-closed p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.td-closed-h {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 34px;
+  color: var(--color-ink);
+}
+.td-wa {
+  margin-top: 16px;
+  text-align: center;
+}
+.td-link {
+  display: inline-block;
+  font-size: 14px;
+  border-bottom: 1px solid var(--color-ink-2);
+  padding-bottom: 3px;
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.td-wa .td-link {
+  color: inherit;
+}
+.td-trust {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 18px;
+}
+.td-trust > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ---- Testimoni ---- */
+.td-voices {
+  padding: 0 0 146px;
+}
+.td-voices > h3 {
+  text-align: center;
+  font-size: var(--text-subdisplay);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+}
+.td-voice {
+  margin: 56px 41px 0;
+  position: relative;
+  height: 640px;
+  background: var(--color-dawn);
+  color: var(--color-paper);
+  overflow: hidden;
+}
+.td-voice-q {
+  position: absolute;
+  left: 96px;
+  top: 88px;
+  width: 700px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--text-quote);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.td-voice-by {
+  position: absolute;
+  left: 96px;
+  bottom: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--color-ink);
+}
+.td-voice-by b {
+  font-weight: 600;
+}
+.td-voice-pager {
+  position: absolute;
+  left: 560px;
+  bottom: 56px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: var(--color-paper);
+}
+.td-voice-pager > span:first-child {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.td-voice-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--color-paper);
+}
+.td-voice-photo {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 470px;
+  height: 640px;
+}
+
+/* ---- Pertanyaan ---- */
+.td-ask {
+  display: flex;
+  align-items: center;
+  gap: 96px;
+  padding: 0 41px 146px;
+}
+.td-ask-text {
+  flex: 1;
+  max-width: 620px;
+}
+.td-ask-text h3 {
+  margin-top: 16px;
+  font-size: var(--text-subdisplay);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+}
+.td-ask-text p {
+  margin-top: 28px;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--color-ink-2);
+}
+.td-ask-actions {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.td-ask-photo {
+  flex: 0 0 560px;
+  height: 640px;
+  overflow: hidden;
+}
+
+/* ---- CTA besar ---- */
+.td-cta {
+  position: relative;
+  height: 720px;
+  overflow: hidden;
+  color: var(--color-paper);
+  text-align: center;
+}
+.td-cta-img {
+  position: absolute;
+  inset: 0;
+}
+.td-cta-shade {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-ink) 42%, transparent);
+}
+.td-cta-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 170px;
+}
+.td-cta h2 {
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-paper);
+}
+.td-cta p {
+  margin-top: 28px;
+  max-width: 520px;
+  font-size: 20px;
+  line-height: 30px;
+  opacity: 0.95;
+}
+.td-cta-actions {
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.td-cta-actions .td-link {
+  color: var(--color-paper);
+  border-bottom-color: var(--color-paper);
+}
+
+/* ---- Tidak ditemukan ---- */
+.td-missing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 160px 41px;
+  text-align: center;
+}
+.td-missing h1 {
+  font-size: var(--text-title);
+  color: var(--color-ink);
+}

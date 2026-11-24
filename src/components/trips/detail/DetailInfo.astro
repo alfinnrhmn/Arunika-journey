@@ -1,0 +1,147 @@
+---
+// Bagian info di bawah itinerary: Fasilitas & eksklusi (terbuka) dan tiga akordeon (meeting point,
+// kebijakan, FAQ). Semuanya <details> sungguhan.
+import HFIcon from '../../hf/HFIcon.astro';
+import type { TripDetail } from '../../../features/trips/queries';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+const meeting = trip.meetingPoint?.trim() || 'Titik kumpul: [diisi klien]';
+---
+
+<details class="td-row" data-first open>
+  <summary>
+    <div class="td-pills">
+      <span class="td-pill">Info</span>
+      <span class="td-pill">Termasuk dan tidak termasuk</span>
+    </div>
+    <div class="td-dtitle">
+      <span class="td-dot">
+        <span class="td-ic-minus">
+          <HFIcon name="minus" size={20} />
+        </span>
+        <span class="td-ic-plus">
+          <HFIcon name="plus" size={20} />
+        </span>
+      </span>
+      Fasilitas &amp; eksklusi
+    </div>
+  </summary>
+  <div class="td-ie">
+    <div class="td-ie-col" data-kind="in">
+      <b>Termasuk</b>
+      <div class="td-ie-list">
+        {trip.includes.map((t) => (
+          <div class="td-ie-item">
+            <HFIcon name="check" size={20} />
+            <span>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="td-ie-col" data-kind="out">
+      <b>Tidak termasuk</b>
+      <div class="td-ie-list">
+        {trip.excludes.map((t) => (
+          <div class="td-ie-item">
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+            <span>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</details>
+
+<details class="td-row">
+  <summary>
+    <div class="td-pills">
+      <span class="td-pill">Info</span>
+      <span class="td-pill">Titik kumpul</span>
+    </div>
+    <div class="td-dtitle">
+      <span class="td-dot">
+        <span class="td-ic-minus">
+          <HFIcon name="minus" size={20} />
+        </span>
+        <span class="td-ic-plus">
+          <HFIcon name="plus" size={20} />
+        </span>
+      </span>
+      Meeting point dan penjemputan
+    </div>
+  </summary>
+  <div class="td-row-body">
+    <p>{meeting}</p>
+  </div>
+</details>
+
+<details class="td-row">
+  <summary>
+    <div class="td-pills">
+      <span class="td-pill">Info</span>
+      <span class="td-pill">Ketentuan</span>
+    </div>
+    <div class="td-dtitle">
+      <span class="td-dot">
+        <span class="td-ic-minus">
+          <HFIcon name="minus" size={20} />
+        </span>
+        <span class="td-ic-plus">
+          <HFIcon name="plus" size={20} />
+        </span>
+      </span>
+      Kebijakan batal &amp; keselamatan
+    </div>
+  </summary>
+  <div class="td-row-body">
+    <p>
+      Kebijakan batal tertulis ditampilkan sebelum pembayaran. Angka refund: [ditentukan klien].
+    </p>
+  </div>
+</details>
+
+<details class="td-row" data-last>
+  <summary>
+    <div class="td-pills">
+      <span class="td-pill">Info</span>
+      <span class="td-pill">FAQ</span>
+    </div>
+    <div class="td-dtitle">
+      <span class="td-dot">
+        <span class="td-ic-minus">
+          <HFIcon name="minus" size={20} />
+        </span>
+        <span class="td-ic-plus">
+          <HFIcon name="plus" size={20} />
+        </span>
+      </span>
+      Pertanyaan yang sering muncul
+    </div>
+  </summary>
+  <div class="td-row-body">
+    {trip.faqs.length ? (
+      trip.faqs.map((f) => (
+        <div class="td-faq">
+          <b>{f.question}</b>
+          <p>{f.answer}</p>
+        </div>
+      ))
+    ) : (
+      <p>Belum ada pertanyaan yang dicantumkan untuk trip ini.</p>
+    )}
+  </div>
+</details>

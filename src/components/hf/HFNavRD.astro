@@ -6,8 +6,15 @@ interface Props {
   tone?: 'overlay' | 'solid';
   cta?: string;
   ctaHref?: string;
+  /** light: CTA berlatar kertas dengan teks ink, agar kontras di atas foto hero. */
+  ctaTone?: 'default' | 'light';
 }
-const { tone = 'overlay', cta = 'Lihat jadwal', ctaHref = '/trips' } = Astro.props;
+const {
+  tone = 'overlay',
+  cta = 'Lihat jadwal',
+  ctaHref = '/trips',
+  ctaTone = 'default',
+} = Astro.props;
 ---
 
 <header class="hf-rdn" data-tone={tone}>
@@ -25,7 +32,7 @@ const { tone = 'overlay', cta = 'Lihat jadwal', ctaHref = '/trips' } = Astro.pro
     <a class="st" href="/cek-status">
       Cek Status Booking
     </a>
-    <a class="pill" href={ctaHref}>
+    <a class="pill" data-cta-tone={ctaTone} href={ctaHref}>
       {cta}
     </a>
   </div>
@@ -99,6 +106,11 @@ const { tone = 'overlay', cta = 'Lihat jadwal', ctaHref = '/trips' } = Astro.pro
     background: color-mix(in srgb, var(--color-paper) 20%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-paper) 35%, transparent);
     font-weight: 600;
+  }
+  .hf-rdn .pill[data-cta-tone='light'] {
+    background: var(--color-paper);
+    border-color: var(--color-paper);
+    color: var(--color-ink);
   }
   .hf-rdn[data-tone='solid'] .pill {
     background: var(--color-ink);

@@ -1,0 +1,149 @@
+---
+// Kartu pemesanan 440px (dirender di server; island interaktif menyusul di langkah booking): harga mulai
+// dari, daftar jadwal sebagai baris mirip radio, jumlah peserta (tampilan 2), pesan kuota, ringkasan
+// harga dari calcPrice, tombol booking. Tanpa jadwal terbuka: keadaan "Belum ada jadwal terbuka".
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import HFBadge from '../../hf/HFBadge.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import HFPriceSummary from '../../hf/HFPriceSummary.astro';
+import { calcPrice } from '../../../features/pricing/pricing';
+import { seatLabel } from '../../../features/schedules/seats';
+import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
+import type { TripDetail } from '../../../features/trips/queries';
+import { whatsappHref } from './words';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+
+/** Persentase DP awal (30). Nilai sebenarnya dari tabel `settings` (`dp_percent`); kueri pengaturan menyusul. */
+const DP_PERCENT = 30;
+/** Jumlah peserta awal pada kartu (hanya tampilan; pilihan interaktif dibuat di langkah booking). */
+const DEFAULT_PARTICIPANTS = 2;
+
+const selected = trip.schedules.find((s) => s.bookable) ?? null;
+const price = selected
+  ? calcPrice({
+      unitPrice: selected.price,
+      childPrice: null,
+      adults: DEFAULT_PARTICIPANTS,
+      dpPercent: DP_PERCENT,
+    })
+  : null;
+
+const tone = { ok: 'ok', few: 'pending', full: 'full' } as const;
+const duration = formatDuration(trip.durationDays, trip.nights);
+
+let quota: { tone: 'ok' | 'pending' | 'full'; text: string } | null = null;
+if (selected) {
+  quota =
+    selected.seatsLeft >= DEFAULT_PARTICIPANTS
+      ? { tone: 'ok', text: `Kuota tersedia untuk ${DEFAULT_PARTICIPANTS} peserta` }
+      : { tone: 'pending', text: `Hanya tersisa ${selected.seatsLeft} kursi untuk jadwal ini` };
+}
+
+const bookHref = selected
+  ? `/booking/${trip.slug}/jadwal?jadwal=${selected.id}&peserta=${DEFAULT_PARTICIPANTS}`
+  : '';
+const WaTag = whatsappHref ? 'a' : 'span';
+---
+
+<aside class="td-book" aria-label="Pemesanan">
+  <div class="td-cap">Harga mulai dari</div>
+  <div class="td-book-price">
+    <span class="td-book-amount">{formatRupiah(trip.basePrice)}</span>
+    <span class="td-book-per">/ orang</span>
+  </div>
+  <div class="td-book-note">
+    Harga per orang. DP {DP_PERCENT}%. Penahanan kursi: [dikonfirmasi klien].
+  </div>
+
+  {trip.schedules.length > 0 && (
+    <>
+      <div class="td-label">Pilih tanggal</div>
+      <div class="td-scheds">
+        {trip.schedules.map((s) => (
+          <div
+            class="td-sched"
+            data-state={
+              s.status === 'full' || !s.bookable
+                ? 'full'
+                : s.id === selected?.id
+                  ? 'selected'
+                  : 'idle'
+            }
+          >
+            <span class="td-radio" aria-hidden="true" />
+            <div class="td-sched-t">
+              <b>{formatDateShort(s.departureDate)}</b>
+              <br />
+              <small>{duration}</small>
+            </div>
+            <HFBadge label={seatLabel(s.seatsLeft)} tone={tone[s.status]} />
+          </div>
+        ))}
+      </div>
+    </>
+  )}
+
+  {selected && price && quota ? (
+    <>
+      <div class="td-qty">
+        <span class="td-qty-label">Jumlah peserta</span>
+        <div class="td-qty-ctl">
+          <span class="td-qty-btn" aria-hidden="true">
+            <HFIcon name="minus" size={20} />
+          </span>
+          <span class="td-qty-n">{DEFAULT_PARTICIPANTS}</span>
+          <span class="td-qty-btn" aria-hidden="true">
+            <HFIcon name="plus" size={20} />
+          </span>
+        </div>
+      </div>
+      <div class="td-quota" data-tone={quota.tone}>
+        <HFIcon name={quota.tone === 'ok' ? 'check' : 'users'} size={20} />
+        {quota.text}
+      </div>
+      <div class="td-ps">
+        <HFPriceSummary price={price} />
+        <div class="td-vat">Harga sudah termasuk PPN</div>
+      </div>
+      <div class="td-full">
+        <HFArrowButton tone="dark" label="Lanjut booking" href={bookHref} />
+      </div>
+    </>
+  ) : (
+    <div class="td-closed">
+      <div class="td-closed-h">Belum ada jadwal terbuka</div>
+      <p>
+        Jadwal baru untuk trip ini belum dibuka. Ajukan Private Trip untuk tanggal dan rombongan
+        pilihan Anda.
+      </p>
+      <div class="td-full">
+        <HFArrowButton tone="dark" label="Request a Quote" href="/private-trip/request" />
+      </div>
+      <div class="td-vat">Harga sudah termasuk PPN</div>
+    </div>
+  )}
+
+  <div class="td-wa">
+    <WaTag class="td-link" href={whatsappHref}>
+      Tanya via WhatsApp
+    </WaTag>
+  </div>
+  <div class="td-trust">
+    <div>
+      <HFIcon name="shield" size={20} />
+      <span>Legalitas usaha: [diisi klien]</span>
+    </div>
+    <div>
+      <HFIcon name="file" size={20} />
+      <span>Kebijakan batal tertulis sebelum Anda bayar</span>
+    </div>
+    <div>
+      <HFIcon name="check" size={20} />
+      <span>Cek Status Booking: Pending Payment atau Confirmed</span>
+    </div>
+  </div>
+</aside>

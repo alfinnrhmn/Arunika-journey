@@ -1,0 +1,74 @@
+---
+// Itinerary: judul dari durasi lalu satu <details> per entri (baris pertama terbuka). Foto entri dipakai
+// skrip trip-detail.js (atribut data-img) untuk tip foto yang mengikuti kursor.
+import HFIcon from '../../hf/HFIcon.astro';
+import { photo } from '../../../lib/photo';
+import type { TripDetail } from '../../../features/trips/queries';
+import { itineraryHeading } from './words';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+const heading = itineraryHeading(trip.durationDays, trip.nights);
+const dayLabel = (e: (typeof trip.itinerary)[number]) =>
+  `Hari ${e.dayNumber}${e.timeLabel ? ` · ${e.timeLabel}` : ''}`;
+const paragraphs = (text: string | null) => (text ?? '').split(/\n{2,}/).filter(Boolean);
+---
+
+<div class="td-iti-head">
+  <div>
+    <span class="hand">Itinerary</span>
+    <h3 class="td-sub-h">
+      {heading.lead}
+      <i>{heading.em}</i>
+    </h3>
+  </div>
+</div>
+<div id="iti" class="td-iti">
+  {trip.itinerary.map((e, i) => (
+    <details
+      class="td-row td-iti-row"
+      open={i === 0}
+      data-img={e.photo ? photo(e.photo) : undefined}
+    >
+      <summary>
+        <div class="td-pills">
+          <span class="td-pill">{dayLabel(e)}</span>
+          {e.place && <span class="td-pill">{e.place}</span>}
+        </div>
+        <div class="td-dtitle">
+          <span class="td-dot">
+            <span class="td-ic-minus">
+              <HFIcon name="minus" size={20} />
+            </span>
+            <span class="td-ic-plus">
+              <HFIcon name="plus" size={20} />
+            </span>
+          </span>
+          {e.title}
+        </div>
+      </summary>
+      {(e.body || e.lodging) && (
+        <div class="td-row-body">
+          {paragraphs(e.body).map((p) => (
+            <p>{p}</p>
+          ))}
+          {e.lodging && (
+            <>
+              <div class="td-stay-h">Menginap di</div>
+              <div class="td-stay">
+                <div class="td-stay-img">
+                  {e.lodging.photo && (
+                    <img class="cover" src={photo(e.lodging.photo)} alt={e.lodging.name} />
+                  )}
+                </div>
+                <b class="td-stay-name">{e.lodging.name}</b>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </details>
+  ))}
+</div>

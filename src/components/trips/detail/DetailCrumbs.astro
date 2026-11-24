@@ -1,0 +1,24 @@
+---
+import type { TripDetail } from '../../../features/trips/queries';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+---
+
+<nav class="td-crumbs" aria-label="Breadcrumb">
+  <a href="/dokumentasi">Destinasi</a>
+  <span aria-hidden="true">›</span>
+  {trip.where && (
+    <>
+      <span>{trip.where}</span>
+      <span aria-hidden="true">›</span>
+    </>
+  )}
+  <a href="/trips">Open Trip</a>
+  <span aria-hidden="true">›</span>
+  <span class="td-crumb-now" aria-current="page">
+    {trip.title}
+  </span>
+</nav>

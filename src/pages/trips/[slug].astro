@@ -1,0 +1,60 @@
+---
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/trip-detail.css';
+import HFNavRD from '../../components/hf/HFNavRD.astro';
+import HFArrowButton from '../../components/hf/HFArrowButton.astro';
+import DetailHero from '../../components/trips/detail/DetailHero.astro';
+import DetailCrumbs from '../../components/trips/detail/DetailCrumbs.astro';
+import DetailOverview from '../../components/trips/detail/DetailOverview.astro';
+import DetailItinerary from '../../components/trips/detail/DetailItinerary.astro';
+import DetailInfo from '../../components/trips/detail/DetailInfo.astro';
+import DetailBooking from '../../components/trips/detail/DetailBooking.astro';
+import DetailVoices from '../../components/trips/detail/DetailVoices.astro';
+import DetailAsk from '../../components/trips/detail/DetailAsk.astro';
+import DetailCta from '../../components/trips/detail/DetailCta.astro';
+import { getDb } from '../../server/db';
+import { getTripDetail } from '../../features/trips/queries';
+
+const { slug } = Astro.params;
+const trip = slug ? await getTripDetail(getDb(), slug) : null;
+if (!trip) Astro.response.status = 404;
+
+const title = trip ? `${trip.title} | Arunika Journey` : 'Trip tidak ditemukan | Arunika Journey';
+const description = trip
+  ? (trip.summary ?? trip.tagline ?? trip.description ?? '').slice(0, 160) ||
+    `Open Trip ${trip.title}: jadwal, harga transparan, dan kuota terlihat.`
+  : 'Trip yang Anda cari tidak ditemukan atau belum dibuka.';
+---
+
+<Public title={title} description={description}>
+  {trip ? (
+    <>
+      <DetailHero trip={trip} />
+      <DetailCrumbs trip={trip} />
+      <section class="td-main">
+        <div class="td-left">
+          <DetailOverview trip={trip} />
+          <DetailItinerary trip={trip} />
+          <DetailInfo trip={trip} />
+        </div>
+        <DetailBooking trip={trip} />
+      </section>
+      <DetailVoices />
+      <DetailAsk />
+      <DetailCta />
+    </>
+  ) : (
+    <>
+      <HFNavRD tone="solid" cta="Lihat jadwal" ctaHref="/trips" />
+      <section class="td-missing">
+        <h1>Trip tidak ditemukan</h1>
+        <p>Trip yang Anda cari tidak ada atau belum dibuka. Lihat Open Trip yang tersedia.</p>
+        <HFArrowButton tone="dark" label="Lihat Open Trip" href="/trips" />
+      </section>
+    </>
+  )}
+</Public>
+
+<script>
+  import '../../scripts/trip-detail.js';
+</script>

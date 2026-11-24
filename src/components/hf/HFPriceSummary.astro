@@ -1,0 +1,122 @@
+---
+// Ringkasan harga (rincian per jenis peserta, total, DP, sisa). Berdata: menerima hasil `calcPrice`
+// (dihitung di server). Semua harga sudah termasuk PPN, jadi tidak ada baris pajak. Memenuhi lebar induk.
+import { formatRupiah } from '../../lib/format';
+import type { PriceResult } from '../../features/pricing/pricing';
+
+interface Props {
+  price: PriceResult;
+  heading?: string;
+  /** Teks baris biaya tambahan; bawaan "Tidak ada". */
+  extraLabel?: string;
+  /** Catatan di bawah sisa pelunasan (jadwal pelunasan belum ditentukan klien). */
+  balanceNote?: string;
+}
+const {
+  price,
+  heading = 'Rincian harga',
+  extraLabel = 'Tidak ada',
+  balanceNote = 'dilunasi sesuai jadwal pelunasan [diisi klien].',
+} = Astro.props;
+---
+
+<div class="hf-ps">
+  <div class="hf-ps-h">{heading}</div>
+  {price.lines.map((l) => (
+    <div class="row">
+      <span>
+        {formatRupiah(l.unitPrice)} × {l.qty} {l.label === 'Anak' ? 'anak' : 'peserta'}
+      </span>
+      <span>{formatRupiah(l.amount)}</span>
+    </div>
+  ))}
+  <div class="row">
+    <span>Biaya tambahan</span>
+    <span>{extraLabel}</span>
+  </div>
+  <div class="row total">
+    <span>Total</span>
+    <strong>{formatRupiah(price.total)}</strong>
+  </div>
+  <div class="dp">
+    <div class="row">
+      <span>DP ({price.dpPercent}%)</span>
+      <strong>{formatRupiah(price.dp)}</strong>
+    </div>
+    <p>
+      Sisa {formatRupiah(price.balance)} {balanceNote}
+    </p>
+  </div>
+</div>
+
+<style>
+  .hf-ps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding: 24px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xs);
+    font-family: var(--font-ui);
+    color: var(--color-ink);
+  }
+  .hf-ps-h {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .hf-ps .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-ink-2);
+  }
+  .hf-ps .row span:last-child {
+    color: var(--color-ink);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .hf-ps .total {
+    padding-top: 12px;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-ink);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .hf-ps .total strong {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    line-height: 32px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .hf-ps .dp {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: var(--radius-xs);
+    background: var(--color-dawn-soft);
+  }
+  .hf-ps .dp .row {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .hf-ps .dp strong {
+    font-size: 18px;
+    line-height: 24px;
+    white-space: nowrap;
+  }
+  .hf-ps .dp p {
+    font-size: 12.5px;
+    line-height: 18px;
+    color: var(--color-ink-2);
+  }
+</style>
