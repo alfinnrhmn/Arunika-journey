@@ -1,5 +1,5 @@
 ---
-import { photo } from '../../lib/photo';
+import { foto } from '../../lib/photo';
 import HFItinCard from '../hf/HFItinCard.astro';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
@@ -18,7 +18,11 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <div>
       <HFItinCard href={'/trips/bromo-sunrise-experience'} showbadge={'yes'}>
         <Fragment slot="image">
-          <img class="cover" src={photo('WUXFlkNxGB.jpg')} alt="Bromo Sunrise Experience" />
+          <img
+            class="cover"
+            src={foto('bromo-sunrise-grup')}
+            alt="Peserta Bromo Sunrise Experience menatap kaldera"
+          />
         </Fragment>
       </HFItinCard>
     </div>
@@ -33,7 +37,11 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         where={'Jawa Tengah'}
       >
         <Fragment slot="image">
-          <img class="cover" src={photo('ie18zR4FP3.jpg')} alt="Dieng Golden Sunrise" />
+          <img
+            class="cover"
+            src={foto('dieng-sunrise-emas')}
+            alt="Dua pejalan di jalur Dieng saat fajar emas"
+          />
         </Fragment>
       </HFItinCard>
     </div>
@@ -49,7 +57,11 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         where={'Yogyakarta'}
       >
         <Fragment slot="image">
-          <img class="cover" src={photo('zoV0_r58Qo.jpg')} alt="Yogyakarta Heritage Weekend" />
+          <img
+            class="cover"
+            src={foto('jogja-gerbang-bata')}
+            alt="Perempuan melangkah di gerbang bata kuno"
+          />
         </Fragment>
       </HFItinCard>
     </div>
@@ -63,7 +75,11 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         where={'Jawa Tengah'}
       >
         <Fragment slot="image">
-          <img class="cover" src={photo('DGHK98shYt.jpg')} alt="Karimunjawa Island Escape" />
+          <img
+            class="cover"
+            src={foto('karimunjawa-pantai-perahu')}
+            alt="Perahu di pantai Karimunjawa"
+          />
         </Fragment>
       </HFItinCard>
     </div>
@@ -76,7 +92,7 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         title={'Ijen Blue Fire Sunrise'}
       >
         <Fragment slot="image">
-          <img class="cover" src={photo('tWUmhvsHku.jpg')} alt="Ijen Blue Fire Sunrise" />
+          <img class="cover" src={foto('ijen-api-biru')} alt="Api biru Ijen sebelum fajar" />
         </Fragment>
       </HFItinCard>
     </div>
@@ -91,7 +107,7 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         where={'Jawa Tengah'}
       >
         <Fragment slot="image">
-          <img class="cover" src={photo('O3pRkMFOdB.jpg')} alt="Borobudur Sunrise Day Trip" />
+          <img class="cover" src={foto('borobudur-sunrise')} alt="Stupa Borobudur saat fajar" />
         </Fragment>
       </HFItinCard>
     </div>
