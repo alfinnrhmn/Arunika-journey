@@ -72,6 +72,13 @@
     transform: scaleX(1);
   }
 }
+/* Pembungkus foto latar section Destinasi: diskalakan GSAP mengikuti scroll (data-motion="zoom"). */
+.dzoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
 .dbg {
   position: absolute;
   inset: 0;

@@ -4,12 +4,20 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
 <section id="dst" class="hp19">
-  <img class="dbg on" src={photo('_jOuphaFXK.webp')} alt="Panorama destinasi" />
-  <img class="dbg" src={photo('UKC-V0YGdo.jpg')} alt="Dataran tinggi berkabut" />
-  <img class="dbg" src={photo('AuaJr2d8Yj.jpg')} alt="Senja di balik pulau berpalem" />
-  <img class="dbg" src={photo('-12f39P6ZX.jpg')} alt="Pulau kecil berhutan dari udara" />
-  <img class="dbg" src={photo('kMG6Ggfz-2.jpg')} alt="Gunung berapi dengan padang savana" />
-  <img class="dbg" src={photo('Ax4ePGh09L.jpg')} alt="Pantai pasir putih di antara pulau karang" />
+  <!-- Foto latar membesar mengikuti scroll (src/lib/motion). Pembungkus ini yang diskalakan, bukan fotonya,
+       agar efek zoom-out bawaan tiap slide tetap berjalan. -->
+  <div class="dzoom" data-motion="zoom" data-zoom-to="1.22">
+    <img class="dbg on" src={photo('_jOuphaFXK.webp')} alt="Panorama destinasi" />
+    <img class="dbg" src={photo('UKC-V0YGdo.jpg')} alt="Dataran tinggi berkabut" />
+    <img class="dbg" src={photo('AuaJr2d8Yj.jpg')} alt="Senja di balik pulau berpalem" />
+    <img class="dbg" src={photo('-12f39P6ZX.jpg')} alt="Pulau kecil berhutan dari udara" />
+    <img class="dbg" src={photo('kMG6Ggfz-2.jpg')} alt="Gunung berapi dengan padang savana" />
+    <img
+      class="dbg"
+      src={photo('Ax4ePGh09L.jpg')}
+      alt="Pantai pasir putih di antara pulau karang"
+    />
+  </div>
   <div class="hp20"></div>
   <div class="dpan on hp21">
     <div class="hp22">
