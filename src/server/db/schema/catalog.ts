@@ -76,6 +76,10 @@ export const trips = pgTable(
     basePrice: idr('base_price'),
     childPrice: idr('child_price'),
     meetingPoint: text('meeting_point'),
+    /** Tingkat kesulitan untuk ditampilkan, mis. "ringan sampai sedang". */
+    difficulty: text('difficulty'),
+    /** Lencana opsional di kartu, mis. "Terlaris". Diatur dari CMS; kosong = tanpa lencana. */
+    badge: text('badge'),
     summary: text('summary'),
     description: text('description'),
     defaultCapacity: integer('default_capacity'),
@@ -108,6 +112,12 @@ export const tripItineraryDays = pgTable(
     title: text('title').notNull(),
     body: text('body'),
     items: jsonb('items').$type<{ time?: string; text: string }[]>(),
+    /** Satu baris itinerary = satu kegiatan: hari ke-n, jam, tempat, foto, dan (opsional) penginapan. */
+    dayNumber: smallint('day_number').notNull().default(1),
+    timeLabel: text('time_label'),
+    place: text('place'),
+    mediaId: uuid('media_id').references(() => media.id, { onDelete: 'set null' }),
+    lodging: jsonb('lodging').$type<{ name: string; mediaId?: string }>(),
   },
   (t) => [unique('trip_itinerary_days_pos_unique').on(t.tripId, t.position)],
 );

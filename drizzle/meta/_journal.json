@@ -29,6 +29,13 @@
       "when": 1795426618848,
       "tag": "0003_audit_logs_immutable",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795490611508,
+      "tag": "0004_itinerary_entries",
+      "breakpoints": true
     }
   ]
 }
