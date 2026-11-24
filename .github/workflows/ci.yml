@@ -69,8 +69,11 @@ jobs:
       # `npm ci` memasang persis sesuai lockfile; .npmrc mematikan skrip instalasi.
       - run: npm ci
 
-      # Diulang hingga 3 kali karena registry kadang gagal sesaat. Tanda tangan yang memang tidak valid
-      # gagal di semua percobaan, jadi pemeriksaan tetap efektif. Pesan galat dimunculkan sebagai anotasi.
+      # Tanda tangan yang TIDAK VALID menggagalkan build. Galat infrastruktur EMISSINGSIGNATUREKEY
+      # (kunci publik attestation tidak ditemukan; di runner galat ini muncul acak pada paket yang
+      # berbeda-beda, padahal paketnya sah dan lolos di lokal) hanya menjadi peringatan. Perlindungan
+      # utamanya tetap berjalan: `npm ci` memverifikasi hash integritas (sha512) tiap tarball di lockfile.
+      # Keputusan pemilik repo (A), 24 Nov 2026.
       - name: Verifikasi tanda tangan registry
         run: |
           node -v; npm -v
@@ -79,9 +82,13 @@ jobs:
           for i in 1 2 3; do
             if out="$(npm audit signatures 2>&1)"; then echo "$out"; exit 0; fi
             echo "$out"
-            echo "Percobaan $i gagal; mengulang dalam 15 detik"
-            last="$out"; sleep 15
+            last="$out"
+            echo "Percobaan $i gagal"; sleep 10
           done
+          if echo "$last" | grep -q 'EMISSINGSIGNATUREKEY'; then
+            echo "::warning title=Verifikasi attestation tidak dapat diselesaikan::$(echo "$last" | tr '\n' ' ' | cut -c1-600)"
+            exit 0
+          fi
           echo "::error title=npm audit signatures gagal::$(echo "$last" | tr '\n' ' ' | cut -c1-900)"
           exit 1
 
