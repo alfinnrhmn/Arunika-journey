@@ -116,6 +116,10 @@
 .dfill.run {
   animation: dfill 5.2s linear forwards;
 }
+/* Di luar layar bar dijeda, jadi destinasi tidak berganti sebelum dilihat. */
+#dst.dpaused .dfill {
+  animation-play-state: paused;
+}
 @keyframes dfill {
   from {
     width: 0;
@@ -530,7 +534,8 @@
 }
 .hp12 {
   background: var(--color-paper);
-  padding: 168px 0 146px;
+  /* Tanpa padding bawah: gambar gunung di ujung section menempel langsung ke section Destinasi. */
+  padding: 168px 0 0;
 }
 .hp13 {
   /* Komposisi dibatasi selebar desain (1440px) dan ditaruh di tengah: di layar lebar foto dan teks
@@ -560,7 +565,10 @@
 }
 .hp19 {
   position: relative;
-  height: 900px;
+  /* Satu layar penuh (bukan 900px tetap seperti frame desain); minimal 720px agar isinya tidak berdesakan. */
+  height: 100vh;
+  height: 100svh;
+  min-height: 720px;
   overflow: hidden;
   background: var(--color-ink);
   color: var(--color-paper);

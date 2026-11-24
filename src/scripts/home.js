@@ -8,9 +8,6 @@
     $$ = function (s, r) {
       return Array.prototype.slice.call((r || document).querySelectorAll(s));
     };
-  function scrollable() {
-    return document.documentElement.scrollHeight > window.innerHeight + 80;
-  }
   function setText(box, txt) {
     var w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT),
       n;
@@ -63,7 +60,7 @@
   var ht = setInterval(function () {
     hshow(hi + 1);
   }, 6000);
-  /* 2. destinations: swaps on scroll (production: pinned like Kudanil); auto-plays when the page cannot scroll */
+  /* 2. destinations: pindah otomatis saat bar progres penuh (animationend); jeda saat section di luar layar */
   var D = [
     {
       t: 'Bromo',
@@ -96,6 +93,7 @@
       b: 'Request a Quote',
     },
   ];
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
   var dbg = $$('.dbg'),
     dpan = $$('.dpan'),
     bar = $$('#dbar>div'),
@@ -108,7 +106,11 @@
     b.appendChild(f);
     b.addEventListener('click', function () {
       dgo(i);
-      resetAuto();
+    });
+    f.addEventListener('animationend', function () {
+      // Bar penuh: lanjut ke destinasi berikutnya. Dengan "kurangi gerakan" animasi selesai seketika, jadi
+      // tidak ada pergantian otomatis (hanya manual lewat bar dan panah).
+      if (!calm.matches && i === di) dgo(di + 1);
     });
   });
   function dgo(n) {
@@ -151,35 +153,21 @@
     ar.children[1].style.cursor = 'pointer';
     ar.children[0].addEventListener('click', function () {
       dgo(di - 1);
-      resetAuto();
     });
     ar.children[1].addEventListener('click', function () {
       dgo(di + 1);
-      resetAuto();
     });
   }
-  var da;
-  function resetAuto() {
-    clearInterval(da);
-    da = setInterval(function () {
-      if (!scrollable()) dgo(di + 1);
-    }, 5200);
-  }
-  resetAuto();
-  dgo(0);
-  window.addEventListener(
-    'scroll',
-    function () {
-      if (!scrollable()) return;
-      var r = $('#dst').getBoundingClientRect(),
-        vh = window.innerHeight;
-      if (r.bottom < 0 || r.top > vh) return;
-      var p = Math.min(0.999, Math.max(0, (vh - r.top) / (vh + r.height)));
-      var n = Math.floor(p * D.length);
-      if (n !== di) dgo(n);
+  /* Bar progres hanya berjalan saat section Destinasi terlihat; di luar layar dijeda. */
+  var dst = $('#dst');
+  dst.classList.add('dpaused');
+  new IntersectionObserver(
+    function (es) {
+      dst.classList.toggle('dpaused', !es[0].isIntersecting);
     },
-    { passive: true },
-  );
+    { threshold: 0.4 },
+  ).observe(dst);
+  dgo(0);
   /* 3. parallax inside the A family affair images (Kudanil ParallaxImage, eased) */
   var L = $$('.fpx').map(function (e) {
     return { el: e, y: 0 };
