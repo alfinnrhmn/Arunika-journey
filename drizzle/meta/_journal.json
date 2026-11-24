@@ -36,6 +36,13 @@
       "when": 1795490611508,
       "tag": "0004_itinerary_entries",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795507316262,
+      "tag": "0005_booking_drafts",
+      "breakpoints": true
     }
   ]
 }

@@ -21,6 +21,7 @@ afterAll(async () => {
 // Tabel menurut PRD Bagian 8 (+ code_counters untuk penomoran). Menjaga skema dan PRD tetap sejalan.
 const EXPECTED_TABLES = [
   'audit_logs',
+  'booking_drafts',
   'booking_participants',
   'bookings',
   'cancellation_policies',

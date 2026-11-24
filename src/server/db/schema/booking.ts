@@ -113,6 +113,38 @@ export const bookings = pgTable(
   ],
 );
 
+/**
+ * Draf booking Open Trip (langkah 1 dan 2) yang disimpan di server dan dirujuk lewat cookie (BK-12), supaya
+ * tombol Kembali berfungsi dan data tidak hilang. Terpisah dari `bookings` agar draf yang ditinggalkan tidak
+ * menghabiskan nomor ARJ: kode booking baru dialokasikan saat hold dibuat. Token mentah hanya ada di cookie.
+ */
+export const bookingDrafts = pgTable(
+  'booking_drafts',
+  {
+    id: pk(),
+    /** Hash SHA-256 token cookie; token mentah tidak disimpan. */
+    tokenHash: text('token_hash').notNull().unique(),
+    scheduleId: uuid('schedule_id')
+      .notNull()
+      .references(() => tripSchedules.id, { onDelete: 'cascade' }),
+    adults: integer('adults').notNull().default(2),
+    children: integer('children').notNull().default(0),
+    contact: jsonb('contact').$type<{ name: string; email: string; phone: string }>(),
+    participants: jsonb('participants')
+      .$type<{ fullName: string; kind: 'adult' | 'child'; specialNeeds: string | null }[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    /** Persetujuan syarat, privasi, dan kebijakan batal (waktu dicatat; versi dokumen dicatat saat hold). */
+    acceptedAt: tstz('accepted_at'),
+    expiresAt: tstz('expires_at').notNull(),
+    ...timestamps(),
+  },
+  (t) => [
+    check('booking_drafts_party', sql`${t.adults} >= 1 and ${t.children} >= 0`),
+    index('booking_drafts_expires_idx').on(t.expiresAt),
+  ],
+);
+
 export const bookingParticipants = pgTable(
   'booking_participants',
   {
