@@ -1,0 +1,28 @@
+---
+// Penunjuk empat langkah booking (frame "HFStepper"). Di halaman pesanan langkah 1 sampai 2 sudah lewat;
+// langkah 3 (pembayaran DP) aktif sampai terverifikasi, langkah 4 (konfirmasi) aktif saat Confirmed.
+interface Props {
+  current: 3 | 4;
+}
+const { current } = Astro.props;
+const steps = ['Jadwal dan peserta', 'Data pemesan', 'Pembayaran DP', 'Konfirmasi'];
+---
+
+<ol class="bs-stepper" aria-label="Langkah booking">
+  {steps.map((label, i) => {
+    const n = i + 1;
+    const state = n < current ? 'done' : n === current ? 'now' : 'todo';
+    return (
+      <>
+        <li class="bs-step" data-state={state} aria-current={state === 'now' ? 'step' : undefined}>
+          <span class="c" aria-hidden="true">
+            {n}
+          </span>
+          <span class="l">{label}</span>
+          {state === 'done' && <span class="sr">(selesai)</span>}
+        </li>
+        {n < steps.length && <li class="bs-sep" role="presentation" aria-hidden="true" />}
+      </>
+    );
+  })}
+</ol>

@@ -1,0 +1,115 @@
+---
+// Frame "Menunggu pembayaran (Pending Payment)": nominal DP, batas waktu dengan hitung mundur, rekening
+// tujuan transfer manual, langkah, dan form unggah bukti. Desain memakai virtual account; domain memakai
+// transfer manual dengan verifikasi admin, jadi bagian 01 menampilkan rekening dari Pengaturan.
+import SectionHead from './SectionHead.astro';
+import ProofForm from './ProofForm.astro';
+import { formatRupiah } from '../../../lib/format';
+import type { BookingView } from '../../../features/booking/status';
+import type { ManualAccount } from '../../../features/booking/settings';
+import { formatWib } from './lib';
+
+interface Props {
+  view: BookingView;
+  accounts: ManualAccount[];
+  error: string | null;
+  /** Hold sudah lewat menurut jam server tetapi belum dilepas oleh housekeeping. */
+  lapsed: boolean;
+}
+const { view, accounts, error, lapsed } = Astro.props;
+
+const amount = view.payment?.amount ?? view.dpAmount;
+const deadline = view.holdExpiresAt ? formatWib(view.holdExpiresAt) : null;
+---
+
+<div class="bs-figs">
+  <div class="bs-fig">
+    <div class="k">Jumlah DP</div>
+    <div class="big">{formatRupiah(amount)}</div>
+    <div class="s">
+      {view.dpPercent}% dari total {formatRupiah(view.totalAmount)}.
+    </div>
+  </div>
+  <div class="bs-fig" data-state={lapsed ? 'lapsed' : 'live'}>
+    <div class="k" id="batas-label">
+      Batas waktu pembayaran
+    </div>
+    <div
+      class="big bs-count"
+      aria-live="off"
+      aria-labelledby="batas-label"
+      data-countdown={view.holdExpiresAt?.toISOString()}
+    >
+      {lapsed ? 'Waktu habis' : deadline?.time}
+    </div>
+    <div class="s">
+      {deadline ? deadline.full : ''}.{' '}
+      {!lapsed && <span class="bs-live-only">Transfer dan unggah bukti sebelum waktu ini.</span>}
+    </div>
+    <p class="bs-count-hint" data-count-hint hidden={!lapsed}>
+      Waktu pembayaran habis. <a href="">Muat ulang halaman</a> untuk melihat status terbaru.
+    </p>
+  </div>
+</div>
+
+<div>
+  <SectionHead num="01" title="Transfer ke rekening" />
+  {accounts.length > 0 ? (
+    <ul class="bs-accts">
+      {accounts.map((a) => (
+        <li class="bs-acct">
+          <div>
+            <div class="k">{a.bank}</div>
+            <div class="num">{a.number}</div>
+            <div class="holder">a.n. {a.holder}</div>
+          </div>
+          <button class="bs-copy" type="button" data-copy={a.number} hidden>
+            Salin nomor
+          </button>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="bs-acct bs-acct-empty">
+      <div>
+        <div class="k">Rekening tujuan</div>
+        <div class="num">[rekening diisi klien]</div>
+      </div>
+    </div>
+  )}
+  <div class="bs-steps">
+    <div class="st">
+      <b>1</b>
+      <div>Buka aplikasi bank atau e-wallet Anda, lalu transfer ke rekening di atas.</div>
+    </div>
+    <div class="st">
+      <b>2</b>
+      <div>Pastikan jumlah transfer tepat {formatRupiah(amount)}.</div>
+    </div>
+    <div class="st">
+      <b>3</b>
+      <div>
+        Simpan bukti transfer (tangkapan layar, foto, atau PDF), lalu unggah di bawah. Tim kami
+        memverifikasi dan mengabari lewat email.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <SectionHead num="02" title="Unggah bukti transfer" />
+  {lapsed ? (
+    <p class="bs-fine" role="status">
+      Batas waktu pembayaran sudah lewat, jadi bukti tidak bisa diterima lagi. Muat ulang halaman
+      untuk melihat status terbaru.
+    </p>
+  ) : (
+    <div class="bs-formwrap">
+      <ProofForm code={view.code} error={error} />
+    </div>
+  )}
+  <p class="bs-fine">
+    Belum bisa membayar sekarang? Kuota Anda dilepas otomatis setelah batas waktu dan tidak ada
+    biaya. Anda dapat memesan lagi selama kuota masih tersedia.
+  </p>
+</div>

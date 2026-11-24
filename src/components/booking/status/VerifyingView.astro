@@ -1,0 +1,95 @@
+---
+// Frame "Pembayaran sedang diverifikasi": linimasa tiga langkah, pesan "tidak perlu membayar ulang", dan
+// tautan ganti bukti (membuka form yang sama; hanya selama hold berlaku, karena server menolak setelahnya).
+import SectionHead from './SectionHead.astro';
+import TrackStep from './TrackStep.astro';
+import ProofForm from './ProofForm.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import { formatRupiah } from '../../../lib/format';
+import type { BookingView } from '../../../features/booking/status';
+import { whatsappHref } from '../../trips/detail/words';
+
+interface Props {
+  view: BookingView;
+  error: string | null;
+  canReplace: boolean;
+}
+const { view, error, canReplace } = Astro.props;
+const amount = view.payment?.amount ?? view.dpAmount;
+---
+
+<div>
+  <SectionHead num="01" title="Perkembangan" />
+  <div class="bs-track">
+    <TrackStep
+      state="done"
+      when="Sudah diterima"
+      title="Bukti transfer diterima"
+      desc={`Bukti pembayaran DP ${formatRupiah(amount)} sudah masuk ke tim kami.`}
+    />
+    <TrackStep
+      state="current"
+      when="Sedang berjalan"
+      title="Verifikasi oleh tim"
+      desc="Estimasi waktu verifikasi: [ditentukan klien]. Anda diberi tahu lewat email."
+    />
+    <TrackStep
+      state="todo"
+      when="Setelah verifikasi"
+      title="Reservasi Confirmed"
+      desc="Kode booking dan detail keberangkatan dikirim ke email Anda."
+      last
+    />
+  </div>
+</div>
+
+<div class="bs-callout">
+  <span class="ic">
+    <HFIcon name="shield" size={20} />
+  </span>
+  <div>
+    <b>Tidak perlu membayar ulang.</b> Kursi Anda tetap tertahan selama bukti diperiksa. Jika
+    verifikasi melewati [batas waktu ditentukan klien], tim kami menghubungi Anda lewat email atau
+    WhatsApp.
+  </div>
+</div>
+
+<div class="bs-actions">
+  <a class="bs-btn" data-tone="primary" href="/cek-status">
+    <span>Cek status booking</span>
+    <svg
+      class="arr"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12h16M14 6l6 6-6 6"></path>
+    </svg>
+  </a>
+  {whatsappHref && (
+    <a class="bs-btn" data-tone="secondary" href={whatsappHref} rel="noopener">
+      <span>Hubungi kami</span>
+    </a>
+  )}
+  <span class="bs-fine-inline">Kode booking: {view.code}</span>
+</div>
+
+{canReplace && (
+  <details class="bs-replace" open={error ? true : undefined}>
+    <summary>Salah mengunggah? Ganti bukti transfer</summary>
+    <div class="bs-formwrap">
+      <ProofForm
+        code={view.code}
+        error={error}
+        label="Pilih berkas pengganti"
+        submit="Kirim bukti baru"
+      />
+    </div>
+  </details>
+)}

@@ -1,0 +1,23 @@
+---
+// Langkah linimasa bertitik (frame "HFTrackStep"): selesai, sedang berjalan, atau belum. Status juga
+// dituliskan lewat teks `when`, jadi tidak hanya dibedakan lewat warna titik.
+interface Props {
+  state: 'done' | 'current' | 'todo';
+  when: string;
+  title: string;
+  desc: string;
+  last?: boolean;
+}
+const { state, when, title, desc, last = false } = Astro.props;
+---
+
+<div class="bs-tk" data-state={state} data-last={last ? 'yes' : 'no'}>
+  <div class="mk">
+    <span class="dot"></span>
+  </div>
+  <div class="bd">
+    <span class="wh">{when}</span>
+    <span class="ti">{title}</span>
+    <span class="ds">{desc}</span>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+---
+// Baris label dan nilai bergaris bawah (frame "HFDetailRow").
+interface Props {
+  label: string;
+  value?: string;
+}
+const { label, value } = Astro.props;
+---
+
+<div class="bs-dr">
+  <span class="l">{label}</span>
+  <span class="v">
+    {value}
+    <slot />
+  </span>
+</div>

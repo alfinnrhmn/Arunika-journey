@@ -1,0 +1,90 @@
+---
+// Kerangka halaman pesanan (frame Pending Payment / Verifikasi / Konfirmasi / Belum berhasil): header
+// alur fokus, penunjuk langkah, judul dengan lencana status, lalu dua kolom (isi 832px + ringkasan).
+import Public from '../../../layouts/Public.astro';
+import '../../../styles/pages/booking-status.css';
+import HFBadge from '../../hf/HFBadge.astro';
+import CheckoutHeader from './CheckoutHeader.astro';
+import CheckoutFooter from './CheckoutFooter.astro';
+import Stepper from './Stepper.astro';
+import OrderSummary from './OrderSummary.astro';
+import type { BookingView } from '../../../features/booking/status';
+import type { TripSummary } from './lib';
+
+interface Props {
+  title: string;
+  view: BookingView;
+  trip: TripSummary | null;
+  /** Kosong untuk status di luar alur (dibatalkan, refund): tanpa penunjuk langkah. */
+  step?: 3 | 4 | null;
+  hand: string;
+  lead: string;
+  em: string;
+  lede: string;
+  badge: { label: string; tone: 'ok' | 'pending' | 'full' | 'outline' };
+  /** Judul besar (76px) untuk halaman Konfirmasi; yang lain 48px. */
+  display?: boolean;
+  /** Pesan satu kali (mis. bukti terkirim) tepat di bawah judul. */
+  notice?: string | null;
+}
+const {
+  title,
+  view,
+  trip,
+  step = null,
+  hand,
+  lead,
+  em,
+  lede,
+  badge,
+  display = false,
+  notice,
+} = Astro.props;
+---
+
+<Public
+  title={`${title} | Arunika Journey`}
+  description="Status pesanan Open Trip Anda."
+  hideFooter
+  noindex
+>
+  <div class="bs-page">
+    <CheckoutHeader />
+    <section class="bs-top">
+      {step && (
+        <div class="bs-top-step">
+          <Stepper current={step} />
+        </div>
+      )}
+      <div class="bs-title" data-display={display ? 'yes' : 'no'}>
+        <div>
+          <span class="hand bs-hand">{hand}</span>
+          <h1>
+            {lead} <i>{em}</i>
+          </h1>
+          <p class="bs-lede">{lede}</p>
+          <p class="bs-code">
+            Kode booking <b>{view.code}</b>
+          </p>
+        </div>
+        <div class="bs-badge">
+          <HFBadge label={badge.label} tone={badge.tone} />
+        </div>
+      </div>
+      {notice && (
+        <p class="bs-notice" role="status">
+          {notice}
+        </p>
+      )}
+    </section>
+    <section class="bs-body">
+      <div class="bs-main">
+        <slot />
+      </div>
+      <div class="bs-side">
+        <OrderSummary view={view} trip={trip} />
+      </div>
+    </section>
+    <CheckoutFooter />
+  </div>
+</Public>
