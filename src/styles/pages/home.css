@@ -395,9 +395,12 @@
   color: var(--color-ink-2);
 }
 .thumb {
-  height: 820px;
+  /* Saat terbuka penuh, gambar memenuhi layar (tinggi viewport), bukan 820px tetap seperti frame desain. */
+  height: 100vh;
+  height: 100svh;
   overflow: hidden;
-  background: var(--color-ink);
+  /* Latar di belakang jendela yang sedang membuka: putih, menyatu dengan halaman. */
+  background: var(--color-paper);
 }
 .thumb-in {
   width: 100%;
