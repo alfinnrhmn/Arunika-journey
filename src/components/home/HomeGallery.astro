@@ -1,0 +1,54 @@
+---
+import { photo } from '../../lib/photo';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+---
+
+<section class="hp61">
+  <div class="hp69">
+    <span class="hand">Dokumentasi trip</span>
+    <h2 class="hp89">
+      Momen di <i>perjalanan</i> kami
+    </h2>
+    <p class="hp90">
+      Cuplikan suasana Open Trip dan Private Trip: pemandangan, peserta, dan momen di sepanjang
+      jalan. Contoh tata letak, foto dokumentasi asli [diisi klien].
+    </p>
+  </div>
+  <div class="hp91">
+    <a href="/dokumentasi" class="hp-link hp92">
+      <img class="cover" src={photo('ybPf3g0tOA.webp')} alt="Galeri 1" />
+      <div class="hp93"></div>
+      <span class="hp94">01</span>
+    </a>
+    <a href="/dokumentasi" class="hp-link hp95">
+      <img class="cover" src={photo('J9XPoGuhkc.jpg')} alt="Galeri 2" />
+      <div class="hp93"></div>
+      <span class="hp94">02</span>
+    </a>
+    <a href="/dokumentasi" class="hp-link hp96">
+      <img class="cover" src={photo('CCdp8lHN4D.jpg')} alt="Galeri 3" />
+      <div class="hp93"></div>
+      <span class="hp94">03</span>
+    </a>
+    <a href="/dokumentasi" class="hp-link hp97">
+      <img class="cover" src={photo('QGmQnCzB3S.jpg')} alt="Galeri 4" />
+      <div class="hp93"></div>
+      <span class="hp94">04</span>
+    </a>
+    <a href="/dokumentasi" class="hp-link hp98">
+      <img class="cover" src={photo('mENCGSHzQ5.jpg')} alt="Galeri 5" />
+      <div class="hp93"></div>
+      <span class="hp94">05</span>
+    </a>
+    <a href="/dokumentasi" class="hp-link hp99">
+      <img class="cover" src={photo('cEZSAXrIAi.jpg')} alt="Galeri 6" />
+      <div class="hp93"></div>
+      <span class="hp94">06</span>
+    </a>
+  </div>
+  <div class="hp100">
+    <span class="hp101">
+      <HFArrowButton href={'/dokumentasi'} label={'Lihat semua dokumentasi'} />
+    </span>
+  </div>
+</section>

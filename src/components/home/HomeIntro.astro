@@ -1,0 +1,91 @@
+---
+import { photo } from '../../lib/photo';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+---
+
+<section id="fam" class="hp12">
+  <div class="hp13">
+    <div class="fam-item">
+      <div class="fam-img rvm hp14">
+        <div class="fpx">
+          <img class="cover" src={photo('UKC-V0YGdo.jpg')} alt="Pejalan di lereng bukit hijau" />
+        </div>
+      </div>
+      <div class="fam-txt">
+        <span class="hand rv">Open Trip &amp; Private Trip</span>
+        <h3 class="rv hp15">
+          Satu rumah, dua <i>cara</i> berjalan
+        </h3>
+        <p class="rv fam-d">
+          Perjalanan domestik yang terorganisir dan personal. Open Trip: jadwal tetap, harga per
+          orang, bayar DP langsung di website. Private Trip: itinerary fleksibel lewat Request a
+          Quote.
+        </p>
+        <div class="rv hp16">
+          <HFArrowButton href={'/trips'} label={'Lihat jadwal Open Trip'} />
+        </div>
+      </div>
+      <div class="fam-img rvm hp17">
+        <div class="fpx">
+          <img
+            class="cover"
+            src={photo('1TPQn7_DUw.jpg')}
+            alt="Potret perempuan berselendang tenun"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="fam-item fam-rev">
+      <div class="fam-txt">
+        <h3 class="rv">
+          Pemandu yang <i>mengenal</i> jalannya
+        </h3>
+        <p class="rv fam-d">
+          Keselamatan dan kenyamanan peserta adalah prioritas kami. Pemandu mengenal medan, cuaca,
+          dan warga setempat, jadi perjalanan terasa tenang walau rutenya jauh. Detail pengalaman
+          dan sertifikasi tim: [diisi klien].
+        </p>
+      </div>
+      <div class="fam-img rvm hp14">
+        <div class="fpx">
+          <img
+            class="cover"
+            src={photo('2en6TErKPe.jpg')}
+            alt="Tamu duduk di haluan perahu menatap tepi pulau"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="fam-item">
+      <div class="fam-img rvm hp14">
+        <div class="fpx">
+          <img class="cover" src={photo('-12f39P6ZX.jpg')} alt="Pulau kecil berhutan dari udara" />
+        </div>
+      </div>
+      <div class="fam-txt">
+        <h3 class="rv">
+          Itinerary yang <i>mengikuti</i> Anda
+        </h3>
+        <p class="rv fam-d">
+          Kami tetap menuju destinasi yang terkenal, tetapi cuaca, jalur, dan suasana hati rombongan
+          boleh mengubah rencana. Untuk Private Trip, rute disusun dari nol: Anda bercerita, kami
+          merancang proposalnya.
+        </p>
+      </div>
+      <div class="fam-img rvm hp17">
+        <div class="fpx">
+          <img class="cover" src={photo('AuaJr2d8Yj.jpg')} alt="Senja di balik pulau berpalem" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="thumb hp18">
+    <div class="thumb-in">
+      <img
+        class="cover"
+        src={photo('kMG6Ggfz-2.jpg')}
+        alt="Gunung berapi dengan padang savana di bawah awan"
+      />
+    </div>
+  </div>
+</section>
