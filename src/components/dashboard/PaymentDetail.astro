@@ -1,0 +1,284 @@
+---
+import type { PaymentReview } from '../../features/payments';
+import { formatRupiah } from '../../lib/format';
+import Badge from './Badge.astro';
+import Icon from './Icon.astro';
+import {
+  ago,
+  BOOKING_STATUS_LABEL,
+  dateWithDay,
+  formatBytes,
+  KIND_LABEL,
+  PARTICIPANT_LABEL,
+  paymentBadge,
+  stamp,
+} from './lib';
+
+/**
+ * Panel tinjau satu pembayaran. Semua angka (total, DP, nominal) dibaca dari server lewat getPaymentReview;
+ * tidak ada yang dihitung ulang dari masukan. Aksi hanya berupa form HTML biasa ke endpoint yang sudah menjaga
+ * izin dan status; tombol hanya tampil bila pembayaran masih menunggu verifikasi (kosmetik, server yang memutuskan).
+ * Peringatan di sini informasi untuk admin, bukan pencegah: keputusan tetap di tangan admin dan server.
+ */
+interface Props {
+  review: PaymentReview;
+  now: Date;
+  closeHref: string;
+  /** Alasan penolakan sebelumnya ditolak server (kosong/terlalu pendek): tandai kolom. */
+  reasonError?: boolean;
+}
+const { review, now, closeHref, reasonError = false } = Astro.props;
+const { payment, booking, participants, proof, decidedBy } = review;
+const badge = paymentBadge(payment.status);
+const awaiting = payment.status === 'needs_verification';
+const proofUrl = `/dashboard/pembayaran/${payment.id}/bukti`;
+const isImage = !!proof && proof.mime.startsWith('image/');
+const proofLabel = proof
+  ? `${proof.mime === 'application/pdf' ? 'Berkas PDF' : 'Gambar ' + proof.mime.replace('image/', '').toUpperCase()} · ${formatBytes(proof.size)}`
+  : '';
+
+const warnings: string[] = [];
+if (awaiting && !proof)
+  warnings.push('Belum ada berkas bukti yang bisa dibuka untuk pembayaran ini.');
+if (awaiting && booking.holdExpiresAt && booking.holdExpiresAt <= now) {
+  warnings.push(
+    `Batas hold kursi (${stamp(booking.holdExpiresAt)} WIB) sudah lewat ${ago(booking.holdExpiresAt, now).replace(' lalu', '')}. ` +
+      'Bila disetujui, sistem mencoba mengambil kursi lagi; bila sudah penuh, booking masuk Perlu perhatian.',
+  );
+}
+if (awaiting && payment.kind === 'dp' && payment.amount !== booking.dpAmount) {
+  warnings.push(
+    `Nominal pembayaran ${formatRupiah(payment.amount)} berbeda dari DP booking ${formatRupiah(booking.dpAmount)}. Cocokkan dengan bukti sebelum memutuskan.`,
+  );
+}
+
+const presets = [
+  [
+    'Nominal tidak sesuai',
+    'Nominal pada bukti transfer tidak sesuai dengan DP yang harus dibayar.',
+  ],
+  [
+    'Bukti tidak terbaca',
+    'Bukti transfer tidak terbaca. Mohon kirim ulang dengan gambar yang jelas.',
+  ],
+  [
+    'Rekening salah',
+    'Rekening tujuan pada bukti transfer tidak sesuai dengan rekening Arunika Journey.',
+  ],
+] as const;
+---
+
+<section class="d-pn d-detail" aria-label={`Detail pembayaran ${payment.code}`}>
+  <header>
+    <h2>{payment.code}</h2>
+    <a class="ac" href={closeHref}>
+      Tutup
+    </a>
+  </header>
+
+  <div class="d-sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <Badge tone={badge.tone} label={badge.label} />
+      <span class="d-help">
+        {KIND_LABEL[payment.kind]} · diunggah {ago(payment.submittedAt, now)}
+      </span>
+    </div>
+    {warnings.map((w) => (
+      <p class="d-warn" role="note">
+        <Icon name="alert" size={16} />
+        <span>{w}</span>
+      </p>
+    ))}
+  </div>
+
+  <div class="d-sec">
+    <dl>
+      <div class="d-rw">
+        <dt>Pemesan</dt>
+        <dd>{payment.contactName}</dd>
+      </div>
+      <div class="d-rw">
+        <dt>Email</dt>
+        <dd>{booking.contactEmail}</dd>
+      </div>
+      <div class="d-rw">
+        <dt>Telepon</dt>
+        <dd>{booking.contactPhone}</dd>
+      </div>
+      <div class="d-rw">
+        <dt>Trip</dt>
+        <dd>{payment.tripTitle}</dd>
+      </div>
+      <div class="d-rw">
+        <dt>Berangkat</dt>
+        <dd>
+          {dateWithDay(payment.departureDate)}
+          <small>
+            {payment.seatCount} peserta ({booking.adults} dewasa
+            {booking.children > 0 ? `, ${booking.children} anak` : ''})
+          </small>
+        </dd>
+      </div>
+      <div class="d-rw">
+        <dt>Status booking</dt>
+        <dd>{BOOKING_STATUS_LABEL[payment.bookingStatus]}</dd>
+      </div>
+      {booking.holdExpiresAt && (
+        <div class="d-rw">
+          <dt>Batas hold</dt>
+          <dd>
+            {stamp(booking.holdExpiresAt, true)} WIB
+            <small>{ago(booking.holdExpiresAt, now)}</small>
+          </dd>
+        </div>
+      )}
+    </dl>
+  </div>
+
+  <div class="d-sec">
+    <h3 class="d-h">Peserta</h3>
+    <ul class="d-people">
+      {participants.map((p) => (
+        <li>
+          <span>
+            {p.fullName}
+            {p.specialNeeds && <small>Kebutuhan khusus: {p.specialNeeds}</small>}
+          </span>
+          <span class="k">{PARTICIPANT_LABEL[p.kind]}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="d-sec">
+    <h3 class="d-h">Rincian harga</h3>
+    <div class="d-price">
+      {booking.priceLines.map((l) => (
+        <div>
+          <span>
+            {l.label} × {l.qty}
+          </span>
+          <span>{formatRupiah(l.amount)}</span>
+        </div>
+      ))}
+      <div>
+        <span>Total</span>
+        <b>{formatRupiah(payment.totalAmount)}</b>
+      </div>
+      <div>
+        <span>DP {booking.dpPercent}% </span>
+        <b>{formatRupiah(booking.dpAmount)}</b>
+      </div>
+      <div class="em">
+        <span>Nominal {KIND_LABEL[payment.kind]} pembayaran ini</span>
+        <b>{formatRupiah(payment.amount)}</b>
+      </div>
+    </div>
+    <p class="d-help">
+      Harga sudah termasuk PPN. Nominal pada bukti dicocokkan admin secara manual.
+    </p>
+  </div>
+
+  <div class="d-sec">
+    <h3 class="d-h">Bukti transfer</h3>
+    {proof ? (
+      <>
+        <div class="d-proof">
+          {isImage ? (
+            <img
+              src={proofUrl}
+              alt={`Bukti transfer ${payment.code} dari ${payment.contactName}`}
+              loading="lazy"
+            />
+          ) : (
+            <div class="none">
+              <Icon name="file" size={20} />
+              Pratinjau tidak tersedia untuk berkas PDF.
+            </div>
+          )}
+        </div>
+        <div class="d-file">
+          <div>
+            <b>{proofLabel}</b>
+            Diunggah {stamp(payment.submittedAt, true)} WIB
+          </div>
+          <a class="d-bt" href={proofUrl} target="_blank" rel="noopener">
+            <Icon name="eye" size={16} /> Buka
+          </a>
+        </div>
+      </>
+    ) : (
+      <div class="d-proof">
+        <div class="none">
+          <Icon name="image" size={20} />
+          Tidak ada berkas bukti.
+        </div>
+      </div>
+    )}
+  </div>
+
+  {!awaiting && (
+    <div class="d-sec">
+      <p class="d-help">
+        {payment.decidedAt
+          ? `Diputuskan ${stamp(payment.decidedAt, true)} WIB${decidedBy ? ` oleh ${decidedBy}` : ''}.`
+          : 'Pembayaran ini tidak sedang menunggu verifikasi.'}
+      </p>
+    </div>
+  )}
+
+  {awaiting && (
+    <>
+      <div class="d-btns">
+        <form
+          method="post"
+          action={`/dashboard/pembayaran/${payment.id}/setujui`}
+          data-once
+          data-confirm={`Setujui pembayaran ${payment.code}? Booking akan menjadi Confirmed dan pemesan menerima email konfirmasi.`}
+        >
+          <button class="d-bt" data-tone="primary" data-full type="submit">
+            <Icon name="check" size={16} /> Setujui pembayaran
+          </button>
+        </form>
+      </div>
+      <div class="d-sec">
+        <form
+          method="post"
+          action={`/dashboard/pembayaran/${payment.id}/tolak`}
+          data-once
+          style="display:flex;flex-direction:column;gap:10px"
+        >
+          <div class="d-fd">
+            <label for="alasan">Alasan penolakan</label>
+            <div class="d-presets" data-presets hidden>
+              {presets.map(([label, text]) => (
+                <button type="button" data-preset={text} aria-controls="alasan">
+                  {label}
+                </button>
+              ))}
+            </div>
+            <textarea
+              class="d-ta"
+              id="alasan"
+              name="alasan"
+              required
+              minlength="3"
+              maxlength="500"
+              rows="4"
+              placeholder="Contoh: nominal pada bukti kurang dari DP."
+              aria-describedby="alasan-bantuan"
+              aria-invalid={reasonError ? 'true' : undefined}
+            />
+            <p class="d-help" id="alasan-bantuan">
+              Wajib, 3 sampai 500 karakter. Alasan ini dikirim ke pemesan lewat email. Menolak
+              melepas hold kursi dan pemesan harus memulai pemesanan dari awal.
+            </p>
+          </div>
+          <button class="d-bt" data-tone="danger" data-full type="submit">
+            Tolak bukti
+          </button>
+        </form>
+      </div>
+    </>
+  )}
+</section>

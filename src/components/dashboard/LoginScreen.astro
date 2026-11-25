@@ -1,0 +1,181 @@
+---
+import '../../styles/pages/dashboard-masuk.css';
+import { foto } from '../../lib/photo';
+import { SESSION_HOURS } from '../../server/auth/auth';
+import Icon from './Icon.astro';
+
+/**
+ * Layar Masuk (kartu kaca di atas foto) dan state Sesi berakhir (dialog putih). Keduanya form email + sandi yang
+ * mengirim ke /dashboard/masuk; logika masuk, batas laju, dan alihan ada di halaman itu, bukan di sini.
+ * Nilai yang dipantulkan hanya `email` (agar tidak mengetik ulang; Astro meng-escape) dan `lanjut` yang SUDAH
+ * melewati safeNext. Sandi tidak pernah dipantulkan.
+ */
+interface Props {
+  mode: 'masuk' | 'sesi';
+  /** Tujuan POST; menyertakan ?sesi=berakhir&lanjut=... agar state yang sama tampil bila gagal. */
+  action: string;
+  email?: string;
+  /** Tujuan setelah masuk, sudah lewat safeNext. */
+  lanjut: string;
+  /** Pesan galat tetap dari server (bukan nilai masukan). */
+  error?: string | null;
+}
+const { mode, action, email = '', lanjut, error = null } = Astro.props;
+const hasTarget = lanjut !== '/dashboard';
+const fieldLabelId = mode === 'sesi' ? 'sesi' : 'masuk';
+---
+
+<div class="m-hero" data-mode={mode}>
+  <img class="m-photo" src={foto('senja-perahu-tenang')} alt="" />
+  <div class="m-shade"></div>
+  <div class="m-brand">
+    <span class="m-word">Arunika</span>
+    <span class="m-tag">Dashboard</span>
+  </div>
+
+  {mode === 'masuk' && (
+    <>
+      <div class="m-copy">
+        <p class="m-eyebrow">Ruang kerja tim</p>
+        <p class="m-h">
+          Selamat datang kembali, tim <em>Arunika</em>.
+        </p>
+        <p class="m-lead">Pantau reservasi, atur jadwal, dan rawat cerita perjalanan.</p>
+        <p class="m-p">
+          Semua pekerjaan operasional dan konten Arunika Journey ada di satu tempat, dari kuota trip
+          sampai Journal.
+        </p>
+      </div>
+      <p class="m-foot">Arunika Journey, ruang kerja internal</p>
+    </>
+  )}
+
+  {mode === 'masuk' ? (
+    <main class="m-glass">
+      <div>
+        <h1>Masuk ke Dashboard</h1>
+        <p class="m-sub">Gunakan akun tim yang didaftarkan oleh Owner.</p>
+      </div>
+      <form class="m-form" method="post" action={action}>
+        <input type="hidden" name="lanjut" value={lanjut} />
+        {error && (
+          <div class="m-err" role="alert" id="galat-masuk">
+            <Icon name="alert" size={16} />
+            <span>{error}</span>
+          </div>
+        )}
+        <div class="m-f">
+          <label for={`email-${fieldLabelId}`}>Email</label>
+          <input
+            class="m-in"
+            id={`email-${fieldLabelId}`}
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="username"
+            placeholder="nama@arunikajourney.id"
+            maxlength="254"
+            required
+            value={email}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={error ? 'galat-masuk' : undefined}
+            autofocus={!email}
+          />
+        </div>
+        <div class="m-f">
+          <label for={`sandi-${fieldLabelId}`}>Kata sandi</label>
+          <input
+            class="m-in"
+            id={`sandi-${fieldLabelId}`}
+            name="sandi"
+            type="password"
+            autocomplete="current-password"
+            maxlength="128"
+            required
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={error ? 'galat-masuk' : undefined}
+            autofocus={!!email}
+          />
+          <p class="m-hint">Pastikan Caps Lock tidak aktif.</p>
+        </div>
+        <button class="d-bt" data-tone="primary" data-size="md" type="submit">
+          Masuk
+        </button>
+      </form>
+      <p class="m-note">Khusus tim Arunika Journey. Akun dibuat oleh Owner.</p>
+    </main>
+  ) : (
+    <main class="m-dlg">
+      <div class="m-dh">
+        <div class="m-dic">
+          <Icon name="clock" size={20} />
+        </div>
+        <h1>Sesi Anda berakhir</h1>
+        <p>
+          Demi keamanan, sesi dashboard berlaku {SESSION_HOURS} jam dan berakhir otomatis. Masuk
+          lagi untuk melanjutkan.
+        </p>
+      </div>
+      <form class="m-form" method="post" action={action}>
+        <input type="hidden" name="lanjut" value={lanjut} />
+        <div class="m-db">
+          {hasTarget && (
+            <div class="m-save">
+              <Icon name="check" size={16} />
+              <span>
+                <b>Halaman Anda menunggu</b>
+                Setelah masuk, Anda dibawa kembali ke halaman yang tadi dibuka.
+              </span>
+            </div>
+          )}
+          {error && (
+            <div class="m-err" role="alert" id="galat-sesi">
+              <Icon name="alert" size={16} />
+              <span>{error}</span>
+            </div>
+          )}
+          <div class="m-f">
+            <label for={`email-${fieldLabelId}`}>Email</label>
+            <input
+              class="m-in"
+              id={`email-${fieldLabelId}`}
+              name="email"
+              type="email"
+              inputmode="email"
+              autocomplete="username"
+              maxlength="254"
+              required
+              value={email}
+              aria-invalid={error ? 'true' : undefined}
+              aria-describedby={error ? 'galat-sesi' : undefined}
+              autofocus={!email}
+            />
+          </div>
+          <div class="m-f">
+            <label for={`sandi-${fieldLabelId}`}>Kata sandi</label>
+            <input
+              class="m-in"
+              id={`sandi-${fieldLabelId}`}
+              name="sandi"
+              type="password"
+              autocomplete="current-password"
+              maxlength="128"
+              required
+              aria-invalid={error ? 'true' : undefined}
+              aria-describedby={error ? 'galat-sesi' : undefined}
+              autofocus={!!email}
+            />
+          </div>
+        </div>
+        <div class="m-df">
+          <button class="d-bt" data-tone="primary" data-size="md" type="submit">
+            Masuk lagi
+          </button>
+          <a class="d-bt" data-tone="ghost" data-size="md" href="/dashboard/masuk">
+            Gunakan akun lain
+          </a>
+        </div>
+      </form>
+    </main>
+  )}
+</div>

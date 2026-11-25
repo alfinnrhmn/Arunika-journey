@@ -1,0 +1,327 @@
+/* Halaman Masuk dan state Sesi berakhir (/dashboard/masuk, /dashboard/sesi-berakhir). Diport dari frame Doop
+   "Dashboard 23: Masuk Dashboard" (kartu kaca di atas foto) dan "Dashboard 25: Sesi Berakhir" (dialog putih).
+   Langkah 2FA di frame 23 sengaja belum dibangun. Dasar dashboard (.d-body, tombol) ada di dashboard.css. */
+
+.m-hero {
+  position: relative;
+  min-height: 100vh;
+  overflow: clip;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-night);
+}
+.m-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.m-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-night) 72%, transparent) 0%,
+    color-mix(in srgb, var(--color-night) 38%, transparent) 48%,
+    color-mix(in srgb, var(--color-night) 8%, transparent) 100%
+  );
+}
+.m-hero[data-mode='sesi'] {
+  justify-content: center;
+}
+.m-hero[data-mode='sesi'] .m-shade {
+  background: color-mix(in srgb, var(--color-night) 62%, transparent);
+}
+.m-brand {
+  position: absolute;
+  left: 72px;
+  top: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-dash-surface);
+}
+.m-word {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.m-tag {
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: color-mix(in srgb, var(--color-dash-surface) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-dash-surface) 30%, transparent);
+}
+.m-copy {
+  position: relative;
+  padding: 0 0 0 72px;
+  max-width: 700px;
+  color: var(--color-dash-surface);
+}
+.m-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+.m-copy .m-h {
+  font-family: var(--font-serif);
+  font-size: 68px;
+  line-height: 74px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.m-h em {
+  font-style: italic;
+  color: var(--color-dawn-soft);
+}
+.m-lead {
+  font-size: 20px;
+  line-height: 30px;
+  font-weight: 500;
+  margin-top: 24px;
+  opacity: 0.95;
+}
+.m-p {
+  font-size: 14px;
+  line-height: 23px;
+  margin-top: 12px;
+  max-width: 420px;
+  opacity: 0.82;
+}
+.m-foot {
+  position: absolute;
+  left: 72px;
+  bottom: 48px;
+  font-size: 13px;
+  color: var(--color-dash-surface);
+  opacity: 0.75;
+}
+
+/* Kartu kaca (Masuk) */
+.m-glass {
+  position: relative;
+  width: 456px;
+  margin-right: 96px;
+  padding: 36px 36px 30px;
+  border-radius: 28px;
+  color: var(--color-dash-surface);
+  background: color-mix(in srgb, var(--color-night) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-dash-surface) 32%, transparent);
+  -webkit-backdrop-filter: blur(26px) saturate(1.1);
+  backdrop-filter: blur(26px) saturate(1.1);
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--color-night) 35%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.m-glass h1 {
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: -0.015em;
+}
+.m-sub {
+  font-size: 14px;
+  line-height: 22px;
+  margin-top: 6px;
+  opacity: 0.85;
+}
+.m-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--color-dash-surface) 28%, transparent);
+  opacity: 0.85;
+}
+
+/* Formulir (dipakai kedua varian) */
+.m-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+}
+.m-f {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.m-f label {
+  font-size: 13px;
+  font-weight: 500;
+}
+.m-in {
+  width: 100%;
+  height: 46px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  border: 2px solid transparent;
+  background: color-mix(in srgb, var(--color-dash-surface) 94%, transparent);
+  color: var(--color-dash-text);
+}
+.m-in::placeholder {
+  color: var(--color-dash-muted);
+}
+.m-in[aria-invalid='true'] {
+  border-color: var(--color-status-full);
+}
+.m-glass .m-in:focus-visible {
+  outline: 2px solid var(--color-dash-surface);
+  outline-offset: 2px;
+}
+.m-hint {
+  font-size: 12px;
+  line-height: 18px;
+  opacity: 0.9;
+}
+.m-err {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--color-status-full-soft);
+  color: var(--color-status-full);
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 500;
+}
+.m-err .d-ic {
+  margin-top: 1px;
+}
+.m-form .d-bt {
+  width: 100%;
+}
+
+/* Dialog Sesi berakhir (putih) */
+.m-dlg {
+  position: relative;
+  width: 520px;
+  max-width: calc(100% - 32px);
+  background: var(--color-dash-surface);
+  color: var(--color-dash-text);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+.m-dh {
+  padding: 28px 28px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.m-dic {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-dawn-soft);
+  color: var(--color-dawn-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.m-dh h1 {
+  font-size: 22px;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  margin-top: 16px;
+}
+.m-dh p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-dash-muted);
+  max-width: 420px;
+}
+.m-db {
+  padding: 20px 28px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.m-save {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-status-ok-soft);
+  color: var(--color-status-ok);
+  font-size: 13px;
+  line-height: 20px;
+}
+.m-save .d-ic {
+  margin-top: 2px;
+}
+.m-save b {
+  display: block;
+  font-weight: 600;
+}
+.m-dlg .m-form {
+  gap: 0;
+}
+.m-dlg .m-db .m-f {
+  gap: 6px;
+}
+.m-dlg .m-db label {
+  font-weight: 600;
+}
+.m-dlg .m-in {
+  height: 44px;
+  border: 1px solid var(--color-dash-border-strong);
+  background: var(--color-dash-surface);
+  border-radius: 8px;
+}
+.m-dlg .m-in[aria-invalid='true'] {
+  border-color: var(--color-status-full);
+}
+.m-df {
+  padding: 20px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 20px;
+  border-top: 1px solid var(--color-dash-border);
+  background: var(--color-dash-bg);
+}
+.m-df .d-bt[data-tone='ghost'] {
+  text-decoration: none;
+}
+
+@media (max-width: 1100px) {
+  .m-hero {
+    justify-content: center;
+    padding: 96px 16px 48px;
+  }
+  .m-copy,
+  .m-foot {
+    display: none;
+  }
+  .m-brand {
+    left: 24px;
+    top: 28px;
+  }
+  .m-glass {
+    margin-right: 0;
+    width: 456px;
+    max-width: 100%;
+  }
+}
+
+/* Tombol utama di kartu kaca: ink gelap menyatu dengan kaca, jadi diberi garis terang tipis agar tetap terbaca. */
+.m-glass .d-bt[data-tone='primary'] {
+  border-color: color-mix(in srgb, var(--color-dash-surface) 45%, transparent);
+}

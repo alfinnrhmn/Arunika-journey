@@ -1,0 +1,12 @@
+---
+interface Props {
+  tone?: 'ok' | 'warn' | 'bad' | 'info' | 'neutral';
+  label: string;
+}
+const { tone = 'neutral', label } = Astro.props;
+---
+
+<span class="d-bg" data-tone={tone}>
+  <i></i>
+  <span>{label}</span>
+</span>

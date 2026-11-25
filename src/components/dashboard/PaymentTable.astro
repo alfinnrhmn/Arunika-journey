@@ -1,0 +1,86 @@
+---
+import type { PaymentQueueItem, QueueTab } from '../../features/payments';
+import { formatRupiah } from '../../lib/format';
+import Badge from './Badge.astro';
+import { ago, dateWithDay, KIND_LABEL, paymentBadge, stamp } from './lib';
+
+/**
+ * Tabel antrean verifikasi (tab verifikasi) atau riwayat keputusan (tab riwayat). Hanya menyajikan data dari
+ * domain pembayaran; memilih baris = tautan GET `?pilih=<id>` (tanpa JavaScript). Kode booking menjadi tautan
+ * pemilih, nilai lain di-escape oleh Astro.
+ */
+interface Props {
+  rows: PaymentQueueItem[];
+  tab: QueueTab;
+  selectedId?: string | null;
+  now: Date;
+}
+const { rows, tab, selectedId = null, now } = Astro.props;
+const timeHead = tab === 'verifikasi' ? 'Diunggah' : 'Diputuskan';
+const href = (id: string) => `/dashboard/pembayaran?tab=${tab}&pilih=${id}`;
+---
+
+<table class="d-tbl">
+  <caption class="d-sr">
+    {tab === 'verifikasi'
+      ? 'Bukti transfer menunggu verifikasi, terlama di atas'
+      : 'Pembayaran yang sudah diputuskan, terbaru di atas'}
+  </caption>
+  <colgroup>
+    <col style="width:156px" />
+    <col />
+    <col style="width:132px" />
+    <col style="width:104px" />
+    <col style="width:136px" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">Reservasi</th>
+      <th scope="col">Trip dan jadwal</th>
+      <th scope="col" class="num">
+        Nominal
+      </th>
+      <th scope="col">{timeHead}</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((r) => {
+      const badge = paymentBadge(r.status);
+      const when = tab === 'riwayat' ? (r.decidedAt ?? r.submittedAt) : r.submittedAt;
+      return (
+        <tr class={r.id === selectedId ? 'sel' : undefined}>
+          <th scope="row">
+            <a
+              class="pick"
+              href={href(r.id)}
+              aria-current={r.id === selectedId ? 'true' : undefined}
+            >
+              {r.code}
+            </a>
+            <span class="who">{r.contactName}</span>
+          </th>
+          <td>
+            {r.tripTitle}
+            <span class="sub">
+              {dateWithDay(r.departureDate)} · {r.seatCount} peserta
+            </span>
+          </td>
+          <td class="num">
+            {formatRupiah(r.amount)}
+            <span class="sub">
+              {KIND_LABEL[r.kind]} dari {formatRupiah(r.totalAmount).replace('Rp ', '')}
+            </span>
+          </td>
+          <td>
+            {ago(when, now)}
+            <span class="sub">{stamp(when)}</span>
+          </td>
+          <td>
+            <Badge tone={badge.tone} label={badge.label} />
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+</table>

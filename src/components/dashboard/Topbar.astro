@@ -1,0 +1,37 @@
+---
+import type { Staff } from '../../server/auth/session';
+import Icon from './Icon.astro';
+import { initials } from './lib';
+
+interface Props {
+  staff: Staff;
+  /** Remah roti, mis. ['Dashboard', 'Operasional', 'Pembayaran']; elemen terakhir = halaman ini. */
+  crumb: string[];
+}
+const { staff, crumb } = Astro.props;
+---
+
+<header class="d-tb">
+  <nav class="d-cr" aria-label="Lokasi halaman">
+    {crumb.map((c, i) => (
+      <>
+        {i > 0 && ' / '}
+        <span aria-current={i === crumb.length - 1 ? 'page' : undefined}>{c}</span>
+      </>
+    ))}
+  </nav>
+  <div class="rt">
+    <a class="d-bt" href="/" target="_blank" rel="noopener">
+      Lihat website <Icon name="external" size={16} />
+    </a>
+    <!-- Keluar lewat POST (dilindungi cek asal): sesi dihapus di server, bukan sekadar cookie dibuang. -->
+    <form method="post" action="/dashboard/keluar">
+      <button type="submit" class="d-bt">
+        <Icon name="logout" size={16} /> Keluar
+      </button>
+    </form>
+    <span class="d-av" aria-hidden="true" title={staff.email}>
+      {initials(staff.name)}
+    </span>
+  </div>
+</header>

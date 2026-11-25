@@ -1,0 +1,15 @@
+---
+// State "Sesi berakhir" sebagai halaman sendiri (rutenya terbuka di middleware). Tampilannya sama dengan
+// /dashboard/masuk?sesi=berakhir; masuk tetap diproses oleh /dashboard/masuk. `lanjut` hanya lewat safeNext.
+import Dashboard from '../../layouts/Dashboard.astro';
+import LoginScreen from '../../components/dashboard/LoginScreen.astro';
+import { safeNext } from '../../server/auth/session';
+
+const lanjut = safeNext(Astro.url.searchParams.get('lanjut'));
+const qs = new URLSearchParams({ sesi: 'berakhir' });
+if (lanjut !== '/dashboard') qs.set('lanjut', lanjut);
+---
+
+<Dashboard title="Sesi berakhir" bare>
+  <LoginScreen mode="sesi" action={`/dashboard/masuk?${qs}`} lanjut={lanjut} />
+</Dashboard>

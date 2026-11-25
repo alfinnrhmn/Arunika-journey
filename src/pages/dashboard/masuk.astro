@@ -1,0 +1,75 @@
+---
+// Masuk dashboard (email + sandi). GET menampilkan formulir; POST memanggil signInStaff (batas laju, aturan
+// akun aktif, dan cookie sesi ada di server/auth, bukan di sini). Galat dirender ulang di halaman ini dengan
+// teks tetap: email salah dan sandi salah memakai teks yang SAMA. Sandi tidak pernah dipantulkan atau dicatat.
+import Dashboard from '../../layouts/Dashboard.astro';
+import LoginScreen from '../../components/dashboard/LoginScreen.astro';
+import { redirectWithCookies, safeNext, signInStaff } from '../../server/auth/session';
+
+const query = Astro.url.searchParams;
+const expired = query.get('sesi') === 'berakhir';
+let lanjutRaw = query.get('lanjut');
+let email = '';
+let error: string | null = null;
+
+// Sudah masuk: tidak perlu formulir, langsung ke tujuan yang aman.
+if (Astro.request.method !== 'POST' && Astro.locals.staff) {
+  return Astro.redirect(safeNext(lanjutRaw), 303);
+}
+
+if (Astro.request.method === 'POST') {
+  let form: FormData | null = null;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    // Badan bukan form yang sah: diperlakukan sebagai kolom kosong.
+  }
+  email = String(form?.get('email') ?? '')
+    .trim()
+    .slice(0, 254);
+  const password = String(form?.get('sandi') ?? '');
+  lanjutRaw = String(form?.get('lanjut') ?? lanjutRaw ?? '');
+
+  if (!email || !password) {
+    Astro.response.status = 400;
+    error = 'Isi email dan kata sandi terlebih dahulu.';
+  } else {
+    const result = await signInStaff(Astro.request, { email, password }, Astro.clientAddress);
+    if (result.ok) return redirectWithCookies(safeNext(lanjutRaw), result.setCookies);
+
+    if (result.reason === 'rate_limited') {
+      const seconds = Math.max(1, Math.ceil(result.retryAfter ?? 60));
+      const minutes = Math.max(1, Math.ceil(seconds / 60));
+      Astro.response.status = 429;
+      Astro.response.headers.set('Retry-After', String(seconds));
+      error = `Terlalu banyak percobaan masuk. Tunggu sekitar ${minutes} menit lalu coba lagi.`;
+    } else if (result.reason === 'inactive') {
+      Astro.response.status = 403;
+      error = 'Akun Anda tidak aktif. Hubungi Owner.';
+    } else {
+      Astro.response.status = 401;
+      error = 'Email atau sandi belum benar. Periksa lagi lalu coba masuk kembali.';
+    }
+  }
+}
+
+// Hanya nilai yang sudah melewati safeNext yang dipantulkan ke HTML maupun ke tujuan alihan.
+const lanjut = safeNext(lanjutRaw);
+const action = (() => {
+  const p = new URLSearchParams();
+  if (expired) p.set('sesi', 'berakhir');
+  if (lanjut !== '/dashboard') p.set('lanjut', lanjut);
+  const qs = p.toString();
+  return qs ? `/dashboard/masuk?${qs}` : '/dashboard/masuk';
+})();
+---
+
+<Dashboard title={expired ? 'Sesi berakhir' : 'Masuk'} bare>
+  <LoginScreen
+    mode={expired ? 'sesi' : 'masuk'}
+    action={action}
+    email={email}
+    lanjut={lanjut}
+    error={error}
+  />
+</Dashboard>

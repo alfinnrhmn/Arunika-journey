@@ -1,0 +1,47 @@
+---
+// Tujuan alihan `guard` saat peran tidak berizin. Rutenya terbuka di middleware (agar tidak berputar), jadi
+// tanpa sesi pengunjung dikirim ke Masuk. Halaman ini hanya menjelaskan; izin sebenarnya tetap dicek di server.
+import Dashboard from '../../layouts/Dashboard.astro';
+import Badge from '../../components/dashboard/Badge.astro';
+import Icon from '../../components/dashboard/Icon.astro';
+import { ROLE_LABEL } from '../../components/dashboard/lib';
+
+const staff = Astro.locals.staff;
+if (!staff) return Astro.redirect('/dashboard/masuk?lanjut=/dashboard', 303);
+Astro.response.status = 403;
+---
+
+<Dashboard title="Tidak ada akses" crumb={['Akses ditolak']}>
+  <div class="d-na">
+    <section class="d-na-box" aria-labelledby="judul">
+      <div class="d-na-ic">
+        <Icon name="alert" size={20} />
+      </div>
+      <p class="d-na-code">Akses ditolak</p>
+      <h1 id="judul">Anda tidak punya akses ke halaman ini</h1>
+      <p class="d-na-txt">
+        Peran {ROLE_LABEL[staff.role]} tidak punya akses ke halaman atau tindakan yang tadi Anda
+        buka. Pengguna dan peran, Pengaturan (termasuk Template Email dan Kebijakan Batal), dan Log
+        Audit hanya bisa dibuka oleh peran Owner. Hubungi Owner bila Anda memerlukannya.
+      </p>
+      <dl class="d-na-info">
+        <div>
+          <dt>Akun Anda</dt>
+          <dd>{staff.name}</dd>
+        </div>
+        <div>
+          <dt>Peran Anda</dt>
+          <dd>
+            <Badge label={ROLE_LABEL[staff.role]} />
+          </dd>
+        </div>
+      </dl>
+      <div class="d-na-cta">
+        <a class="d-bt" data-tone="primary" data-size="md" href="/dashboard">
+          <Icon name="arrow" size={16} /> Kembali ke Ringkasan
+        </a>
+      </div>
+      <p class="d-na-foot">Perubahan peran dilakukan oleh Owner di Pengguna dan Peran.</p>
+    </section>
+  </div>
+</Dashboard>
