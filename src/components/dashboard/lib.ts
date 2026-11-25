@@ -126,3 +126,70 @@ export function paymentFlash(result: string | null, error: string | null): Flash
   if (result && Object.hasOwn(RESULTS, result)) return RESULTS[result]!;
   return null;
 }
+
+// ---- Reservasi ----
+
+type BookingTone = 'ok' | 'warn' | 'bad' | 'info' | 'neutral';
+
+/** Lencana status booking (teks dari features/reservations, di sini hanya warnanya). */
+export function bookingTone(status: string): BookingTone {
+  switch (status) {
+    case 'confirmed':
+    case 'completed':
+      return 'ok';
+    case 'pending_payment':
+      return 'warn';
+    case 'needs_attention':
+    case 'cancelled':
+      return 'bad';
+    case 'refunded':
+      return 'info';
+    default:
+      return 'neutral';
+  }
+}
+
+/**
+ * Tautan WhatsApp dari nomor telepon pemesan, hanya bila nomor bisa dinormalkan dengan aman ke format
+ * internasional Indonesia (08xx, 628xx, atau +628xx; spasi, titik, tanda hubung, dan kurung diabaikan).
+ * Selain itu null, supaya tidak pernah menautkan nomor yang salah atau teks bebas.
+ */
+export function whatsappLink(phone: string): string | null {
+  const cleaned = phone.replace(/[\s.\-()]/g, '');
+  if (!/^\+?\d{9,16}$/.test(cleaned)) return null;
+  const digits = cleaned.replace(/^\+/, '');
+  let intl: string;
+  if (digits.startsWith('0')) intl = `62${digits.slice(1)}`;
+  else if (digits.startsWith('62')) intl = digits;
+  else return null;
+  return /^628\d{7,12}$/.test(intl) ? `https://wa.me/${intl}` : null;
+}
+
+/** Peristiwa log audit yang dikenal dipetakan ke kalimat; kode lain tidak pernah dipantulkan mentah. */
+export function eventLabel(action: string): string {
+  switch (action) {
+    case 'booking.created':
+      return 'Reservasi dibuat';
+    case 'payment.proof_submitted':
+      return 'Bukti pembayaran diunggah';
+    case 'payment.approved':
+      return 'Pembayaran disetujui';
+    case 'payment.rejected':
+      return 'Pembayaran ditolak';
+    case 'booking.expired':
+      return 'Reservasi kedaluwarsa';
+    default:
+      return 'Perubahan tercatat';
+  }
+}
+
+/**
+ * Tujuan tombol "Kembali ke Reservasi": hanya jalur daftar reservasi (beserta query filternya) yang diterima.
+ * Selain itu diabaikan, mencegah open redirect lewat `?balik=`.
+ */
+export function safeBack(value: string | null | undefined): string {
+  const fallback = '/dashboard/reservasi';
+  if (!value) return fallback;
+  if (value.includes('..') || value.includes('//') || value.includes('\\')) return fallback;
+  return /^\/dashboard\/reservasi(\?[A-Za-z0-9\-._~%&=+/]*)?$/.test(value) ? value : fallback;
+}

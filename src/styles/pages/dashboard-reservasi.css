@@ -1,0 +1,277 @@
+/* Reservasi: daftar (/dashboard/reservasi) dan detail (/dashboard/reservasi/[id]). Diport dari frame Doop
+   "Dashboard 2: Reservasi" dan "Dashboard 28: Detail Reservasi". Dasar dashboard (kartu .d-pn, tabel .d-tbl,
+   lencana, tombol) ada di dashboard.css; di sini hanya yang khas dua halaman ini. Tanpa panel pratinjau di
+   daftar: setiap baris adalah tautan ke halaman detail. */
+
+/* ---- Daftar: filter ---- */
+.r-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.r-filters .d-chips {
+  flex-wrap: nowrap;
+}
+.r-filters .fl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.r-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.r-search .d-ic {
+  position: absolute;
+  left: 10px;
+  color: var(--color-dash-muted);
+  pointer-events: none;
+}
+.r-in {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--color-dash-border-strong);
+  border-radius: 8px;
+  background: var(--color-dash-surface);
+  color: var(--color-dash-text);
+  font-size: 13px;
+}
+.r-search .r-in {
+  width: 190px;
+  padding-left: 32px;
+}
+.r-in::placeholder {
+  color: var(--color-dash-muted);
+}
+select.r-in {
+  width: 130px;
+  max-width: 130px;
+  padding-right: 8px;
+}
+
+/* ---- Daftar: tabel dengan baris tautan penuh ---- */
+.r-tbl tbody tr {
+  position: relative;
+}
+.r-tbl .code {
+  font-size: 12px;
+  color: var(--color-dash-muted);
+  letter-spacing: 0.01em;
+}
+.r-tbl tbody th a.rowlink {
+  color: var(--color-dash-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+/* Tautan kode meluas menutupi seluruh baris, jadi baris dapat diklik sekaligus tetap tautan nyata yang
+   bisa difokus keyboard. */
+.r-tbl a.rowlink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.r-tbl tbody tr:focus-within > * {
+  background: var(--color-dash-hover);
+}
+.r-tbl a.rowlink:focus-visible {
+  outline: none;
+}
+.r-tbl tbody tr:focus-within {
+  outline: 2px solid var(--color-dash-text);
+  outline-offset: -2px;
+}
+.r-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--color-dash-border);
+  font-size: 13px;
+  color: var(--color-dash-muted);
+}
+.r-pager .btns {
+  display: flex;
+  gap: 8px;
+}
+.r-pager [aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- Detail ---- */
+.r-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-dash-muted);
+  width: fit-content;
+}
+.r-back:hover {
+  color: var(--color-dash-text);
+}
+.r-back .d-ic {
+  transform: rotate(180deg);
+}
+.r-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.r-head h1 {
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+}
+.r-sub {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--color-dash-muted);
+}
+.r-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+  padding: 4px 20px;
+}
+.r-grid2 .d-rw:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+.r-pn-body {
+  padding: 4px 20px 8px;
+}
+.r-ptbl {
+  width: 100%;
+}
+.r-ptbl th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-dash-muted);
+  padding: 10px 12px;
+  background: var(--color-dash-bg);
+  border-bottom: 1px solid var(--color-dash-border);
+}
+.r-ptbl td,
+.r-ptbl tbody th {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-dash-border);
+  font-size: 14px;
+  vertical-align: top;
+  text-align: left;
+  background: transparent;
+  font-weight: 400;
+  color: var(--color-dash-text);
+}
+.r-ptbl th:first-child,
+.r-ptbl td:first-child {
+  padding-left: 20px;
+}
+.r-ptbl tr:last-child td,
+.r-ptbl tr:last-child th {
+  border-bottom: 0;
+}
+.r-ptbl .sub {
+  display: block;
+  font-size: 12px;
+  color: var(--color-dash-muted);
+  margin-top: 2px;
+}
+.r-ptbl .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.r-muted {
+  color: var(--color-dash-muted);
+}
+.r-lines {
+  padding: 4px 20px;
+}
+.r-lines .d-rw dd {
+  font-variant-numeric: tabular-nums;
+}
+.r-lines .d-rw.total {
+  font-weight: 600;
+}
+.r-lines .d-rw.total dt {
+  color: var(--color-dash-text);
+  font-weight: 600;
+}
+.r-lines .d-rw.remain {
+  padding: 14px 20px;
+  margin: 0 -20px;
+  background: var(--color-dash-bg);
+  border-bottom: 0;
+}
+.r-lines .d-rw.remain dt,
+.r-lines .d-rw.remain dd {
+  font-weight: 600;
+  color: var(--color-dash-text);
+}
+.d-body .r-tl {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px 12px;
+}
+.r-tl li {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  position: relative;
+}
+.r-tl li::before {
+  content: '';
+  flex: 0 0 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--color-dash-border-strong);
+}
+.r-tl li:last-child::before {
+  background: var(--color-dash-text);
+}
+.r-tl b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.r-tl .d-help {
+  display: block;
+  margin-top: 2px;
+}
+.r-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 8px;
+}
+.r-person .nm {
+  font-size: 15px;
+  font-weight: 600;
+}
+.r-person .rl {
+  font-size: 12px;
+  color: var(--color-dash-muted);
+}
+.r-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 20px 16px;
+}
+.r-acts .d-bt {
+  width: 100%;
+}
+.r-attn {
+  margin: 12px 20px 0;
+}
+
+input[type='month'].r-in {
+  width: 140px;
+}

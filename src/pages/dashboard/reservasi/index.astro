@@ -1,0 +1,188 @@
+---
+// Daftar Reservasi (DB-02): tab status, pencarian, filter bulan keberangkatan dan trip, paginasi. Semua lewat GET
+// (satu <form method="get"> dan tautan), jadi bekerja tanpa JavaScript. Data dan penyaringan sepenuhnya milik
+// features/reservations (masukan rusak diabaikan di sana); halaman hanya meneruskan nilai dari query string dan
+// hanya memantulkan nilai yang sudah divalidasi. Izin `reservasi.kelola` dicek di server.
+import '../../../styles/pages/dashboard-reservasi.css';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Icon from '../../../components/dashboard/Icon.astro';
+import ReservationTable from '../../../components/dashboard/ReservationTable.astro';
+import {
+  listReservations,
+  listTripsWithBookings,
+  parseReservationTab,
+  RESERVATION_TABS,
+  RESERVATION_TAB_LABEL,
+} from '../../../features/reservations/queries';
+import { guard } from '../../../server/auth/guard';
+import { getDb } from '../../../server/db';
+
+const g = guard(Astro.locals, 'reservasi.kelola');
+if ('response' in g) return g.response;
+
+const params = Astro.url.searchParams;
+const tab = parseReservationTab(params.get('tab'));
+const q = (params.get('q') ?? '').trim().slice(0, 80);
+const monthRaw = params.get('bulan') ?? '';
+const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(monthRaw) ? monthRaw : '';
+const pageRaw = Number.parseInt(params.get('hal') ?? '', 10);
+
+const db = getDb();
+const trips = await listTripsWithBookings(db);
+// Filter trip hanya berlaku bila id-nya salah satu trip yang punya booking (nilai lain diabaikan).
+const tripId = trips.find((t) => t.id === params.get('trip'))?.id ?? '';
+
+const list = await listReservations(db, {
+  tab,
+  q,
+  month,
+  tripId,
+  page: Number.isFinite(pageRaw) ? pageRaw : 1,
+});
+const { items, total, page, pageSize, counts } = list;
+const lastPage = Math.max(1, Math.ceil(total / pageSize));
+
+/** URL daftar dengan filter yang sudah divalidasi; `over` mengganti sebagian (tab, halaman). */
+function listUrl(over: { tab?: string; hal?: number } = {}) {
+  const p = new URLSearchParams();
+  const t = over.tab ?? tab;
+  if (t !== 'semua') p.set('tab', t);
+  if (q) p.set('q', q);
+  if (month) p.set('bulan', month);
+  if (tripId) p.set('trip', tripId);
+  if (over.hal && over.hal > 1) p.set('hal', String(over.hal));
+  const s = p.toString();
+  return `/dashboard/reservasi${s ? `?${s}` : ''}`;
+}
+
+const filtered = !!(q || month || tripId);
+const anyFilter = filtered || tab !== 'semua';
+const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+const to = Math.min(page * pageSize, total);
+const here = listUrl({ hal: page });
+const subtitle = filtered
+  ? `${counts.semua} reservasi cocok dengan filter`
+  : `${counts.semua} reservasi · ${counts.pending_payment} menunggu pembayaran${counts.perlu_perhatian > 0 ? ` · ${counts.perlu_perhatian} perlu perhatian` : ''}`;
+const title = `Reservasi${tab !== 'semua' ? ` (${RESERVATION_TAB_LABEL[tab]})` : ''}`;
+---
+
+<Dashboard title={title} crumb={['Reservasi']} active="reservasi">
+  <div class="d-ph">
+    <div>
+      <h1>Reservasi</h1>
+      <p>{subtitle}</p>
+    </div>
+  </div>
+
+  <form class="r-filters" method="get" action="/dashboard/reservasi" data-autosubmit>
+    {tab !== 'semua' && <input type="hidden" name="tab" value={tab} />}
+    <nav class="d-chips" aria-label="Status reservasi">
+      {RESERVATION_TABS.map((t) => (
+        <a class="d-ch" href={listUrl({ tab: t })} aria-current={t === tab ? 'page' : undefined}>
+          <span>{RESERVATION_TAB_LABEL[t]}</span>
+          <i>{counts[t]}</i>
+        </a>
+      ))}
+    </nav>
+    <div class="fl">
+      <div class="r-search">
+        <Icon name="search" size={16} />
+        <label class="d-sr" for="cari">
+          Cari reservasi
+        </label>
+        <input
+          class="r-in"
+          id="cari"
+          name="q"
+          type="search"
+          placeholder="Cari kode atau nama"
+          maxlength="80"
+          value={q}
+        />
+      </div>
+      <label class="d-sr" for="bulan">
+        Bulan keberangkatan
+      </label>
+      <input class="r-in" id="bulan" name="bulan" type="month" value={month} />
+      <label class="d-sr" for="trip">
+        Trip
+      </label>
+      <select class="r-in" id="trip" name="trip">
+        <option value="">Semua trip</option>
+        {trips.map((t) => (
+          <option value={t.id} selected={t.id === tripId}>
+            {t.title}
+          </option>
+        ))}
+      </select>
+      <button class="d-bt" type="submit">
+        Terapkan
+      </button>
+      {anyFilter && (
+        <a class="d-bt" data-tone="ghost" href="/dashboard/reservasi">
+          Hapus filter
+        </a>
+      )}
+    </div>
+  </form>
+
+  <section class="d-pn" aria-labelledby="judul-daftar">
+    <header>
+      <h2 id="judul-daftar">{tab === 'semua' ? 'Semua reservasi' : RESERVATION_TAB_LABEL[tab]}</h2>
+      <span class="d-help">Urut: terbaru</span>
+    </header>
+    {items.length === 0 ? (
+      <div class="d-empty">
+        <b>{anyFilter ? 'Tidak ada reservasi yang cocok' : 'Belum ada reservasi'}</b>
+        {anyFilter ? (
+          <>
+            Coba ubah kata kunci atau filter.{' '}
+            <a class="ac" href="/dashboard/reservasi">
+              Hapus filter
+            </a>
+          </>
+        ) : (
+          'Reservasi yang dibuat pelanggan akan muncul di sini.'
+        )}
+      </div>
+    ) : (
+      <>
+        <ReservationTable rows={items} back={here} />
+        <div class="r-pager">
+          <span>
+            Menampilkan {from}-{to} dari {total}
+          </span>
+          {lastPage > 1 && (
+            <nav class="btns" aria-label="Halaman">
+              {page > 1 ? (
+                <a class="d-bt" href={listUrl({ hal: page - 1 })} rel="prev">
+                  Sebelumnya
+                </a>
+              ) : (
+                <span class="d-bt" aria-disabled="true">
+                  Sebelumnya
+                </span>
+              )}
+              <span class="d-bt" data-tone="ghost" aria-current="page">
+                Halaman {page} dari {lastPage}
+              </span>
+              {page < lastPage ? (
+                <a class="d-bt" href={listUrl({ hal: page + 1 })} rel="next">
+                  Berikutnya
+                </a>
+              ) : (
+                <span class="d-bt" aria-disabled="true">
+                  Berikutnya
+                </span>
+              )}
+            </nav>
+          )}
+        </div>
+      </>
+    )}
+  </section>
+</Dashboard>
+
+<script>
+  import '../../../scripts/dashboard';
+</script>

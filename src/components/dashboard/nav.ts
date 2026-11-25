@@ -45,7 +45,13 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
         href: '/dashboard',
         ability: 'ringkasan.lihat',
       },
-      { key: 'reservasi', label: 'Reservasi', icon: 'calcheck', ability: 'reservasi.kelola' },
+      {
+        key: 'reservasi',
+        label: 'Reservasi',
+        icon: 'calcheck',
+        href: '/dashboard/reservasi',
+        ability: 'reservasi.kelola',
+      },
       { key: 'request', label: 'Request Private Trip', icon: 'inbox', ability: 'request.kelola' },
       {
         key: 'pembayaran',
@@ -81,7 +87,13 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     label: 'Sistem',
     items: [
       { key: 'pengguna', label: 'Pengguna dan Peran', icon: 'users', ability: 'pengguna.kelola' },
-      { key: 'pengaturan', label: 'Pengaturan', icon: 'sliders', ability: 'pengaturan.kelola' },
+      {
+        key: 'pengaturan',
+        label: 'Pengaturan',
+        icon: 'sliders',
+        href: '/dashboard/pengaturan',
+        ability: 'pengaturan.kelola',
+      },
       { key: 'audit', label: 'Log Audit', icon: 'shield', ability: 'audit.lihat' },
     ],
   },
