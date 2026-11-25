@@ -20,7 +20,8 @@
     "db:studio": "drizzle-kit studio",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "db:check": "drizzle-kit check",
-    "db:seed": "tsx scripts/seed-dev.ts"
+    "db:seed": "tsx scripts/seed-dev.ts",
+    "user:create": "tsx --env-file-if-exists=.env scripts/create-user.ts"
   },
   "dependencies": {
     "@astrojs/node": "11.1.13",
