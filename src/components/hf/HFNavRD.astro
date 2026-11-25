@@ -537,6 +537,23 @@ const {
   }
 
   /* Menu penuh layar tidak ada di desktop (urutan terakhir agar menang atas aturan tampil di atas). */
+  /* Mobile: CTA header dibuat ringkas supaya wordmark yang jadi sorotan (ukuran wordmark tidak diubah). Yang tampak
+     hanya pil 28px dengan teks 11px; area ketuk tetap 44px tinggi lewat ::before yang tak terlihat. */
+  @media (max-width: 767px) {
+    .hf-rdn .pill {
+      position: relative;
+      height: 28px;
+      padding: 0 10px;
+      font-size: 11px;
+      line-height: 1;
+    }
+    .hf-rdn .pill::before {
+      content: '';
+      position: absolute;
+      inset: -8px -4px;
+    }
+  }
+
   @media (min-width: 1280px) {
     .hf-menu,
     .hf-menu[data-open],
