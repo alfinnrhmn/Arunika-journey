@@ -1,6 +1,7 @@
 ---
 // Testimoni contoh (statis seperti desain). Ulasan asli hanya dari peserta yang berangkat; pager hanya hiasan.
 import { foto } from '../../../lib/photo';
+import { photoSize } from '../photo-size';
 ---
 
 <section class="td-voices">
@@ -52,6 +53,9 @@ import { foto } from '../../../lib/photo';
         class="cover"
         src={foto('potret-perempuan-tenun')}
         alt="Potret peserta berselendang tenun"
+        {...photoSize('potret-perempuan-tenun')}
+        loading="lazy"
+        decoding="async"
       />
     </div>
   </div>

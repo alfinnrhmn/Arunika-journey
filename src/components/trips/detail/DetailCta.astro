@@ -1,6 +1,7 @@
 ---
 import HFArrowButton from '../../hf/HFArrowButton.astro';
 import { foto } from '../../../lib/photo';
+import { photoSize } from '../photo-size';
 ---
 
 <section class="td-cta">
@@ -8,6 +9,9 @@ import { foto } from '../../../lib/photo';
     class="cover td-cta-img"
     src={foto('jip-4x4-bromo')}
     alt="Jip 4×4 melintasi lautan pasir Bromo"
+    {...photoSize('jip-4x4-bromo')}
+    loading="lazy"
+    decoding="async"
   />
   <div class="td-cta-shade"></div>
   <div class="td-cta-body">

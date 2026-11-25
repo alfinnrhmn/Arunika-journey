@@ -4,6 +4,7 @@
 import HFIcon from '../../hf/HFIcon.astro';
 import { mediaUrl } from '../../../lib/photo';
 import type { TripDetail } from '../../../features/trips/queries';
+import { photoSize } from '../photo-size';
 import { itineraryHeading } from './words';
 
 interface Props {
@@ -60,7 +61,14 @@ const paragraphs = (text: string | null) => (text ?? '').split(/\n{2,}/).filter(
               <div class="td-stay">
                 <div class="td-stay-img">
                   {e.lodging.photo && (
-                    <img class="cover" src={mediaUrl(e.lodging.photo)} alt={e.lodging.name} />
+                    <img
+                      class="cover"
+                      src={mediaUrl(e.lodging.photo)}
+                      alt={e.lodging.name}
+                      {...photoSize(e.lodging.photo)}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   )}
                 </div>
                 <b class="td-stay-name">{e.lodging.name}</b>

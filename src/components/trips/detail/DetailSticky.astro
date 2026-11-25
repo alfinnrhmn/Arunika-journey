@@ -1,0 +1,33 @@
+---
+// Bilah aksi lekat di bawah layar (tablet dan mobile): harga mulai dari + "Pilih tanggal" yang menuju kartu
+// pemesanan (#pesan). Posisinya sticky di dalam alur halaman (bukan fixed), jadi berhenti di atas footer
+// dan tidak menutupnya. booking-card.ts menyembunyikannya selama kartu pemesanan sendiri terlihat.
+// Tanpa jadwal terbuka bilah tidak dirender (frame Doop tidak menampilkannya).
+import HFIcon from '../../hf/HFIcon.astro';
+import { formatRupiah } from '../../../lib/format';
+import type { TripDetail } from '../../../features/trips/queries';
+import { whatsappHref } from './words';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+const bookable = trip.schedules.some((s) => s.bookable);
+---
+
+{bookable && (
+  <div class="td-sticky" data-sticky>
+    <div class="td-sticky-price">
+      <span class="td-sticky-cap">Mulai dari, termasuk PPN</span>
+      <span>
+        <b>{formatRupiah(trip.basePrice)}</b> / orang
+      </span>
+    </div>
+    <a class="td-sticky-ask" href={whatsappHref ?? '/contact'} aria-label="Tanya tim kami">
+      <HFIcon name="chat" size={20} />
+    </a>
+    <a class="td-sticky-cta" href="#pesan">
+      Pilih tanggal
+    </a>
+  </div>
+)}

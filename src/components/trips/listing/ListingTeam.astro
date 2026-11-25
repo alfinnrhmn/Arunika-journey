@@ -1,6 +1,7 @@
 ---
 import { foto } from '../../../lib/photo';
 import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { photoSize } from '../photo-size';
 ---
 
 <section class="tl26">
@@ -25,6 +26,9 @@ import HFArrowButton from '../../hf/HFArrowButton.astro';
       class="cover"
       src={foto('penanjakan-menunggu-fajar')}
       alt="Rombongan menunggu fajar di Penanjakan"
+      {...photoSize('penanjakan-menunggu-fajar')}
+      loading="lazy"
+      decoding="async"
     />
   </div>
 </section>

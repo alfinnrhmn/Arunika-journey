@@ -9,17 +9,19 @@ const { trip } = Astro.props;
 const lead = trip.description ?? trip.summary ?? trip.tagline ?? '';
 ---
 
-<span class="hand">Trip overview</span>
-{lead && <p class="td-lead">{lead}</p>}
-<div class="td-values">
-  <div class="td-value">
-    <b>Harga transparan</b>Total, DP, dan biaya tambahan terlihat sebelum Anda membayar.
-  </div>
-  <div class="td-value">
-    <b>Kuota terlihat</b>Sisa kursi tampil di setiap jadwal dan dicek ulang sebelum pembayaran.
-  </div>
-  <div class="td-value">
-    <b>Perjalanan terorganisir</b>Dari titik kumpul sampai pulang, jadwal dan pendamping sudah
-    diatur.
+<div class="td-overview">
+  <span class="hand">Trip overview</span>
+  {lead && <p class="td-lead">{lead}</p>}
+  <div class="td-values">
+    <div class="td-value">
+      <b>Harga transparan</b>Total, DP, dan biaya tambahan terlihat sebelum Anda membayar.
+    </div>
+    <div class="td-value">
+      <b>Kuota terlihat</b>Sisa kursi tampil di setiap jadwal dan dicek ulang sebelum pembayaran.
+    </div>
+    <div class="td-value">
+      <b>Perjalanan terorganisir</b>Dari titik kumpul sampai pulang, jadwal dan pendamping sudah
+      diatur.
+    </div>
   </div>
 </div>

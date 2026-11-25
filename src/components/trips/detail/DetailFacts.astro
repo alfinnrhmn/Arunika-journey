@@ -1,0 +1,39 @@
+---
+// Kartu fakta ringkas (durasi, jadwal terdekat, sisa kuota, titik kumpul) di bawah hero. Hanya tampil di tablet
+// dan mobile (frame Doop); di desktop info yang sama ada di hero dan kartu pemesanan. Semua dari data trip.
+import { formatDateShort, formatDuration } from '../../../lib/format';
+import type { TripDetail } from '../../../features/trips/queries';
+
+interface Props {
+  trip: TripDetail;
+}
+const { trip } = Astro.props;
+const next = trip.schedules.find((s) => s.bookable) ?? null;
+const meeting = trip.meetingPoint?.trim() || '[diisi klien]';
+const capacity = trip.schedules[0]?.capacity ?? trip.maxParticipants;
+---
+
+<section class="td-facts" aria-label="Fakta ringkas">
+  <div class="td-fact">
+    <span>Durasi</span>
+    <b>{formatDuration(trip.durationDays, trip.nights)}</b>
+  </div>
+  <div class="td-fact">
+    <span>Jadwal terdekat</span>
+    <b>{next ? formatDateShort(next.departureDate) : 'Belum dibuka'}</b>
+  </div>
+  <div class="td-fact">
+    <span>{next ? 'Sisa kuota' : 'Kuota per jadwal'}</span>
+    <b>
+      {next
+        ? `${next.seatsLeft} dari ${next.capacity} kursi`
+        : capacity
+          ? `${capacity} kursi`
+          : '-'}
+    </b>
+  </div>
+  <div class="td-fact">
+    <span>Titik kumpul</span>
+    <b>{meeting}</b>
+  </div>
+</section>

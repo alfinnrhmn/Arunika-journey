@@ -93,3 +93,19 @@ if (card) {
     render();
   }
 }
+
+// Bilah aksi lekat (tablet/mobile): disembunyikan selama kartu pemesanan sendiri terlihat di layar, supaya tidak
+// ada dua tombol "pesan" bersamaan. Tanpa JS bilah tetap tampil (sticky di dalam alur, berhenti di atas footer).
+const sticky = document.querySelector<HTMLElement>('[data-sticky]');
+const bookArea = document.getElementById('pesan');
+if (sticky && bookArea && 'IntersectionObserver' in window) {
+  new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) sticky.setAttribute('data-hidden', '');
+        else sticky.removeAttribute('data-hidden');
+      }
+    },
+    { rootMargin: '0px 0px -12% 0px' },
+  ).observe(bookArea);
+}

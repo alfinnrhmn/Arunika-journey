@@ -34,7 +34,7 @@ const moreHref = items.length < total && nextLimit ? `/trips?batas=${nextLimit}`
 >
   <HFNavRD tone="solid" />
   <ListingHero />
-  <ListingResults items={items} />
+  <ListingResults items={items} total={total} />
   <ListingLoadMore shown={items.length} total={total} moreHref={moreHref} />
   <ListingTestimonial />
   <ListingTeam />

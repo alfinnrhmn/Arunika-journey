@@ -1,10 +1,18 @@
 ---
 import { foto } from '../../../lib/photo';
 import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { photoSize } from '../photo-size';
 ---
 
 <section class="tl33">
-  <img class="cover tl34" src={foto('jip-4x4-bromo')} alt="Jip 4×4 melintasi lautan pasir Bromo" />
+  <img
+    class="cover tl34"
+    src={foto('jip-4x4-bromo')}
+    alt="Jip 4×4 melintasi lautan pasir Bromo"
+    {...photoSize('jip-4x4-bromo')}
+    loading="lazy"
+    decoding="async"
+  />
   <div class="tl35"></div>
   <div class="tl36">
     <h2 class="tl37">
