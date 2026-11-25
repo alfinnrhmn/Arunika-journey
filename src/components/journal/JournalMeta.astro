@@ -1,0 +1,22 @@
+---
+// Penutup artikel: "Ditulis oleh" (dengan catatan pemeriksa bila ada) dan daftar topik.
+import type { Story } from '../../content/journal';
+import { authorLabel, topicName } from '../../content/journal';
+
+interface Props {
+  story: Story;
+}
+const { story } = Astro.props;
+---
+
+<section class="jn-meta-block" aria-label="Tentang cerita ini">
+  <div>
+    <div class="jn-k">Ditulis oleh</div>
+    <div class="jn-v jn-v-strong">{authorLabel(story)}</div>
+    {story.note && <div>{story.note}</div>}
+  </div>
+  <div class="jn-meta-r">
+    <div class="jn-k">Topik</div>
+    <div class="jn-v">{story.topics.map(topicName).join(' · ')}</div>
+  </div>
+</section>

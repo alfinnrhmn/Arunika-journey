@@ -1,0 +1,81 @@
+---
+// Filter cerita: topik (chip) dan destinasi (daftar bertanda jumlah). Semuanya tautan `?topik=` / `?destinasi=`
+// yang disaring di server; tidak ada JavaScript yang dibutuhkan. Pencarian dan urutan lain belum ada di server,
+// jadi tidak ditampilkan.
+import type { ListResult } from '../../content/journal';
+import { DESTINASI, TOPICS } from '../../content/journal';
+import { listHref } from './journal-url';
+
+interface Props {
+  result: ListResult;
+}
+const { result } = Astro.props;
+const topik = result.topic?.slug ?? null;
+const dest = result.destinasi?.slug ?? null;
+const chips = TOPICS.filter((t) => t.showInFilter).sort((a, b) => a.position - b.position);
+const active = !!(topik || dest);
+---
+
+<div class="jn-filters">
+  <div class="jn-ftitle">
+    Filter cerita
+    <span class="jn-count" aria-label={`${result.total} cerita`}>
+      {result.total}
+    </span>
+  </div>
+  <nav aria-labelledby="jn-lab-topik">
+    <h2 class="jn-lab" id="jn-lab-topik">
+      Topik
+    </h2>
+    <div class="jn-chips" data-chips>
+      <a
+        class="jn-chip"
+        href={listHref({ destinasi: dest })}
+        aria-current={!topik ? 'true' : undefined}
+      >
+        Semua
+      </a>
+      {chips.map((t) => (
+        <a
+          class="jn-chip"
+          href={listHref({ topik: t.slug, destinasi: dest })}
+          aria-current={topik === t.slug ? 'true' : undefined}
+        >
+          {t.name}
+        </a>
+      ))}
+    </div>
+  </nav>
+  <nav aria-labelledby="jn-lab-dest">
+    <h2 class="jn-lab jn-lab-dest" id="jn-lab-dest">
+      Destinasi
+    </h2>
+    <ul class="jn-dests">
+      <li>
+        <a class="jn-dest" href={listHref({ topik })} aria-current={!dest ? 'true' : undefined}>
+          <span>
+            Semua<span class="jn-ext"> destinasi</span>
+          </span>
+          <span class="jn-n">{result.destinasiCounts.semua}</span>
+        </a>
+      </li>
+      {DESTINASI.map((d) => (
+        <li>
+          <a
+            class="jn-dest"
+            href={listHref({ topik, destinasi: d.slug })}
+            aria-current={dest === d.slug ? 'true' : undefined}
+          >
+            <span>{d.name}</span>
+            <span class="jn-n">{result.destinasiCounts[d.slug] ?? 0}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  {active && (
+    <a class="jn-reset" href="/journal#cerita">
+      Atur ulang filter
+    </a>
+  )}
+</div>

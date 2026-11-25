@@ -1,0 +1,44 @@
+---
+// Ajakan penutup di atas footer (latar night): Open Trip atau Request a Quote. Judul memakai `{em}` untuk kata miring.
+import HFArrowButton from '../hf/HFArrowButton.astro';
+
+interface Props {
+  title: string;
+  em: string;
+  body: string;
+}
+const { title, em, body } = Astro.props;
+const [before = '', after = ''] = title.split('{em}');
+// \n = jeda baris desktop (disembunyikan di tablet/mobile oleh CSS).
+const lines = (t: string) => t.split('\n');
+---
+
+<section class="jn-cta" aria-labelledby="jn-cta-h">
+  <div class="jn-cta-l">
+    <span class="jn-eyebrow" data-tone="light">
+      Setelah membaca
+    </span>
+    <h2 id="jn-cta-h">
+      {lines(before).map((l, i) => (
+        <Fragment>
+          {i > 0 && <br class="jn-br" />}
+          {l}
+        </Fragment>
+      ))}
+      <i>{em}</i>
+      {lines(after).map((l, i) => (
+        <Fragment>
+          {i > 0 && <br class="jn-br" />}
+          {l}
+        </Fragment>
+      ))}
+    </h2>
+  </div>
+  <div class="jn-cta-r">
+    <p>{body}</p>
+    <div class="jn-cta-btns">
+      <HFArrowButton tone="light" label="Lihat Open Trip" href="/trips" />
+      <HFArrowButton tone="light" label="Request a Quote" href="/private-trip/request" />
+    </div>
+  </div>
+</section>

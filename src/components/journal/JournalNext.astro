@@ -1,0 +1,46 @@
+---
+// "Berikutnya": satu cerita besar dengan foto dan tombol baca.
+import type { Story } from '../../content/journal';
+import { titleParts } from '../../content/journal';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { jfoto } from './photo-dims';
+
+interface Props {
+  story: Story;
+}
+const { story } = Astro.props;
+const href = `/journal/${story.slug}`;
+const [pre, em, post] = titleParts(story);
+---
+
+<section class="jn-next-s" aria-labelledby="jn-next-h">
+  <div class="jn-nx jn-rv">
+    <span class="jn-eyebrow jn-nx-eb">Berikutnya</span>
+    <div class="jn-ph jn-nx-media">
+      <div class="jn-px">
+        <div>
+          <img
+            class="cover"
+            {...jfoto(story.cover.foto)}
+            alt={story.cover.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="jn-nx-txt">
+      <h2 id="jn-next-h">
+        <a href={href}>
+          {pre}
+          {em && <i>{em}</i>}
+          {post}
+        </a>
+      </h2>
+      <p>{story.excerpt}</p>
+      <div class="jn-nx-btn">
+        <HFArrowButton tone="outline" label="Baca cerita" href={href} />
+      </div>
+    </div>
+  </div>
+</section>
