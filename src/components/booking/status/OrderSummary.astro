@@ -34,7 +34,15 @@ const price = {
     <div class="trip">
       <div class="th">
         {trip?.coverPhoto ? (
-          <img class="cover" src={mediaUrl(trip.coverPhoto)} alt={view.trip.title} />
+          <img
+            class="cover"
+            src={mediaUrl(trip.coverPhoto)}
+            alt={view.trip.title}
+            width="92"
+            height="92"
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <span class="ph" aria-hidden="true"></span>
         )}

@@ -17,6 +17,8 @@ interface Props {
   trip: TripSummary | null;
   /** Kosong untuk status di luar alur (dibatalkan, refund): tanpa penunjuk langkah. */
   step?: 3 | 4 | null;
+  /** Keterangan pendek penunjuk langkah di mobile (mis. "Menunggu pembayaran"). */
+  stepNote?: string;
   hand: string;
   lead: string;
   em: string;
@@ -32,6 +34,7 @@ const {
   view,
   trip,
   step = null,
+  stepNote,
   hand,
   lead,
   em,
@@ -49,11 +52,11 @@ const {
   noindex
 >
   <div class="bs-page">
-    <CheckoutHeader />
+    <CheckoutHeader label={step === 4 ? 'Konfirmasi' : step === 3 ? 'Pembayaran' : undefined} />
     <section class="bs-top">
       {step && (
         <div class="bs-top-step">
-          <Stepper current={step} />
+          <Stepper current={step} note={stepNote} />
         </div>
       )}
       <div class="bs-title" data-display={display ? 'yes' : 'no'}>
