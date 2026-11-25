@@ -81,3 +81,7 @@ export async function getBookingSettings(db: Executor): Promise<BookingSettings>
   }
   return out;
 }
+
+/** Dipakai fungsi simpan Pengaturan agar validasi tulis sama persis dengan validasi baca. */
+export const BOOKING_SETTING_KEYS = KEYS;
+export const bookingSettingSchemas = schemas;
