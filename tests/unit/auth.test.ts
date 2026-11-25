@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ABILITIES, can, type Ability } from '../../src/server/auth/permissions';
 import { guard, isUuid } from '../../src/server/auth/guard';
 import { safeNext } from '../../src/server/auth/session';
+import { isSameOriginRequest } from '../../src/server/auth/origin';
 
 const staff = (role: 'owner' | 'admin_ops') => ({
   id: 'u1',
@@ -108,5 +109,37 @@ describe('safeNext (cegah open redirect setelah masuk)', () => {
   it('null atau undefined kembali ke /dashboard', () => {
     expect(safeNext(null)).toBe('/dashboard');
     expect(safeNext(undefined)).toBe('/dashboard');
+  });
+});
+
+describe('isSameOriginRequest (CSRF dashboard)', () => {
+  const SITE = ['http://localhost:4321'];
+  const req = (method: string, headers: Record<string, string> = {}) =>
+    new Request('http://localhost:4321/dashboard/pembayaran/x/setujui', { method, headers });
+
+  it('metode aman selalu lolos', () => {
+    for (const method of ['GET', 'HEAD', 'OPTIONS'])
+      expect(isSameOriginRequest(req(method), SITE)).toBe(true);
+  });
+
+  it('POST dengan Origin situs sendiri lolos', () => {
+    expect(isSameOriginRequest(req('POST', { origin: 'http://localhost:4321' }), SITE)).toBe(true);
+  });
+
+  it('POST dengan Origin situs lain ditolak, juga tanpa badan atau tipe konten (celah checkOrigin Astro)', () => {
+    expect(isSameOriginRequest(req('POST', { origin: 'https://situs-lain.com' }), SITE)).toBe(
+      false,
+    );
+    expect(
+      isSameOriginRequest(req('DELETE', { origin: 'http://localhost:4321.situs-lain.com' }), SITE),
+    ).toBe(false);
+    expect(isSameOriginRequest(req('POST', { origin: 'null' }), SITE)).toBe(false);
+  });
+
+  it('tanpa Origin: hanya lolos bila browser menyatakan same-origin', () => {
+    expect(isSameOriginRequest(req('POST'), SITE)).toBe(false);
+    expect(isSameOriginRequest(req('POST', { 'sec-fetch-site': 'cross-site' }), SITE)).toBe(false);
+    expect(isSameOriginRequest(req('POST', { 'sec-fetch-site': 'same-site' }), SITE)).toBe(false);
+    expect(isSameOriginRequest(req('POST', { 'sec-fetch-site': 'same-origin' }), SITE)).toBe(true);
   });
 });

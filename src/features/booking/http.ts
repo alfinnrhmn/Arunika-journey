@@ -7,7 +7,8 @@ import { isBookingError, type BookingError } from './errors';
  * di desain. Halaman tidak boleh membaca atau menulis cookie booking dengan cara lain.
  */
 
-const isProd = import.meta.env.PROD;
+// Di luar Astro/Vite (skrip tsx, worker) `import.meta.env` tidak ada; barrel booking ikut mengimpor modul ini.
+const isProd = import.meta.env?.PROD ?? process.env.NODE_ENV === 'production';
 
 /** Cookie draf (langkah 1 sampai 3): berisi token acak, httpOnly; hanya hash-nya yang ada di database. */
 export function setDraftCookie(cookies: AstroCookies, token: string, hours: number) {

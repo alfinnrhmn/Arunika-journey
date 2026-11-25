@@ -1,4 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
+import { isSameOriginRequest } from './server/auth/origin';
 import { getStaff } from './server/auth/session';
 
 /**
@@ -25,6 +26,12 @@ function markPrivate(response: Response): Response {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname, search } = context.url;
   if (pathname !== '/dashboard' && !pathname.startsWith('/dashboard/')) return next();
+
+  // Permintaan yang mengubah data harus berasal dari situs ini (termasuk POST masuk, agar tidak ada login CSRF).
+  const siteOrigin = new URL(process.env.PUBLIC_SITE_URL ?? context.url.origin).origin;
+  if (!isSameOriginRequest(context.request, [context.url.origin, siteOrigin])) {
+    return markPrivate(new Response('Permintaan ditolak', { status: 403 }));
+  }
 
   const staff = await getStaff(context.request.headers);
   if (staff) context.locals.staff = staff;
