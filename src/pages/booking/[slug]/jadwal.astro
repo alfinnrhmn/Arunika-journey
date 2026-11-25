@@ -5,6 +5,7 @@
 import FlowShell from '../../../components/booking/flow/FlowShell.astro';
 import FlowMissing from '../../../components/booking/flow/FlowMissing.astro';
 import FlowAlert from '../../../components/booking/flow/FlowAlert.astro';
+import FlowBar from '../../../components/booking/flow/FlowBar.astro';
 import FlowButton from '../../../components/booking/flow/FlowButton.astro';
 import FlowCounter from '../../../components/booking/flow/FlowCounter.astro';
 import FlowSchedulePick from '../../../components/booking/flow/FlowSchedulePick.astro';
@@ -170,6 +171,8 @@ const pageTitle = flow ? `Pilih jadwal dan peserta | ${flow.detail.title} | Arun
     step={1}
     slug={slug}
     hand="Kuota dicek sebelum pembayaran"
+    summaryMode="quota"
+    backHref={`/trips/${slug}`}
     {summary}
   >
     <Fragment slot="heading">
@@ -197,6 +200,8 @@ const pageTitle = flow ? `Pilih jadwal dan peserta | ${flow.detail.title} | Arun
     step={1}
     slug={slug}
     hand="Jadwal berubah"
+    summaryMode="replace"
+    backHref={`/trips/${slug}`}
     {summary}
   >
     <Fragment slot="heading">
@@ -222,6 +227,7 @@ const pageTitle = flow ? `Pilih jadwal dan peserta | ${flow.detail.title} | Arun
     slug={slug}
     hand="Langkah 1 dari 4 · sekitar 2 menit"
     lead={`${flow.detail.title} · ${duration}. Kuota dicek sebelum pembayaran, dan harga tampil sebelum Anda mengisi apa pun.`}
+    sectionNo="03"
     {summary}
   >
     <Fragment slot="heading">
@@ -316,8 +322,19 @@ const pageTitle = flow ? `Pilih jadwal dan peserta | ${flow.detail.title} | Arun
       </div>
       <div>
         <div class="bf-actions">
-          <FlowButton tone="secondary" label="Kembali ke trip" href={`/trips/${slug}`} />
-          <FlowButton label="Lanjut ke data pemesan" arrow disabled={!selected} data-bf-submit />
+          <FlowButton
+            tone="secondary"
+            label="Kembali ke trip"
+            href={`/trips/${slug}`}
+            data-bf-back
+          />
+          <FlowBar
+            variant="price"
+            label={price ? `Total · DP ${formatRupiah(price.dp)}` : 'Pilih tanggal dan peserta'}
+            value={price ? formatRupiah(price.total) : ''}
+          >
+            <FlowButton label="Lanjut ke data pemesan" arrow disabled={!selected} data-bf-submit />
+          </FlowBar>
           <span class="side-note">Belum ada pembayaran pada tahap ini.</span>
         </div>
       </div>

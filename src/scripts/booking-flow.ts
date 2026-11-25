@@ -88,6 +88,27 @@ function setupPreview(form: HTMLFormElement) {
         if (label) label.textContent = `Lanjut dengan ${date}`;
       }
     }
+    let price: ReturnType<typeof calcPrice> | null = null;
+    if (valid) {
+      try {
+        price = calcPrice({
+          unitPrice: intOf(checked.dataset.price),
+          childPrice,
+          adults,
+          children,
+          dpPercent,
+        });
+      } catch {
+        /* masukan di luar batas: biarkan rincian terakhir, server yang memutuskan */
+      }
+    }
+    // Bilah lekat di layar kecil: total dan DP mengikuti pratinjau.
+    if (price) {
+      const barLabel = $<HTMLElement>(form, '[data-bf-bar-label]');
+      const barTotal = $<HTMLElement>(form, '[data-bf-bar-total]');
+      if (barLabel) barLabel.textContent = `Total · DP ${formatRupiah(price.dp)}`;
+      if (barTotal) barTotal.textContent = formatRupiah(price.total);
+    }
     if (summary) {
       const dateEl = $<HTMLElement>(summary, '[data-bf-sum-date]');
       if (dateEl) dateEl.textContent = date;
@@ -97,21 +118,7 @@ function setupPreview(form: HTMLFormElement) {
           children > 0 ? `${adults} dewasa, ${children} anak` : `${adults} dewasa`;
       }
       const priceEl = $<HTMLElement>(summary, '[data-bf-price]');
-      if (priceEl && valid) {
-        try {
-          priceEl.innerHTML = priceHtml(
-            calcPrice({
-              unitPrice: intOf(checked.dataset.price),
-              childPrice,
-              adults,
-              children,
-              dpPercent,
-            }),
-          );
-        } catch {
-          /* masukan di luar batas: biarkan rincian terakhir, server yang memutuskan */
-        }
-      }
+      if (priceEl && price) priceEl.innerHTML = priceHtml(price);
     }
   }
 
@@ -186,7 +193,19 @@ function setupSingleSubmit(form: HTMLFormElement) {
   });
 }
 
+/** Akordeon rincian harga pada kartu ringkasan (langkah 2, layar kecil). Tanpa JS rincian selalu terbuka. */
+function setupSummaryToggle() {
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>('[data-bf-toggle]');
+    const box = btn?.closest<HTMLElement>('.bf-os');
+    if (!btn || !box) return;
+    const open = box.toggleAttribute('data-open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+}
+
 function init() {
+  setupSummaryToggle();
   for (const form of $$<HTMLFormElement>(document, 'form[data-bf-form]')) {
     setupPreview(form);
     setupSameAsBooker(form);

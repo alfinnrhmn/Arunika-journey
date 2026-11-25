@@ -1,4 +1,4 @@
-/* Alur Booking Open Trip (langkah 1 sampai 3, desktop 1440). Diport dari frame Doop "Booking Langkah 1/2/3",
+/* Alur Booking Open Trip (langkah 1 sampai 3, desktop 1440; tablet 820 dan mobile 390 di bagian bawah berkas). Diport dari frame Doop "Booking Langkah 1/2/3",
    "Kuota tidak mencukupi", dan "Tanggal tidak tersedia"; gaya inline dan komponen desain (hf-ckh, hf-st, hf-do,
    hf-os, hf-field, hf-po, hf-btn, hf-ckl) dijadikan kelas bf-*. Gaya bersama (reset, .hand) ada di global.css. */
 
@@ -258,7 +258,7 @@
   padding-top: 24px;
   border-top: 1px solid var(--color-ink);
 }
-.bf-sh span {
+.bf-sh > span {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.14em;
@@ -1069,56 +1069,789 @@
   color: var(--color-ink-2);
 }
 
-/* ---- Layar sempit: satu kolom (desain hanya mendefinisikan desktop; ini jaring pengaman) ---- */
-@media (max-width: 1100px) {
-  .bf-head,
-  .bf-foot,
-  .bf-top,
-  .bf-grid {
-    padding-left: 24px;
-    padding-right: 24px;
+/* ---- Elemen khusus layar kecil: tersembunyi di desktop (>=1280), jadi tampilan desktop tidak berubah ---- */
+.bf-head .back,
+.bf-head .ttl,
+.bf-pb,
+.bf-os .os-sh,
+.bf-os .ts,
+.bf-os .mini,
+.bf-bar-p,
+.bf-bar-wa {
+  display: none;
+}
+.bf-bar {
+  display: contents;
+}
+
+/* ================================================================================================
+   Tablet dan di bawahnya (<=1279px). Mengikuti frame Doop "Booking ... / Tablet" (820) dan "Mobile" (390):
+   header dengan tombol kembali, penunjuk langkah (mobile: bilah kemajuan), ringkasan harga menjadi kartu,
+   akordeon, atau bagian halaman, dan aksi utama pada bilah lekat di dasar layar.
+   ================================================================================================ */
+@media (max-width: 1279px) {
+  html:has(.bf-bar) {
+    scroll-padding-bottom: 112px;
   }
-  .bf-grid {
-    flex-direction: column;
-    gap: 48px;
+  .bf-page:has(.bf-bar[data-bar='price'], .bf-bar[data-bar='price-tablet']) {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
   }
-  .bf-main,
-  .bf-side {
-    width: 100%;
+
+  /* Header: kembali, judul, WhatsApp */
+  .bf-head {
+    height: 60px;
+    padding: 0 20px 0 12px;
+    gap: 4px;
+  }
+  .bf-head .wm,
+  .bf-head .help > span:first-child {
+    display: none;
+  }
+  .bf-head .back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex: none;
+    width: 44px;
+    height: 44px;
+    color: var(--color-ink);
   }
-  .bf-foot {
-    height: auto;
+  .bf-head .back svg {
+    transform: rotate(180deg);
+  }
+  .bf-head .ttl {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+  .bf-head .ttl .sm {
+    display: none;
+  }
+  .bf-head .wa {
+    height: 44px;
+    padding: 0 8px;
+    border: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+
+  /* Penunjuk langkah dan judul */
+  .bf-top {
+    padding: 28px 32px 0;
+  }
+  .bf-st ol {
+    gap: 12px;
+  }
+  .bf-st .bar {
+    min-width: 12px;
+  }
+  .bf-st .s .in {
+    min-height: 44px;
+  }
+  .bf-intro {
+    margin-top: 40px;
+    max-width: none;
+  }
+  .bf-intro.split {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+  }
+  .bf-intro .aside {
+    padding-bottom: 0;
+  }
+  .bf-page .hand {
+    font-size: 28px;
+  }
+  .bf-intro h1 {
+    font-size: 40px;
+    line-height: 46px;
+  }
+
+  /* Satu kolom */
+  .bf-grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 40px;
+    padding: 40px 32px 56px;
+  }
+  .bf-main {
+    width: 100%;
+    flex: none;
+    min-width: 0;
+    gap: 48px;
+  }
+  .bf-form {
+    gap: 48px;
+  }
+  .bf-side {
+    width: 100%;
+    flex: none;
+    min-width: 0;
+  }
+  .bf-side:empty {
+    display: none;
+  }
+  .bf-side[data-mode='inline'],
+  .bf-side[data-mode='card'],
+  .bf-side[data-mode='card-toggle'] {
+    order: -1;
+  }
+  .bf-side[data-mode='quota'],
+  .bf-side[data-mode='replace'] {
+    order: 1;
+  }
+
+  /* Sentuhan: tombol bulat, kolom isian, baris pilihan */
+  .bf-do {
+    min-height: 68px;
+    padding: 12px 14px;
+  }
+  .bf-do .r {
+    width: 22px;
+    height: 22px;
+  }
+  .bf-cnt {
+    padding: 10px 12px 10px 20px;
+  }
+  .bf-cnt .ctl {
+    gap: 8px;
+  }
+  .bf-cnt .cb {
+    width: 44px;
+    height: 44px;
+  }
+  .bf-cnt .cv {
+    height: 44px;
+  }
+  .bf-js .bf-cnt .cv {
+    width: 32px;
+    height: auto;
+    font-size: 18px;
+  }
+  .bf-field .box {
+    font-size: 16px;
+  }
+  .bf-grid2 .wide {
+    grid-column: 1 / span 2;
+    max-width: none;
+  }
+  .bf-toggle {
+    min-height: 44px;
+    margin-top: 20px;
+  }
+  .bf-chk {
+    min-height: 44px;
+    align-items: center;
+  }
+  .bf-pay {
+    max-width: none;
+  }
+
+  /* Footer ringkas */
+  .bf-foot {
+    height: auto;
+    min-height: 72px;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+    padding: 12px 32px;
   }
   .bf-foot .r {
     flex-wrap: wrap;
-    gap: 8px 20px;
+    gap: 0 24px;
+  }
+  .bf-foot a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* Bilah aksi lekat */
+  .bf-actions {
+    padding-top: 24px;
+    gap: 12px 16px;
+  }
+  .bf-bar[data-bar='price'],
+  .bf-bar[data-bar='price-tablet'] {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-line);
+  }
+  .bf-bar[data-bar] .bf-bar-p {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .bf-bar-p .l {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-ink-2);
+  }
+  .bf-bar-p strong {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .bf-bar[data-bar='price'] .bf-bar-wa,
+  .bf-bar[data-bar='price-tablet'] .bf-bar-wa {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-ink);
+    color: var(--color-ink);
+  }
+  .bf-bar .bf-btn {
+    flex: none;
+  }
+
+  /* ---- Ringkasan pesanan di layar kecil ---- */
+  .bf-os .ts {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-ink-2);
+  }
+  .bf-os .vat {
+    margin: 0;
+  }
+  .bf-os .ed {
+    margin: 0;
+  }
+
+  /* inline (langkah 1): ringkasan di atas, foto dan rincian harga berdampingan */
+  .bf-os[data-mode='inline'] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-areas:
+      'eb eb'
+      'trip price'
+      'facts price'
+      'vat vat'
+      'tr tr';
+    gap: 16px 24px;
+    align-items: start;
+  }
+  .bf-os[data-mode='inline'] .eb {
+    grid-area: eb;
+  }
+  .bf-os[data-mode='inline'] .trip {
+    grid-area: trip;
+  }
+  .bf-os[data-mode='inline'] .facts {
+    grid-area: facts;
+  }
+  .bf-os[data-mode='inline'] .bf-ps {
+    grid-area: price;
+  }
+  .bf-os[data-mode='inline'] .vat {
+    grid-area: vat;
+  }
+  .bf-os[data-mode='inline'] .tr {
+    grid-area: tr;
+  }
+  .bf-os[data-mode='inline'] .ed {
+    display: none;
+  }
+  .bf-os[data-mode='inline'] .trip,
+  .bf-os[data-mode='replace'] .trip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .bf-os[data-mode='inline'] .th,
+  .bf-os[data-mode='replace'] .th {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 300 / 170;
+  }
+
+  /* quota: hanya foto dan judul (tablet) */
+  .bf-os[data-mode='quota'] .os-sh,
+  .bf-os[data-mode='replace'] .os-sh {
+    display: flex;
+  }
+  .bf-os[data-mode='quota'] .eb,
+  .bf-os[data-mode='quota'] .facts,
+  .bf-os[data-mode='quota'] .bf-ps,
+  .bf-os[data-mode='quota'] .ed,
+  .bf-os[data-mode='quota'] .tr,
+  .bf-os[data-mode='quota'] .vat,
+  .bf-os[data-mode='quota'] .tm,
+  .bf-os[data-mode='replace'] .eb,
+  .bf-os[data-mode='replace'] .facts,
+  .bf-os[data-mode='replace'] .ed,
+  .bf-os[data-mode='replace'] .tr {
+    display: none;
+  }
+  .bf-os[data-mode='quota'] .ts,
+  .bf-os[data-mode='replace'] .ts {
+    display: block;
+  }
+  .bf-os[data-mode='quota'] .trip {
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .bf-os[data-mode='quota'] .th {
+    width: 200px;
+    height: 120px;
+  }
+  .bf-os[data-mode='replace'] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-areas:
+      'sh sh'
+      'trip price'
+      'vat vat';
+    gap: 24px;
+    align-items: start;
+  }
+  .bf-os[data-mode='replace'] .os-sh {
+    grid-area: sh;
+  }
+  .bf-os[data-mode='replace'] .trip {
+    grid-area: trip;
+  }
+  .bf-os[data-mode='replace'] .bf-ps {
+    grid-area: price;
+  }
+  .bf-os[data-mode='replace'] .vat {
+    grid-area: vat;
+    margin-top: -8px;
+  }
+  .bf-os .os-sh .sm {
+    display: none;
+  }
+
+  /* card dan card-toggle (langkah 2 dan 3): kartu ringkas, tablet satu baris */
+  .bf-os[data-mode='card'],
+  .bf-os[data-mode='card-toggle'] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0 24px;
+    padding: 16px 20px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+  }
+  .bf-os[data-mode='card'] .eb,
+  .bf-os[data-mode='card'] .facts,
+  .bf-os[data-mode='card'] .tm,
+  .bf-os[data-mode='card'] .bf-ps,
+  .bf-os[data-mode='card'] .ed,
+  .bf-os[data-mode='card'] .tr,
+  .bf-os[data-mode='card'] .vat,
+  .bf-os[data-mode='card-toggle'] .eb,
+  .bf-os[data-mode='card-toggle'] .facts,
+  .bf-os[data-mode='card-toggle'] .tm,
+  .bf-os[data-mode='card-toggle'] .tr {
+    display: none;
+  }
+  .bf-os[data-mode='card'] .ts,
+  .bf-os[data-mode='card-toggle'] .ts {
+    display: block;
+  }
+  .bf-os[data-mode='card'] .trip,
+  .bf-os[data-mode='card-toggle'] .trip {
+    grid-column: 1;
+    gap: 14px;
+  }
+  .bf-os[data-mode='card'] .th,
+  .bf-os[data-mode='card-toggle'] .th {
+    width: 52px;
+    height: 52px;
+  }
+  .bf-os[data-mode='card'] .tt,
+  .bf-os[data-mode='card-toggle'] .tt {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .bf-os[data-mode='card'] .mini,
+  .bf-os[data-mode='card-toggle'] .mini {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .bf-os .mi-v {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .bf-os .mi-v span {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-ink-2);
+  }
+  .bf-os .mi-v strong {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .bf-os .mi-v.dp strong {
+    color: var(--color-dawn-deep);
+  }
+  .bf-os .mi-act {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .bf-os button.mi-act {
+    display: none;
+  }
+  .bf-js .bf-os button.mi-act {
+    display: inline-flex;
+  }
+  .bf-os[data-open] .mi-act svg {
+    transform: rotate(180deg);
+  }
+  /* akordeon: rincian harga di bawah kartu; tanpa JavaScript selalu terbuka */
+  .bf-os[data-mode='card-toggle'] .bf-ps,
+  .bf-os[data-mode='card-toggle'] .vat,
+  .bf-os[data-mode='card-toggle'] .ed {
+    grid-column: 1 / -1;
+  }
+  .bf-os[data-mode='card-toggle'] .bf-ps {
+    margin-top: 16px;
+  }
+  .bf-os[data-mode='card-toggle'] .vat {
+    margin-top: 8px;
+    order: 1;
+  }
+  .bf-os[data-mode='card-toggle'] .ed {
+    justify-self: start;
+    margin-top: 12px;
+    order: 2;
+  }
+  .bf-js .bf-os[data-mode='card-toggle']:not([data-open]) .bf-ps,
+  .bf-js .bf-os[data-mode='card-toggle']:not([data-open]) .vat,
+  .bf-js .bf-os[data-mode='card-toggle']:not([data-open]) .ed {
+    display: none;
+  }
+}
+
+/* Tablet saja (768-1279): WhatsApp pada bilah; aksi cta ikut baris aksi biasa */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .bf-bar-p .l {
+    font-size: 13px;
+  }
+  .bf-os .os-sh .lg {
+    display: inline;
+  }
+  .bf-os[data-mode='inline'] .os-sh {
+    display: none;
+  }
+}
+
+/* ================================================================================================
+   Mobile (<=767px)
+   ================================================================================================ */
+@media (max-width: 767px) {
+  .bf-page:has(.bf-bar[data-bar='cta']) {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .bf-head {
+    padding: 0 12px 0 8px;
+  }
+  .bf-head .ttl .lg {
+    display: none;
+  }
+  .bf-head .ttl .sm {
+    display: inline;
+  }
+
+  /* Bilah kemajuan menggantikan daftar langkah */
+  .bf-top {
+    padding: 0;
+  }
+  .bf-st ol {
+    display: none;
+  }
+  .bf-pb {
+    display: block;
+    padding: 16px 20px;
+  }
+  .bf-pb .t {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .bf-pb .s {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .bf-pb .s i {
+    flex: 1;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--color-line);
+  }
+  .bf-st[data-current='1'] .bf-pb i:nth-child(-n + 1),
+  .bf-st[data-current='2'] .bf-pb i:nth-child(-n + 2),
+  .bf-st[data-current='3'] .bf-pb i:nth-child(-n + 3),
+  .bf-st[data-current='4'] .bf-pb i:nth-child(-n + 4) {
+    background: var(--color-ink);
+  }
+  .bf-intro {
+    margin-top: 0;
+    padding: 28px 20px 0;
+  }
+  .bf-page .hand {
+    font-size: 24px;
   }
   .bf-intro h1 {
+    margin-top: 8px;
     font-size: 36px;
     line-height: 42px;
   }
-  .bf-cnts,
+  .bf-intro .lead {
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 24px;
+  }
+  .bf-intro .aside {
+    font-size: 13px;
+  }
+
+  .bf-grid {
+    gap: 32px;
+    padding: 32px 20px 28px;
+  }
+  .bf-main {
+    gap: 44px;
+  }
+  .bf-form {
+    gap: 44px;
+  }
+
+  /* Kepala bagian: catatan turun ke baris sendiri */
+  .bf-sh {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding-top: 16px;
+  }
+  .bf-sh h2 {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .bf-sh em {
+    flex: 0 0 100%;
+    margin: 4px 0 0;
+  }
+  .bf-pad {
+    margin-top: 16px;
+  }
+  .bf-dates {
+    gap: 10px;
+  }
+
+  .bf-cnts {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .bf-cnt {
+    padding: 10px 12px 10px 16px;
+  }
+  .bf-quota {
+    margin-top: 16px;
+    padding: 14px 16px;
+  }
   .bf-grid2 {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .bf-grid2.first {
+    margin-top: 20px;
   }
   .bf-grid2 .wide {
     grid-column: auto;
-    max-width: none;
   }
+  .bf-alert {
+    gap: 12px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .bf-alert ul {
+    margin-left: 16px;
+  }
+
   .bf-opt {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px;
   }
-  .bf-st .l {
+  .bf-opt h3 {
+    font-size: 22px;
+    line-height: 28px;
+  }
+  .bf-opt p {
+    max-width: none;
+  }
+  .bf-opt .bf-btn {
+    width: 100%;
+  }
+  .bf-method {
+    flex-wrap: wrap;
+    gap: 12px 14px;
+    padding: 16px;
+  }
+  .bf-method .n {
+    flex-basis: 100%;
+    padding-left: 36px;
+    white-space: normal;
+  }
+  .bf-note-foot {
+    padding-top: 20px;
+  }
+
+  /* Footer: blok legalitas kecil */
+  .bf-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 16px 20px;
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .bf-foot .r {
+    gap: 0 20px;
+  }
+
+  /* Aksi: tombol kembali ada di header; bilah lekat berisi harga + tombol utama atau tombol saja */
+  .bf-actions {
+    padding-top: 20px;
+  }
+  .bf-actions [data-bf-back] {
     display: none;
   }
-  .bf-st .s[aria-current='step'] .l {
+  .bf-bar[data-bar='cta'],
+  .bf-bar[data-bar='price-tablet'] {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: flex;
+    gap: 12px;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-line);
+  }
+  .bf-bar[data-bar='cta'] .bf-btn,
+  .bf-bar[data-bar='price-tablet'] .bf-btn {
+    flex: 1;
+    min-width: 0;
+  }
+  .bf-bar[data-bar='price-tablet'] .bf-bar-p,
+  .bf-bar[data-bar] .bf-bar-wa {
+    display: none;
+  }
+  .bf-bar[data-bar='price'] .bf-btn {
+    padding: 0 18px;
+    font-size: 14px;
+  }
+  .bf-bar[data-bar='price'] .bf-btn svg {
+    display: none;
+  }
+
+  /* Ringkasan: mobile */
+  .bf-side[data-mode='quota'] {
+    display: none;
+  }
+  .bf-side[data-mode='inline'] {
+    order: 1;
+  }
+  .bf-os[data-mode='inline'],
+  .bf-os[data-mode='replace'] {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .bf-os[data-mode='inline'] .os-sh,
+  .bf-os[data-mode='replace'] .os-sh {
+    display: flex;
+    margin-bottom: 4px;
+  }
+  .bf-os[data-mode='inline'] .eb,
+  .bf-os[data-mode='inline'] .trip,
+  .bf-os[data-mode='inline'] .facts,
+  .bf-os[data-mode='replace'] .trip {
+    display: none;
+  }
+  .bf-os .os-sh .lg {
+    display: none;
+  }
+  .bf-os .os-sh .sm {
     display: inline;
+  }
+  .bf-os[data-mode='inline'] .vat,
+  .bf-os[data-mode='replace'] .vat {
+    order: 1;
+    margin: 0;
+  }
+  .bf-os[data-mode='inline'] .tr {
+    order: 2;
+  }
+
+  /* Kartu mobile: dua baris (judul, lalu total/DP/aksi) */
+  .bf-os[data-mode='card'],
+  .bf-os[data-mode='card-toggle'] {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .bf-os[data-mode='card'] .mini,
+  .bf-os[data-mode='card-toggle'] .mini {
+    grid-column: 1;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-line);
+  }
+  .bf-os .mi-act {
+    margin-left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-toggle input::after {
+    transition: none;
   }
 }

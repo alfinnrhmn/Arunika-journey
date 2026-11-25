@@ -7,7 +7,7 @@ import '../../../styles/pages/booking-flow.css';
 import FlowHeader from './FlowHeader.astro';
 import FlowFooter from './FlowFooter.astro';
 import FlowStepper from './FlowStepper.astro';
-import FlowSummary from './FlowSummary.astro';
+import FlowSummary, { type SummaryMode } from './FlowSummary.astro';
 import type { PriceResult } from '../../../features/pricing/pricing';
 
 interface Props {
@@ -16,6 +16,12 @@ interface Props {
   slug: string;
   hand: string;
   lead?: string;
+  /** Tujuan tombol kembali di header layar kecil. Bawaan: langkah sebelumnya. */
+  backHref?: string;
+  /** Rupa ringkasan di layar kecil. Bawaan menurut langkah: 2 kartu akordeon, 3 kartu, lainnya inline. */
+  summaryMode?: SummaryMode;
+  /** Nomor bagian judul ringkasan di layar kecil (mode quota/replace/inline). */
+  sectionNo?: string;
   summary?: {
     title: string;
     meta: string;
@@ -27,8 +33,17 @@ interface Props {
     live?: boolean;
   } | null;
 }
-const { title, step, slug, hand, lead, summary = null } = Astro.props;
+const { title, step, slug, hand, lead, summary = null, sectionNo } = Astro.props;
 const hasAside = Astro.slots.has('heading-aside');
+const mode: SummaryMode =
+  Astro.props.summaryMode ?? (step === 2 ? 'card-toggle' : step === 3 ? 'card' : 'inline');
+const backHref =
+  Astro.props.backHref ??
+  (step === 2
+    ? `/booking/${slug}/jadwal`
+    : step === 3
+      ? `/booking/${slug}/data`
+      : `/trips/${slug}`);
 ---
 
 <Public title={title} hideFooter noindex>
@@ -36,7 +51,7 @@ const hasAside = Astro.slots.has('heading-aside');
     document.documentElement.classList.add('bf-js');
   </script>
   <div class="bf-page">
-    <FlowHeader />
+    <FlowHeader {backHref} />
     <section class="bf-top">
       <div class="bf-top-in">
         <FlowStepper current={step} {slug} />
@@ -60,7 +75,9 @@ const hasAside = Astro.slots.has('heading-aside');
       <div class="bf-main">
         <slot />
       </div>
-      <div class="bf-side">{summary && <FlowSummary {...summary} />}</div>
+      <div class="bf-side" data-mode={summary ? mode : undefined}>
+        {summary && <FlowSummary {...summary} {mode} sectionNo={sectionNo} />}
+      </div>
     </main>
     <FlowFooter />
   </div>

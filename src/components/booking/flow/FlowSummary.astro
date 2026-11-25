@@ -2,10 +2,19 @@
 // Ringkasan pesanan di kolom kanan (desain: hf-os): foto dan judul trip, tanggal, peserta, rincian harga,
 // tautan ubah, dan catatan kebijakan. Semua angka berasal dari server; pada langkah 1 skrip hanya
 // memperbarui tampilannya saat pengunjung mengubah pilihan (nilai yang disimpan tetap dari server).
+// Di layar kecil (<1280) ringkasan ini berganti rupa menurut `mode` (lihat booking-flow.css):
+//   inline      langkah 1: di atas (tablet) atau bagian "Rincian harga" di bawah (mobile)
+//   card        langkah 3: kartu ringkas dengan tautan Ubah
+//   card-toggle langkah 2: kartu ringkas dengan akordeon rincian harga
+//   quota       state kuota: hanya foto dan judul (tablet), tidak tampil di mobile
+//   replace     state tanggal tidak tersedia: bagian di bawah dengan rincian harga
 import FlowPrice from './FlowPrice.astro';
 import HFIcon from '../../hf/HFIcon.astro';
 import { mediaUrl } from '../../../lib/photo';
+import { formatRupiah } from '../../../lib/format';
 import type { PriceResult } from '../../../features/pricing/pricing';
+
+export type SummaryMode = 'inline' | 'card' | 'card-toggle' | 'quota' | 'replace';
 
 interface Props {
   title: string;
@@ -17,17 +26,58 @@ interface Props {
   editHref: string;
   /** Skrip pratinjau boleh memperbarui kolom ini. */
   live?: boolean;
+  mode?: SummaryMode;
+  /** Nomor bagian untuk judul bagian di layar kecil (mode quota/replace/inline). */
+  sectionNo?: string;
 }
-const { title, meta, cover, dateLabel, partyText, price, editHref, live = false } = Astro.props;
+const {
+  title,
+  meta,
+  cover,
+  dateLabel,
+  partyText,
+  price,
+  editHref,
+  live = false,
+  mode = 'inline',
+  sectionNo = '02',
+} = Astro.props;
+const toggle = mode === 'card-toggle';
+const dateParty = [dateLabel, partyText].filter(Boolean).join(' · ');
 ---
 
-<aside class="bf-os" aria-label="Ringkasan pesanan" data-bf-summary={live ? '' : undefined}>
+<aside
+  class="bf-os"
+  aria-label="Ringkasan pesanan"
+  data-bf-summary={live ? '' : undefined}
+  data-mode={mode}
+>
+  <div class="bf-sh os-sh">
+    <span aria-hidden="true">{sectionNo}</span>
+    <h2>
+      <span class="lg">Ringkasan pesanan</span>
+      <span class="sm">Rincian harga</span>
+    </h2>
+  </div>
   <div class="eb">Ringkasan pesanan</div>
   <div class="trip">
-    <div class="th">{cover && <img class="cover" src={mediaUrl(cover)} alt="" />}</div>
+    <div class="th">
+      {cover && (
+        <img
+          class="cover"
+          src={mediaUrl(cover)}
+          width="600"
+          height="400"
+          loading="lazy"
+          decoding="async"
+          alt=""
+        />
+      )}
+    </div>
     <div class="tx">
       <h3 class="tt">{title}</h3>
       <p class="tm">{meta}</p>
+      <p class="ts">{dateParty}</p>
     </div>
   </div>
   <div class="facts">
@@ -40,9 +90,57 @@ const { title, meta, cover, dateLabel, partyText, price, editHref, live = false 
       <span data-bf-sum-party>{partyText}</span>
     </div>
   </div>
+  {price && (mode === 'card' || toggle) && (
+    <div class="mini">
+      <div class="mi-v">
+        <span>Total</span>
+        <strong>{formatRupiah(price.total)}</strong>
+      </div>
+      <div class="mi-v dp">
+        <span>DP ({price.dpPercent}%)</span>
+        <strong>{formatRupiah(price.dp)}</strong>
+      </div>
+      {toggle ? (
+        <button type="button" class="mi-act" data-bf-toggle aria-expanded="false">
+          Rincian
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+      ) : (
+        <a class="mi-act" href={editHref}>
+          Ubah
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 12h16M14 6l6 6-6 6" />
+          </svg>
+        </a>
+      )}
+    </div>
+  )}
   <FlowPrice {price} live={live} />
   <a class="ed" href={editHref}>
-    Ubah tanggal atau peserta
+    {' '}
+    Ubah tanggal atau peserta{' '}
   </a>
   <div class="tr">
     <HFIcon name="shield" size={16} />
