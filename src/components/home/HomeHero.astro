@@ -3,8 +3,8 @@ import { fi } from './dims';
 import HFNavRD from '../hf/HFNavRD.astro';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 
-// Dua varian dalam satu <section>: `hd` hanya di layar >= 1280 (slideshow, progres, penanda gulir) dan `hc`
-// hanya di bawahnya (foto tunggal, teks dan dua tombol seperti frame mobile/tablet). Header dipakai bersama.
+// Dua varian dalam satu <section>: `hd` di mobile (< 768) dan desktop (>= 1280): slideshow, progres, penanda
+// gulir; `hc` hanya di tablet 768-1279 (foto tunggal, teks dan dua tombol seperti frame tablet). Header dipakai bersama.
 // Foto atas layar pertama tiap varian memakai <picture>: di ukuran layar yang tidak memakainya, <source media>
 // menggantinya dengan GIF 1x1, jadi peramban tidak mengunduh dua foto hero sekaligus.
 const kosong = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -14,7 +14,7 @@ const kosong = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAA
   <div class="hs hd" id="hs">
     <div class="hslide on">
       <picture>
-        <source media="(max-width: 1279px)" srcset={kosong} />
+        <source media="(min-width: 768px) and (max-width: 1279px)" srcset={kosong} />
         <img
           {...fi('prambanan-fajar')}
           fetchpriority="high"
@@ -49,7 +49,7 @@ const kosong = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAA
     </div>
   </div>
   <picture>
-    <source media="(min-width: 1280px)" srcset={kosong} />
+    <source media="(max-width: 767px), (min-width: 1280px)" srcset={kosong} />
     <img
       class="hhero-bg hc"
       {...fi('bromo-lautan-kabut')}

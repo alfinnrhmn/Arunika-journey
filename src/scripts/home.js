@@ -1,7 +1,22 @@
 // Interaksi halaman Home (slideshow hero, panel destinasi, daftar Journal, karusel testimoni).
-// Diport dari prototipe Doop. Bagian desktop (slideshow, parallax, testimoni besar) hanya berjalan di layar
-// >= 1280px, tempat bagian itu tampil; di bawahnya bagian itu disembunyikan (kelas hd) dan timernya tidur,
-// jadi tidak ada kerja latar yang menguras baterai. Karusel ulasan kecil ada di blok terakhir.
+// Diport dari prototipe Doop. Bagian desktop (slideshow, destinasi, testimoni besar) tampil di mobile (< 768) dan
+// desktop (>= 1280); di tablet 768-1279 bagian itu disembunyikan (kelas hd) dan timernya tidur, jadi tidak ada
+// kerja latar yang menguras baterai. Parallax foto hanya di >= 1280 (di mobile fotonya diam, hemat baterai).
+// Karusel ulasan tablet ada di blok terakhir.
+
+/* Kontrol berupa <div>/<span> (bilah destinasi, panah, daftar jenis trip, segmen hero) dibuat dapat dipakai papan ketik:
+   role=button, tabindex=0, label, Enter dan Spasi sama dengan klik. */
+function kbd(el, label) {
+  el.setAttribute('role', 'button');
+  el.tabIndex = 0;
+  if (label) el.setAttribute('aria-label', label);
+  el.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.click();
+    }
+  });
+}
 
 (function () {
   var $ = function (s, r) {
@@ -10,6 +25,8 @@
     $$ = function (s, r) {
       return Array.prototype.slice.call((r || document).querySelectorAll(s));
     },
+    // Tampilan bagian desktop (mobile dan desktop), dan khusus desktop lebar (parallax).
+    show = window.matchMedia('(max-width: 767px), (min-width: 1280px)'),
     wide = window.matchMedia('(min-width: 1280px)');
   function setText(box, txt) {
     var w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT),
@@ -52,6 +69,7 @@
     $('#hnum').textContent = '0' + (hi + 1) + ' / 0' + hs.length;
   }
   hseg.forEach(function (g, i) {
+    kbd(g, 'Slide ' + (i + 1) + ': ' + hnames[i]);
     g.addEventListener('click', function () {
       hshow(i);
       clearInterval(ht);
@@ -59,7 +77,7 @@
     });
   });
   function hnext() {
-    if (wide.matches) hshow(hi + 1);
+    if (show.matches) hshow(hi + 1);
   }
   var ht = setInterval(hnext, 6000);
   /* 2. destinations: pindah otomatis saat bar progres penuh (animationend); jeda saat section di luar layar */
@@ -106,6 +124,7 @@
     var f = document.createElement('i');
     f.className = 'dfill';
     b.appendChild(f);
+    kbd(b, 'Destinasi ' + D[i].t);
     b.addEventListener('click', function () {
       dgo(i);
     });
@@ -141,7 +160,7 @@
     $('#dcount').textContent = 'Destinasi · 0' + (di + 1) + ' dari 06';
     var t = $('#dtitle');
     t.textContent = x.t;
-    t.style.fontSize = x.t.length > 9 ? '112px' : '144px';
+    t.classList.toggle('dlong', x.t.length > 9);
     restart(t, 'swap');
     var d = $('#ddesc');
     d.textContent = x.d;
@@ -153,6 +172,8 @@
   if (ar) {
     ar.children[0].style.cursor = 'pointer';
     ar.children[1].style.cursor = 'pointer';
+    kbd(ar.children[0], 'Destinasi sebelumnya');
+    kbd(ar.children[1], 'Destinasi berikutnya');
     ar.children[0].addEventListener('click', function () {
       dgo(di - 1);
     });
@@ -218,6 +239,7 @@
     });
   }
   it.forEach(function (e, i) {
+    kbd(e);
     e.addEventListener('mouseenter', function () {
       sel(i);
     });
@@ -229,6 +251,7 @@
 
 (function () {
   var s = Array.prototype.slice.call(document.querySelectorAll('.tslide')),
+    show = window.matchMedia('(max-width: 767px), (min-width: 1280px)'),
     c = 0,
     t;
   function go(n) {
@@ -245,21 +268,63 @@
   function auto() {
     clearInterval(t);
     t = setInterval(function () {
-      if (window.matchMedia('(min-width: 1280px)').matches) go(c + 1);
+      if (show.matches) go(c + 1);
     }, 8000);
   }
-  document.getElementById('tprev').addEventListener('click', function () {
+  function prev() {
     go(c - 1);
     auto();
-  });
-  document.getElementById('tnext').addEventListener('click', function () {
+  }
+  function next() {
     go(c + 1);
     auto();
+  }
+  var bp = document.getElementById('tprev'),
+    bn = document.getElementById('tnext');
+  bp.addEventListener('click', prev);
+  bn.addEventListener('click', next);
+  // Tombol berupa <span role="button">: Enter dan Spasi bekerja seperti klik.
+  [
+    [bp, prev],
+    [bn, next],
+  ].forEach(function (p) {
+    p[0].addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        p[1]();
+      }
+    });
   });
+  // Geser jari pada kartu testimoni (mobile); kartu adalah tautan, jadi geseran tidak dianggap ketukan.
+  var card = document.querySelector('.tm-card'),
+    x0 = null;
+  if (card) {
+    card.addEventListener(
+      'touchstart',
+      function (e) {
+        x0 = e.touches[0].clientX;
+      },
+      { passive: true },
+    );
+    card.addEventListener(
+      'touchend',
+      function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0;
+        x0 = null;
+        if (Math.abs(dx) > 40) {
+          if (e.cancelable) e.preventDefault();
+          if (dx < 0) next();
+          else prev();
+        }
+      },
+      { passive: false },
+    );
+  }
   auto();
 })();
 
-/* Karusel ulasan untuk layar < 1280px (HomeCompact): satu kartu terlihat, tombol sebelumnya/berikutnya dan
+/* Karusel ulasan untuk tablet 768-1279px (HomeCompact): satu kartu terlihat, tombol sebelumnya/berikutnya dan
    geser jari. Tanpa pergantian otomatis, jadi tidak ada gerakan yang tidak diminta pengguna. */
 (function () {
   var root = document.querySelector('[data-rq]');
