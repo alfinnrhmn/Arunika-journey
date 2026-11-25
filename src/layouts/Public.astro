@@ -9,13 +9,27 @@ interface Props {
   hideFooter?: boolean;
   /** Halaman pribadi (booking, pesanan, Cek Status): jangan diindeks mesin pencari. */
   noindex?: boolean;
+  /**
+   * Gambar pratinjau Open Graph/Twitter (path atau URL absolut). Tanpa nilai bawaan: bila kosong, meta
+   * og:image tidak dibuat. Path relatif diubah menjadi URL absolut dari `site` / URL permintaan.
+   */
+  ogImage?: string;
+  /** Teks alt untuk `ogImage` (disarankan bila ogImage diisi). */
+  ogImageAlt?: string;
 }
 const {
   title,
   description = 'Arunika Journey: travel beyond the itinerary.',
   hideFooter = false,
   noindex = false,
+  ogImage,
+  ogImageAlt,
 } = Astro.props;
+const base = Astro.site ?? Astro.url;
+const canonical = new URL(Astro.url.pathname, base).href;
+const ogImageUrl = ogImage ? new URL(ogImage, base).href : undefined;
+// Warna bilah alamat peramban = latar kertas (token --color-paper, #ffffff); meta tidak bisa memakai var().
+const themeColor = '#ffffff';
 ---
 
 <!doctype html>
@@ -24,12 +38,48 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content={themeColor} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href} />
+    <link rel="canonical" href={canonical} />
+    {!noindex && (
+      <>
+        <meta property="og:site_name" content="Arunika Journey" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:locale" content="id_ID" />
+        {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+        {ogImageUrl && ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
+        <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+      </>
+    )}
     <title>{title}</title>
   </head>
   <body id="top">
+    <a class="hf-skip" href="#konten">
+      Lewati ke konten
+    </a>
     <slot />
     {!hideFooter && <HFFooterRD />}
+    <script is:inline>
+      // Pintasan "Lewati ke konten": target bawaan `#konten` ada di header publik (HFNavRD). Halaman
+      // dengan header sendiri (alur booking) memakai <main> pertama; tanpa keduanya, pintasan disembunyikan.
+      (function () {
+        const link = document.querySelector('.hf-skip');
+        if (!link || document.getElementById('konten')) return;
+        const main = document.querySelector('main');
+        if (!main) {
+          link.hidden = true;
+          return;
+        }
+        if (!main.id) main.id = 'konten';
+        main.setAttribute('tabindex', '-1');
+        link.setAttribute('href', '#' + main.id);
+      })();
+    </script>
   </body>
 </html>

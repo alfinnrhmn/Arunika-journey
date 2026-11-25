@@ -1,6 +1,9 @@
 ---
 // Footer gaya Red Dot di atas latar ink: baris newsletter, wordmark besar dengan kolom Lokasi / Kontak /
 // Booking, baris legal dengan placeholder izin, tautan kebijakan, dan hak cipta dengan tombol kembali ke atas.
+// >= 1280px: tata letak desktop (acuan HFFooterRD 1440). < 1280px mengikuti HFFooterRDMobile: satu kolom
+// (newsletter, wordmark, kolom tautan 3 kolom di tablet / 2 kolom di mobile, legal, tautan kebijakan,
+// hak cipta). Lingkaran placeholder izin tetap tampil (lebih kecil) agar isian klien tidak hilang.
 const year = new Date().getFullYear();
 ---
 
@@ -245,5 +248,123 @@ const year = new Date().getFullYear();
     justify-content: space-between;
     font-size: 13px;
     opacity: 0.7;
+  }
+
+  /* Tablet (< 1280): satu kolom, wordmark di atas tiga kolom tautan. Tautan dan tombol >= 44px (sentuh). */
+  @media (max-width: 1279px) {
+    .hf-rdf {
+      padding: 56px 32px 28px;
+    }
+    .hf-rdf .top {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 20px;
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+    .hf-rdf .top .t {
+      font-size: 26px;
+      line-height: 32px;
+    }
+    .hf-rdf .field {
+      width: 100%;
+    }
+    .hf-rdf .ic,
+    .hf-rdf .up {
+      flex: none;
+    }
+    .hf-rdf .up {
+      width: 44px;
+      height: 44px;
+    }
+    .hf-rdf .mid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px 24px;
+      padding: 40px 0 0;
+    }
+    .hf-rdf .brand {
+      grid-column: 1 / -1;
+      width: auto;
+      font-size: 56px;
+      line-height: 52px;
+    }
+    .hf-rdf .brand i {
+      font-size: 30px;
+    }
+    .hf-rdf .col {
+      gap: 0;
+      min-width: 0;
+      font-size: 14px;
+    }
+    .hf-rdf .col b {
+      margin-bottom: 6px;
+    }
+    .hf-rdf .col a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .hf-rdf .col span {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .hf-rdf .legalrow {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+      margin-top: 36px;
+      padding: 24px 0 0;
+      border-top: 1px solid rgba(244, 243, 239, 0.2);
+    }
+    .hf-rdf .legal {
+      max-width: none;
+      font-size: 12px;
+      line-height: 18px;
+    }
+    .hf-rdf .badges {
+      gap: 12px;
+    }
+    .hf-rdf .badges span {
+      width: 72px;
+      height: 72px;
+      font-size: 9px;
+      line-height: 12px;
+    }
+    .hf-rdf .bot {
+      gap: 0;
+      padding-top: 0;
+      margin-top: 12px;
+      border-top: 0;
+    }
+    .hf-rdf .links {
+      flex-wrap: wrap;
+      gap: 0 20px;
+    }
+    .hf-rdf .links a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .hf-rdf .cp {
+      gap: 16px;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+  }
+
+  /* Mobile (< 768): dua kolom tautan; kolom ketiga turun ke baris berikutnya. */
+  @media (max-width: 767px) {
+    .hf-rdf {
+      padding: 56px 20px 28px;
+    }
+    .hf-rdf .mid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px 20px;
+    }
+    .hf-rdf .links {
+      gap: 0 16px;
+    }
   }
 </style>

@@ -29,6 +29,17 @@
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
+  /* Target fokus programatik (pintasan "Lewati ke konten"): tanpa cincin pada pembungkus. */
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+  /* Menu navigasi terbuka (header publik, src/scripts/nav.ts atau :target tanpa JS): kunci gulir halaman. */
+  html.hf-menu-lock,
+  html.hf-menu-lock body,
+  html:has(.hf-menu:target),
+  html:has(.hf-menu:target) body {
+    overflow: hidden;
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -41,6 +52,29 @@
 }
 
 @layer components {
+  /* Pintasan "Lewati ke konten" (layout Public): di luar layar sampai menerima fokus papan ketik. */
+  .hf-skip {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 200;
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 0 0 1px var(--color-ink);
+    transform: translateY(-200%);
+    opacity: 0;
+  }
+  .hf-skip:focus {
+    transform: none;
+    opacity: 1;
+  }
+
   /* Gambar yang mengisi induk berukuran eksplisit (dipakai di slot kartu, hero, galeri). */
   .cover {
     width: 100%;
