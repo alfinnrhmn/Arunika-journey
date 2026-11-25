@@ -1,0 +1,113 @@
+---
+// Langkah 2 masuk: kode 2FA (TOTP atau kode cadangan). Rute terbuka di middleware karena belum ada sesi; yang
+// membuktikan langkah 1 sudah lulus adalah cookie tantangan bertanda tangan dari signInStaff. Verifikasi, batas
+// percobaan, dan penguncian akun ada di server/auth/two-factor.ts; halaman ini hanya menyajikan. Kode yang
+// diketik tidak pernah dipantulkan; galat memakai teks tetap.
+import Dashboard from '../../../layouts/Dashboard.astro';
+import TwoFactorScreen from '../../../components/dashboard/TwoFactorScreen.astro';
+import { redirectWithCookies, safeNext } from '../../../server/auth/session';
+import { verifyTwoFactorLogin } from '../../../server/auth/two-factor';
+
+const query = Astro.url.searchParams;
+let lanjutRaw = query.get('lanjut');
+let kind: 'totp' | 'cadangan' = query.get('jenis') === 'cadangan' ? 'cadangan' : 'totp';
+let error: string | null = null;
+let expired = false;
+
+// Cookie tantangan bisa berawalan __Secure- di produksi, jadi dicari di header mentah (bukan dengan nama pasti).
+const hasChallenge = /(?:^|;\s*)(?:__Secure-)?arj\.two_factor=/.test(
+  Astro.request.headers.get('cookie') ?? '',
+);
+
+const backTo = (lanjut: string) =>
+  lanjut === '/dashboard'
+    ? '/dashboard/masuk'
+    : `/dashboard/masuk?lanjut=${encodeURIComponent(lanjut)}`;
+
+if (Astro.request.method !== 'POST') {
+  // Tanpa tantangan tidak ada yang bisa diverifikasi: kembali ke langkah sandi (bawa tujuan yang aman).
+  if (!hasChallenge) return Astro.redirect(backTo(safeNext(lanjutRaw)), 303);
+} else {
+  let form: FormData | null = null;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    // Badan bukan form yang sah: diperlakukan sebagai kode kosong.
+  }
+  const code = String(form?.get('kode') ?? '').slice(0, 64);
+  // Jenis kode datang dari field `jenis` (bila ada) atau dari query pada action formulir.
+  kind =
+    String(form?.get('jenis') ?? query.get('jenis') ?? '') === 'cadangan' ? 'cadangan' : 'totp';
+  lanjutRaw = String(form?.get('lanjut') ?? lanjutRaw ?? '');
+
+  if (!hasChallenge) {
+    Astro.response.status = 401;
+    expired = true;
+    error = 'Waktu verifikasi habis. Masukkan sandi Anda lagi.';
+  } else if (!code.trim()) {
+    Astro.response.status = 400;
+    error = 'Isi kode terlebih dahulu.';
+  } else {
+    const result = await verifyTwoFactorLogin(
+      Astro.request,
+      { kind: kind === 'cadangan' ? 'backup' : 'totp', code },
+      Astro.clientAddress,
+    );
+    if (result.ok) return redirectWithCookies(safeNext(lanjutRaw), result.setCookies);
+
+    switch (result.reason) {
+      case 'invalid':
+        Astro.response.status = 401;
+        error =
+          kind === 'cadangan'
+            ? 'Kode cadangan belum benar atau sudah dipakai. Periksa lagi kode yang Anda simpan.'
+            : 'Kode belum benar. Periksa kode terbaru di aplikasi autentikator.';
+        break;
+      case 'expired':
+        Astro.response.status = 401;
+        expired = true;
+        error = 'Waktu verifikasi habis. Masukkan sandi Anda lagi.';
+        break;
+      case 'locked':
+        Astro.response.status = 429;
+        error = 'Terlalu banyak percobaan. Akun dikunci sementara, coba lagi sekitar 15 menit.';
+        break;
+      case 'rate_limited': {
+        const seconds = Math.max(1, Math.ceil(result.retryAfter ?? 60));
+        Astro.response.status = 429;
+        Astro.response.headers.set('Retry-After', String(seconds));
+        error = `Terlalu banyak percobaan. Tunggu sekitar ${Math.max(1, Math.ceil(seconds / 60))} menit lalu coba lagi.`;
+        break;
+      }
+      default:
+        Astro.response.status = 403;
+        error = 'Akun Anda tidak aktif. Hubungi Owner.';
+    }
+  }
+}
+
+// Hanya nilai yang sudah lewat safeNext yang dipantulkan ke HTML maupun ke tujuan alihan.
+const lanjut = safeNext(lanjutRaw);
+const params = (jenis: 'totp' | 'cadangan') => {
+  const p = new URLSearchParams();
+  if (jenis === 'cadangan') p.set('jenis', 'cadangan');
+  if (lanjut !== '/dashboard') p.set('lanjut', lanjut);
+  const qs = p.toString();
+  return `/dashboard/masuk/verifikasi${qs ? `?${qs}` : ''}`;
+};
+---
+
+<Dashboard title="Verifikasi dua langkah" bare>
+  <TwoFactorScreen
+    kind={kind}
+    action={params(kind)}
+    switchHref={params(kind === 'totp' ? 'cadangan' : 'totp')}
+    backHref={backTo(lanjut)}
+    error={error}
+    expired={expired}
+  />
+</Dashboard>
+
+<script>
+  import '../../../scripts/dashboard-2fa';
+</script>

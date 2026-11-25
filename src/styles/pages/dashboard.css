@@ -965,3 +965,117 @@ a.d-ch:hover {
   line-height: 18px;
   color: var(--color-dash-muted);
 }
+
+/* ---- Keamanan akun (2FA) ---- */
+.d-fa {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+}
+.d-fa p {
+  font-size: 14px;
+  line-height: 22px;
+}
+.d-fa .d-help {
+  font-size: 12px;
+  line-height: 18px;
+}
+.d-fa .d-note {
+  font-size: 12px;
+  line-height: 18px;
+}
+.d-in {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-dash-border-strong);
+  border-radius: 8px;
+  background: var(--color-dash-surface);
+  color: var(--color-dash-text);
+  font-size: 14px;
+}
+.d-in[aria-invalid='true'] {
+  border-color: var(--color-status-full);
+}
+.d-codein {
+  max-width: 240px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em;
+  font-variant-numeric: tabular-nums;
+}
+.d-scan {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.d-scan-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.d-qr {
+  flex: 0 0 200px;
+  width: 200px;
+  height: 200px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid var(--color-dash-border);
+  border-radius: 10px;
+}
+.d-qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.d-key {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--color-dash-bg);
+  border: 1px solid var(--color-dash-border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.d-codes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-dash-border);
+  border-radius: 10px;
+  background: var(--color-dash-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  list-style: none;
+  user-select: all;
+}
+.d-row {
+  display: flex;
+  gap: 8px;
+}
+.d-row[hidden] {
+  display: none;
+}
+.d-chk {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+.d-chk input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-dash-text);
+}
+.d-btns .d-bt {
+  align-self: flex-start;
+}

@@ -24,6 +24,9 @@ const { staff, crumb } = Astro.props;
     <a class="d-bt" href="/" target="_blank" rel="noopener">
       Lihat website <Icon name="external" size={16} />
     </a>
+    <a class="d-bt" data-tone="ghost" href="/dashboard/keamanan/2fa">
+      <Icon name="shield" size={16} /> Keamanan akun
+    </a>
     <!-- Keluar lewat POST (dilindungi cek asal): sesi dihapus di server, bukan sekadar cookie dibuang. -->
     <form method="post" action="/dashboard/keluar">
       <button type="submit" class="d-bt">

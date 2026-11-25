@@ -325,3 +325,49 @@
 .m-glass .d-bt[data-tone='primary'] {
   border-color: color-mix(in srgb, var(--color-dash-surface) 45%, transparent);
 }
+
+/* ---- Langkah 2 masuk (kode 2FA) ---- */
+.m-hero[data-mode='verifikasi'] {
+  justify-content: center;
+}
+.m-hero[data-mode='verifikasi'] .m-shade {
+  background: color-mix(in srgb, var(--color-night) 55%, transparent);
+}
+.m-hero[data-mode='verifikasi'] .m-glass,
+.m-hero[data-mode='sesi'] .m-glass {
+  margin-right: 0;
+  width: 480px;
+  max-width: calc(100% - 32px);
+}
+/* Satu kolom kode dengan jarak antar digit lebar, pengganti enam kotak di desain agar tetap satu field
+   (tempel, isi otomatis dari autentikator, dan pembaca layar bekerja tanpa JavaScript). */
+.m-code {
+  height: 60px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;
+  font-variant-numeric: tabular-nums;
+}
+.m-code::placeholder {
+  letter-spacing: 0.5em;
+  opacity: 0.45;
+}
+.m-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-dash-surface);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.m-center {
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+  opacity: 0.9;
+  margin: 0;
+}
+.m-hint .m-link {
+  font-size: inherit;
+}

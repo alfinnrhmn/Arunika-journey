@@ -35,7 +35,16 @@ if (Astro.request.method === 'POST') {
     error = 'Isi email dan kata sandi terlebih dahulu.';
   } else {
     const result = await signInStaff(Astro.request, { email, password }, Astro.clientAddress);
-    if (result.ok) return redirectWithCookies(safeNext(lanjutRaw), result.setCookies);
+    if (result.ok) {
+      // Sandi benar tetapi 2FA aktif: belum ada sesi, hanya cookie tantangan. Lanjut ke langkah kode; tujuan akhir
+      // ikut sebagai `lanjut` yang sudah lewat safeNext. Staf tanpa 2FA langsung bersesi (middleware yang
+      // mengarahkannya ke aktivasi).
+      if (result.twoFactor) {
+        const next = encodeURIComponent(safeNext(lanjutRaw));
+        return redirectWithCookies(`/dashboard/masuk/verifikasi?lanjut=${next}`, result.setCookies);
+      }
+      return redirectWithCookies(safeNext(lanjutRaw), result.setCookies);
+    }
 
     if (result.reason === 'rate_limited') {
       const seconds = Math.max(1, Math.ceil(result.retryAfter ?? 60));

@@ -1,0 +1,392 @@
+---
+// Keamanan akun: aktivasi dan status 2FA TOTP (wajib untuk Owner dan Admin Operasional). Middleware mengizinkan
+// halaman ini untuk staf tanpa 2FA dan mengalihkan halaman lain ke sini. Semua logika (verifikasi sandi, rahasia,
+// kode cadangan, batas percobaan, pergantian sesi) ada di server/auth/two-factor.ts; halaman ini hanya menyajikan.
+// Rahasia (QR, kunci manual, kode cadangan) hanya ada di respons POST yang sama, tidak lewat URL, redirect, atau
+// cookie, dan tidak bisa ditampilkan lagi; respons dashboard sudah `private, no-store` dari middleware.
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Badge from '../../../components/dashboard/Badge.astro';
+import Icon from '../../../components/dashboard/Icon.astro';
+import { redirectWithCookies } from '../../../server/auth/session';
+import { qrSvg } from '../../../server/auth/qr';
+import {
+  beginTwoFactorSetup,
+  confirmTwoFactorSetup,
+  regenerateBackupCodes,
+} from '../../../server/auth/two-factor';
+
+const staff = Astro.locals.staff;
+if (!staff) return Astro.redirect('/dashboard/masuk?lanjut=%2Fdashboard%2Fkeamanan%2F2fa', 303);
+
+const wajib = Astro.url.searchParams.get('wajib') === '1' && !staff.twoFactorEnabled;
+type View = 'mulai' | 'kunci' | 'kode' | 'status' | 'cadangan';
+let view: View = staff.twoFactorEnabled ? 'status' : 'mulai';
+let error: string | null = null;
+let setup: { qr: string; key: string; codes: string[] } | null = null;
+let newCodes: string[] = [];
+
+const waitText = (seconds: number | undefined) =>
+  `Terlalu banyak percobaan. Tunggu sekitar ${Math.max(1, Math.ceil((seconds ?? 60) / 60))} menit lalu coba lagi.`;
+const rateLimited = (seconds: number | undefined) => {
+  Astro.response.status = 429;
+  Astro.response.headers.set('Retry-After', String(Math.max(1, Math.ceil(seconds ?? 60))));
+  return waitText(seconds);
+};
+
+if (Astro.request.method === 'POST') {
+  let form: FormData | null = null;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    // Badan bukan form yang sah: diperlakukan sebagai kolom kosong.
+  }
+  const aksi = String(form?.get('aksi') ?? '');
+  const password = String(form?.get('sandi') ?? '').slice(0, 128);
+  const code = String(form?.get('kode') ?? '').slice(0, 16);
+
+  if (aksi === 'mulai' && !staff.twoFactorEnabled) {
+    if (!password) {
+      Astro.response.status = 400;
+      error = 'Isi sandi Anda saat ini.';
+    } else {
+      const r = await beginTwoFactorSetup(
+        Astro.request,
+        { staffId: staff.id, password },
+        Astro.clientAddress,
+      );
+      if (r.ok) {
+        // Kunci manual = rahasia pada URI otpauth; QR dibuat server dari URI yang sama.
+        const key = new URL(r.totpURI).searchParams.get('secret') ?? '';
+        setup = {
+          qr: qrSvg(r.totpURI),
+          key: key.match(/.{1,4}/g)?.join(' ') ?? key,
+          codes: r.backupCodes,
+        };
+        view = 'kunci';
+      } else if (r.reason === 'already_enabled') {
+        view = 'status';
+      } else if (r.reason === 'rate_limited') {
+        error = rateLimited(r.retryAfter);
+      } else {
+        Astro.response.status = 401;
+        error = 'Sandi belum benar.';
+      }
+    }
+  } else if (aksi === 'konfirmasi' && !staff.twoFactorEnabled) {
+    const r = await confirmTwoFactorSetup(
+      Astro.request,
+      { staffId: staff.id, code },
+      Astro.clientAddress,
+    );
+    // Verifikasi pertama mengganti sesi: cookie baru WAJIB dipasang agar staf tetap masuk.
+    if (r.ok) return redirectWithCookies('/dashboard?2fa=aktif', r.setCookies);
+    view = 'kode';
+    if (r.reason === 'rate_limited') {
+      error = rateLimited(r.retryAfter);
+    } else if (r.reason === 'locked') {
+      Astro.response.status = 429;
+      error = 'Terlalu banyak percobaan. Akun dikunci sementara, coba lagi sekitar 15 menit.';
+    } else {
+      Astro.response.status = 401;
+      error = 'Kode belum benar. Gunakan kode terbaru dari aplikasi yang sama.';
+    }
+  } else if (aksi === 'cadangan' && staff.twoFactorEnabled) {
+    if (!password) {
+      Astro.response.status = 400;
+      error = 'Isi sandi Anda saat ini.';
+    } else {
+      const r = await regenerateBackupCodes(
+        Astro.request,
+        { staffId: staff.id, password },
+        Astro.clientAddress,
+      );
+      if (r.ok) {
+        newCodes = r.backupCodes;
+        view = 'cadangan';
+      } else if (r.reason === 'rate_limited') {
+        error = rateLimited(r.retryAfter);
+      } else {
+        Astro.response.status = 401;
+        error = 'Sandi belum benar.';
+      }
+    }
+  }
+}
+
+const codes = setup?.codes ?? newCodes;
+---
+
+<Dashboard title="Keamanan akun" crumb={['Akun', 'Keamanan']}>
+  <div class="d-ph">
+    <div>
+      <h1>Keamanan akun</h1>
+      <p>Verifikasi dua langkah (2FA) memakai aplikasi autentikator di ponsel Anda.</p>
+    </div>
+  </div>
+
+  {wajib && (
+    <div class="d-flash" data-tone="warn" role="status">
+      <Icon name="alert" size={16} />
+      <span>Dashboard mewajibkan 2FA. Aktifkan sekarang untuk melanjutkan.</span>
+    </div>
+  )}
+
+  <div class="d-fa">
+    {error && (
+      <div class="d-flash" data-tone="bad" role="alert" id="galat-2fa">
+        <Icon name="alert" size={16} />
+        <span>{error}</span>
+      </div>
+    )}
+
+    {view === 'mulai' && (
+      <section class="d-pn" aria-labelledby="judul-mulai">
+        <header>
+          <h2 id="judul-mulai">Aktifkan 2FA</h2>
+          <span class="d-help">Langkah 1 dari 2</span>
+        </header>
+        <div class="d-sec">
+          <p>
+            Siapkan aplikasi autentikator di ponsel Anda (mis. Google Authenticator, Authy, atau
+            1Password). Setelah aktif, setiap masuk memerlukan sandi dan kode 6 digit dari aplikasi
+            itu.
+          </p>
+        </div>
+        <form method="post" data-once>
+          <input type="hidden" name="aksi" value="mulai" />
+          <div class="d-sec">
+            <div class="d-fd">
+              <label for="sandi">Sandi Anda saat ini</label>
+              <input
+                class="d-in"
+                id="sandi"
+                name="sandi"
+                type="password"
+                autocomplete="current-password"
+                maxlength="128"
+                required
+                aria-invalid={error ? 'true' : undefined}
+                aria-describedby={error ? 'galat-2fa' : 'bantuan-sandi'}
+              />
+              <p class="d-help" id="bantuan-sandi">
+                Diminta untuk memastikan ini benar-benar Anda sebelum kunci 2FA dibuat.
+              </p>
+            </div>
+          </div>
+          <div class="d-btns">
+            <button class="d-bt" data-tone="primary" data-size="md" type="submit">
+              Lanjut <Icon name="arrow" size={16} />
+            </button>
+          </div>
+        </form>
+      </section>
+    )}
+
+    {view === 'kunci' && setup && (
+      <section class="d-pn" aria-labelledby="judul-kunci">
+        <header>
+          <h2 id="judul-kunci">Aktifkan 2FA</h2>
+          <span class="d-help">Langkah 2 dari 2</span>
+        </header>
+        <div class="d-sec">
+          <h3 class="d-h">1. Pindai kode QR</h3>
+          <div class="d-scan">
+            <div
+              class="d-qr"
+              role="img"
+              aria-label="Kode QR untuk ditambahkan ke aplikasi autentikator"
+              set:html={setup.qr}
+            />
+            <div class="d-scan-txt">
+              <p>
+                Buka aplikasi autentikator, pilih tambah akun, lalu pindai kode QR ini. Sudah
+                menambahkan akun Arunika di aplikasi sebelumnya? Hapus yang lama agar tidak
+                tertukar.
+              </p>
+              <p class="d-help">
+                Tidak bisa memindai? Masukkan kunci ini secara manual (jenis: berbasis waktu).
+              </p>
+              <code class="d-key" aria-label="Kunci manual">
+                {setup.key}
+              </code>
+            </div>
+          </div>
+        </div>
+        <div class="d-sec">
+          <h3 class="d-h">2. Simpan kode cadangan</h3>
+          <p>
+            Pakai kode cadangan bila ponsel hilang. Setiap kode berlaku sekali.{' '}
+            <b>Kode ini hanya tampil sekali dan tidak bisa ditampilkan lagi.</b>
+          </p>
+          <ol class="d-codes" data-backup-codes>
+            {codes.map((c) => (
+              <li>{c}</li>
+            ))}
+          </ol>
+          <div class="d-row" data-js-only hidden>
+            <button class="d-bt" type="button" data-copy-codes>
+              Salin kode
+            </button>
+            <button class="d-bt" type="button" data-download-codes>
+              Unduh .txt
+            </button>
+          </div>
+        </div>
+        <form method="post" data-once>
+          <input type="hidden" name="aksi" value="konfirmasi" />
+          <div class="d-sec">
+            <h3 class="d-h">3. Masukkan kode untuk mengaktifkan</h3>
+            <label class="d-chk">
+              <input type="checkbox" name="tersimpan" value="ya" required />
+              <span>Saya sudah menyimpan kode cadangan</span>
+            </label>
+            <div class="d-fd">
+              <label for="kode">Kode 6 digit dari aplikasi</label>
+              <input
+                class="d-in d-codein"
+                id="kode"
+                name="kode"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="[0-9]*"
+                maxlength="6"
+                minlength="6"
+                placeholder="000000"
+                required
+              />
+            </div>
+          </div>
+          <div class="d-btns">
+            <button class="d-bt" data-tone="primary" data-size="md" type="submit">
+              <Icon name="check" size={16} /> Aktifkan 2FA
+            </button>
+          </div>
+        </form>
+      </section>
+    )}
+
+    {view === 'kode' && (
+      <section class="d-pn" aria-labelledby="judul-kode">
+        <header>
+          <h2 id="judul-kode">Masukkan kode dari aplikasi</h2>
+        </header>
+        <form method="post" data-once>
+          <input type="hidden" name="aksi" value="konfirmasi" />
+          <div class="d-sec">
+            <p class="d-help">
+              Kode QR dan kode cadangan tidak bisa ditampilkan ulang di langkah ini. QR hilang atau
+              kode terus ditolak?{' '}
+              <a class="ac" href="/dashboard/keamanan/2fa">
+                Mulai ulang
+              </a>
+            </p>
+            <div class="d-fd">
+              <label for="kode">Kode 6 digit dari aplikasi</label>
+              <input
+                class="d-in d-codein"
+                id="kode"
+                name="kode"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="[0-9]*"
+                maxlength="6"
+                minlength="6"
+                placeholder="000000"
+                required
+                autofocus
+                aria-invalid={error ? 'true' : undefined}
+                aria-describedby={error ? 'galat-2fa' : undefined}
+              />
+            </div>
+          </div>
+          <div class="d-btns">
+            <button class="d-bt" data-tone="primary" data-size="md" type="submit">
+              <Icon name="check" size={16} /> Aktifkan 2FA
+            </button>
+          </div>
+        </form>
+      </section>
+    )}
+
+    {(view === 'status' || view === 'cadangan') && (
+      <section class="d-pn" aria-labelledby="judul-status">
+        <header>
+          <h2 id="judul-status">Verifikasi dua langkah</h2>
+          <Badge tone="ok" label="2FA aktif" />
+        </header>
+        <div class="d-sec">
+          <p>
+            Akun <b>{staff.email}</b> dilindungi kode dari aplikasi autentikator. Setiap masuk
+            memerlukan sandi dan kode 6 digit. 2FA wajib untuk semua staf, jadi tidak bisa dimatikan
+            sendiri.
+          </p>
+        </div>
+
+        {view === 'cadangan' && (
+          <div class="d-sec">
+            <h3 class="d-h">Kode cadangan baru</h3>
+            <p>
+              Kode lama sudah hangus. <b>Kode baru ini hanya tampil sekali.</b> Simpan di tempat
+              aman.
+            </p>
+            <ol class="d-codes" data-backup-codes>
+              {codes.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ol>
+            <div class="d-row" data-js-only hidden>
+              <button class="d-bt" type="button" data-copy-codes>
+                Salin kode
+              </button>
+              <button class="d-bt" type="button" data-download-codes>
+                Unduh .txt
+              </button>
+            </div>
+          </div>
+        )}
+
+        <form method="post" data-once>
+          <input type="hidden" name="aksi" value="cadangan" />
+          <div class="d-sec">
+            <h3 class="d-h">Buat ulang kode cadangan</h3>
+            <p class="d-help">
+              Gunakan bila kode cadangan hilang atau sudah terpakai. Kode yang lama langsung tidak
+              berlaku.
+            </p>
+            <div class="d-fd">
+              <label for="sandi-cadangan">Sandi Anda saat ini</label>
+              <input
+                class="d-in"
+                id="sandi-cadangan"
+                name="sandi"
+                type="password"
+                autocomplete="current-password"
+                maxlength="128"
+                required
+                aria-invalid={error ? 'true' : undefined}
+                aria-describedby={error ? 'galat-2fa' : undefined}
+              />
+            </div>
+          </div>
+          <div class="d-btns">
+            <button class="d-bt" type="submit">
+              Buat ulang kode cadangan
+            </button>
+          </div>
+        </form>
+
+        <p class="d-note">
+          Kehilangan ponsel dan kode cadangan? Minta Owner mereset 2FA Anda (halaman Pengguna
+          menyusul), lalu aktifkan ulang saat masuk. Bila Owner sendiri yang terkunci, reset
+          dilakukan lewat server oleh pengelola teknis.
+        </p>
+      </section>
+    )}
+  </div>
+</Dashboard>
+
+<script>
+  import '../../../scripts/dashboard-2fa';
+</script>
