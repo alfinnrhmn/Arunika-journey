@@ -1,0 +1,26 @@
+---
+// Dua baris foto + teks (Cerita dan Filosofi): desktop teks 520px / foto tinggi 640px, baris kedua dibalik.
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { aboutStory } from '../../content/about';
+import { bp } from './photo';
+---
+
+<section class="ab-story">
+  {aboutStory.map((s, i) => (
+    <div class="ab-row" data-flip={i % 2 === 1 ? 'yes' : 'no'} id={s.id}>
+      <div class="ab-row-tx">
+        <span class="hand">{s.hand}</span>
+        <h2 class="ab-h2">
+          {s.titleA} <i>{s.titleI}</i>
+        </h2>
+        <p class="ab-row-p">{s.text}</p>
+        <div class="ab-row-cta">
+          <HFArrowButton tone="outline" label={s.cta.label} href={s.cta.href} />
+        </div>
+      </div>
+      <div class="ab-row-ph">
+        <img class="cover" {...bp(s.foto)} loading="lazy" decoding="async" alt={s.alt} />
+      </div>
+    </div>
+  ))}
+</section>

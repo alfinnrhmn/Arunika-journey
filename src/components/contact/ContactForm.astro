@@ -1,0 +1,180 @@
+---
+/**
+ * Formulir kontak (acuan frame Kontak). BELUM DIPASANG di halaman /contact: penanganan server
+ * (POST /contact, validasi, penyimpanan, pembatasan laju, pengiriman) dibangun di tahap backend.
+ * Saat server siap: pasang `<ContactForm />` di tempat kartu "segera tersedia" (ContactFormSoon) dan
+ * kirim `values` / `errors` dari hasil validasi server. Semantik penuh: label terhubung, `aria-describedby`
+ * ke petunjuk dan galat, `autocomplete`, teks 16px agar iOS tidak memperbesar, kolom galat per bidang.
+ */
+import { contactForm as f } from '../../content/about';
+
+interface Props {
+  action?: string;
+  /** Nilai terakhir (untuk menampilkan ulang setelah galat validasi). */
+  values?: Partial<Record<'topik' | 'nama' | 'email' | 'whatsapp' | 'kode' | 'pesan', string>>;
+  /** Galat per bidang dari server (teks sudah siap tampil). */
+  errors?: Partial<Record<'topik' | 'nama' | 'email' | 'whatsapp' | 'kode' | 'pesan', string>>;
+}
+const { action = '/contact', values = {}, errors = {} } = Astro.props;
+const topik = values.topik ?? f.topics[0];
+---
+
+<form class="ct-form" method="post" action={action} novalidate>
+  <fieldset class="ct-topics" aria-describedby={errors.topik ? 'ct-err-topik' : undefined}>
+    <legend class="ct-q">{f.topicLabel}</legend>
+    <div class="ct-chips">
+      {f.topics.map((t, i) => (
+        <label class="ct-chip">
+          <input type="radio" name="topik" value={t} checked={t === topik} required={i === 0} />
+          <span>{t}</span>
+        </label>
+      ))}
+    </div>
+    {errors.topik && (
+      <p class="ct-err" id="ct-err-topik" role="alert">
+        {errors.topik}
+      </p>
+    )}
+  </fieldset>
+
+  <div class="ct-grid">
+    <div class="ct-field">
+      <label class="ct-q" for="ct-nama">
+        {f.name.label}
+      </label>
+      <input
+        class="ct-in"
+        id="ct-nama"
+        name="nama"
+        type="text"
+        autocomplete="name"
+        placeholder={f.name.placeholder}
+        required
+        value={values.nama}
+        aria-invalid={errors.nama ? 'true' : undefined}
+        aria-describedby={errors.nama ? 'ct-err-nama' : undefined}
+      />
+      {errors.nama && (
+        <p class="ct-err" id="ct-err-nama" role="alert">
+          {errors.nama}
+        </p>
+      )}
+    </div>
+    <div class="ct-field">
+      <label class="ct-q" for="ct-email">
+        {f.email.label}
+      </label>
+      <input
+        class="ct-in"
+        id="ct-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        placeholder={f.email.placeholder}
+        required
+        value={values.email}
+        aria-invalid={errors.email ? 'true' : undefined}
+        aria-describedby={errors.email ? 'ct-err-email' : undefined}
+      />
+      {errors.email && (
+        <p class="ct-err" id="ct-err-email" role="alert">
+          {errors.email}
+        </p>
+      )}
+    </div>
+    <div class="ct-field">
+      <label class="ct-q" for="ct-wa">
+        {f.whatsapp.label}
+        <span class="ct-opt" id="ct-wa-hint">
+          {f.whatsapp.hint}
+        </span>
+      </label>
+      <input
+        class="ct-in"
+        id="ct-wa"
+        name="whatsapp"
+        type="tel"
+        autocomplete="tel"
+        inputmode="tel"
+        placeholder={f.whatsapp.placeholder}
+        value={values.whatsapp}
+        aria-invalid={errors.whatsapp ? 'true' : undefined}
+        aria-describedby={errors.whatsapp ? 'ct-wa-hint ct-err-wa' : 'ct-wa-hint'}
+      />
+      {errors.whatsapp && (
+        <p class="ct-err" id="ct-err-wa" role="alert">
+          {errors.whatsapp}
+        </p>
+      )}
+    </div>
+    <div class="ct-field">
+      <label class="ct-q" for="ct-kode">
+        {f.code.label}
+        <span class="ct-opt" id="ct-kode-hint">
+          {f.code.hint}
+        </span>
+      </label>
+      <input
+        class="ct-in"
+        id="ct-kode"
+        name="kode"
+        type="text"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        placeholder={f.code.placeholder}
+        value={values.kode}
+        aria-invalid={errors.kode ? 'true' : undefined}
+        aria-describedby={errors.kode ? 'ct-kode-hint ct-err-kode' : 'ct-kode-hint'}
+      />
+      {errors.kode && (
+        <p class="ct-err" id="ct-err-kode" role="alert">
+          {errors.kode}
+        </p>
+      )}
+    </div>
+  </div>
+
+  <div class="ct-field">
+    <label class="ct-q" for="ct-pesan">
+      {f.message.label}
+    </label>
+    <textarea
+      class="ct-in ct-ta"
+      id="ct-pesan"
+      name="pesan"
+      rows="4"
+      placeholder={f.message.placeholder}
+      required
+      aria-invalid={errors.pesan ? 'true' : undefined}
+      aria-describedby={errors.pesan ? 'ct-err-pesan' : undefined}
+    >{values.pesan}</textarea>
+    {errors.pesan && (
+      <p class="ct-err" id="ct-err-pesan" role="alert">
+        {errors.pesan}
+      </p>
+    )}
+  </div>
+
+  <div class="ct-foot">
+    <p class="ct-fine">{f.note}</p>
+    <button class="ct-submit" type="submit">
+      <span>{f.submit}</span>
+      <span class="ic" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </span>
+    </button>
+  </div>
+</form>

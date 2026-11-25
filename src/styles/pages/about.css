@@ -1,0 +1,1352 @@
+/*
+ * Halaman Tentang Kami (/about). Acuan: frame Doop "Tentang Kami" Red Dot (desktop 1440, tablet 820, mobile 390).
+ * Gaya dasar = desktop (>= 1280). Tablet: @media (max-width: 1279px). Mobile: @media (max-width: 767px).
+ * Doop merender teks tanpa line-height eksplisit dengan nilai normal, jadi akar halaman memakai `normal`.
+ */
+
+.ab {
+  line-height: normal;
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  font-family: var(--font-ui);
+}
+.ab a {
+  text-decoration: none;
+}
+:where(.ab) :is(ul, ol) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ab :where(h1, h2, h3, p, figure, blockquote) {
+  margin: 0;
+}
+.ab img {
+  display: block;
+}
+.ab-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Pembungkus tombol panah: label boleh turun baris di layar sempit. */
+.ab .hf-ab:is(a, div) {
+  max-width: 100%;
+}
+
+/* ---------- Teks bersama ---------- */
+.ab-eyebrow,
+.ab-eyebrow-light {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.ab-eyebrow-ink {
+  color: var(--color-ink);
+}
+.ab-eyebrow-light {
+  color: var(--color-paper);
+  opacity: 0.85;
+}
+.ab-h2 {
+  margin-top: 14px;
+  font-size: var(--text-subdisplay);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+}
+.ab-h1 {
+  margin-top: 14px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-2);
+}
+.ab-h3 {
+  margin-top: 20px;
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.ab-p {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.ab-sub {
+  margin: 24px auto 0;
+  max-width: 620px;
+  font-size: 18px;
+  line-height: 28px;
+}
+.ab-head {
+  text-align: center;
+}
+.ab-head-left .ab-sub {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 22px;
+}
+
+/* Tombol pil kecil (CTA teks, di atas gelap atau kertas) */
+.ab-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 26px;
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ab-pill-light {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* ---------- Hero ---------- */
+.ab-hero {
+  position: relative;
+  height: 760px;
+  overflow: hidden;
+  color: var(--color-paper);
+  background: var(--color-night);
+}
+.ab-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ab-hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-night) 62%, transparent) 0%,
+    color-mix(in srgb, var(--color-night) 28%, transparent) 35%,
+    color-mix(in srgb, var(--color-night) 70%, transparent) 100%
+  );
+}
+.ab-hero-tx {
+  position: absolute;
+  left: 41px;
+  right: 41px;
+  bottom: 96px;
+}
+.ab-hero h1 {
+  margin-top: 20px;
+  max-width: 900px;
+  font-size: var(--text-display);
+  line-height: 0.94;
+  letter-spacing: -0.025em;
+  color: var(--color-paper);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ab-hero-tx {
+    animation: ab-up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+@keyframes ab-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Tab dan breadcrumb ---------- */
+.ab-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 41px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-paper);
+}
+.ab-tabs-nav {
+  display: flex;
+  gap: 40px;
+}
+.ab-tabs-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 20px 4px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-ink-2);
+  border-bottom: 2px solid transparent;
+}
+.ab-tabs-nav a:hover {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-dawn);
+}
+.ab-tabs .ab-pill {
+  position: absolute;
+  right: 41px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ab-crumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 35px;
+  font-size: 13px;
+  color: var(--color-ink-2);
+}
+.ab-crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 6px;
+}
+.ab-crumb a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Intro dan pita ajakan ---------- */
+.ab-intro {
+  padding: 96px 41px 110px;
+  text-align: center;
+}
+.ab-lead {
+  margin-top: 20px;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+}
+.ab-intro-body {
+  margin: 32px auto 0;
+  max-width: 820px;
+  font-size: 18px;
+  line-height: 30px;
+  color: var(--color-ink-2);
+}
+.ab-intro-cta {
+  margin-top: 44px;
+}
+.ab-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 26px 41px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.ab-strip-t {
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ab-strip-sep {
+  width: 1px;
+  height: 24px;
+  background: color-mix(in srgb, var(--color-paper) 40%, transparent);
+}
+.ab-strip-x {
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* ---------- Cerita dan filosofi ---------- */
+.ab-story {
+  padding: 146px 41px 40px;
+}
+.ab-row {
+  display: flex;
+  align-items: center;
+  gap: 96px;
+}
+.ab-row + .ab-row {
+  margin-top: 120px;
+}
+.ab-row[data-flip='yes'] {
+  flex-direction: row-reverse;
+}
+.ab-row-tx {
+  flex: 0 0 520px;
+  min-width: 0;
+}
+.ab-row-tx .ab-h2 {
+  margin-top: 16px;
+}
+.ab-row-p {
+  margin-top: 28px;
+  font-size: 18px;
+  line-height: 30px;
+  color: var(--color-ink-2);
+}
+.ab-row-cta {
+  margin-top: 36px;
+}
+.ab-row-ph {
+  flex: 1;
+  min-width: 0;
+  height: 640px;
+  overflow: hidden;
+}
+
+/* ---------- Nilai dan legalitas (empat kolom) ---------- */
+.ab-values {
+  padding: 120px 41px 146px;
+}
+.ab-cols4 {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px;
+}
+.ab-col {
+  padding-top: 28px;
+  border-top: 1px solid var(--color-ink);
+}
+.ab-num {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 300;
+  color: var(--color-dawn);
+}
+.ab-values .ab-h3 {
+  margin-top: 20px;
+}
+
+/* ---------- Tim ---------- */
+.ab-team {
+  padding: 0 41px 146px;
+}
+.ab-team .ab-head > .hand {
+  color: var(--color-dawn-deep);
+}
+.ab-team-list {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
+}
+.ab-member {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 12px 20px;
+  background: var(--color-paper-2);
+}
+.ab-member-ph {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: var(--color-dawn-soft);
+}
+.ab-member[data-tone='b'] .ab-member-ph {
+  background: var(--color-line);
+}
+.ab-member[data-tone='c'] .ab-member-ph {
+  background: var(--color-paper);
+}
+.ab-member-ph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ab-member-ph .sun {
+  fill: color-mix(in srgb, var(--color-dawn) 16%, transparent);
+}
+.ab-member-ph .bd {
+  fill: color-mix(in srgb, var(--color-ink-2) 55%, var(--color-line));
+}
+.ab-member-ph .hd {
+  fill: color-mix(in srgb, var(--color-dawn) 55%, var(--color-paper-2));
+}
+.ab-member b {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.ab-member span {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+.ab-note {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-ink-2);
+}
+.ab-note-m {
+  display: none;
+}
+
+/* ---------- Pengalaman ---------- */
+.ab-exp {
+  padding: 0 41px 120px;
+}
+.ab-exp-grid {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+.ab-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-paper-2);
+}
+.ab-card-ph {
+  height: 240px;
+  overflow: hidden;
+}
+.ab-card-b {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px 24px 28px;
+}
+.ab-card-t {
+  font-size: 26px;
+  line-height: 30px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.ab-card .ab-p {
+  margin-top: 12px;
+}
+.ab-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: underline !important;
+  text-underline-offset: 6px;
+}
+.ab-ask {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line);
+}
+.ab-card .ab-p + .ab-more {
+  margin-bottom: 4px;
+}
+.ab-card-b > .ab-more {
+  margin-bottom: 18px;
+}
+.ab-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 22px;
+  border: 1px solid var(--color-ink-2);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-2);
+}
+.ab-chip:hover {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+.ab-banner {
+  display: flex;
+  align-items: stretch;
+  width: min(900px, 100%);
+  margin: 56px auto 0;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.ab-banner-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 70px;
+  background: var(--color-ink-2);
+}
+.ab-banner-b {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ab-banner-b .ab-pill {
+  min-height: 44px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* ---------- Legalitas ---------- */
+.ab-legal {
+  padding: 120px 41px;
+  background: var(--color-paper-2);
+}
+.ab-legal .ab-col .hf-ic {
+  color: var(--color-ink);
+}
+.ab-legal-cta {
+  margin-top: 56px;
+  text-align: center;
+}
+
+/* ---------- Dokumentasi ---------- */
+.ab-docs {
+  padding: 146px 41px;
+}
+.ab-docs-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.ab-docs-head .hand {
+  color: var(--color-dawn-deep);
+}
+.ab-docs-head .ab-h2 {
+  margin-top: 12px;
+}
+.ab-docs-note {
+  max-width: 320px;
+  text-align: right;
+  font-size: 13px;
+}
+.ab-docs-list {
+  display: flex;
+  gap: 20px;
+}
+.ab-doc {
+  flex: 1;
+  min-width: 0;
+}
+.ab-doc:nth-child(even) {
+  padding-top: 48px;
+}
+.ab-doc-ph {
+  height: 420px;
+  overflow: hidden;
+}
+.ab-doc-cap {
+  margin-top: 12px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ---------- FAQ ---------- */
+.ab-faq {
+  padding: 0 41px 146px;
+}
+.ab-faq .ab-h2 {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ab-faq-list {
+  margin: 64px auto 0;
+  max-width: 940px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ab-qa {
+  padding: 0 28px;
+  background: var(--color-paper-2);
+}
+.ab-qa summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 64px;
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  list-style: none;
+}
+.ab-qa summary::-webkit-details-marker {
+  display: none;
+}
+.ab-qa summary svg {
+  flex: none;
+  color: var(--color-dawn-deep);
+  transition: transform 0.25s ease;
+}
+.ab-qa[open] summary svg {
+  transform: rotate(180deg);
+}
+.ab-qa p {
+  max-width: 760px;
+  padding: 0 0 26px;
+  font-size: 16px;
+  line-height: 26px;
+}
+.ab-qa :focus-visible {
+  outline-offset: 4px;
+}
+
+/* ---------- Testimoni ---------- */
+.ab-testi {
+  padding: 110px 41px;
+  background: var(--color-dawn);
+  color: var(--color-paper);
+}
+.ab-testi-h {
+  text-align: center;
+}
+.ab-testi-list {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px;
+}
+.ab-testi figure {
+  margin: 0;
+  text-align: center;
+}
+.ab-q {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 56px;
+  line-height: 40px;
+}
+.ab-testi blockquote {
+  margin: 12px 0 0;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.005em;
+}
+.ab-testi figcaption {
+  margin-top: 20px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+}
+.ab-testi-foot {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.ab-stars {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------- Inspirasi ---------- */
+.ab-insp {
+  padding: 146px 41px;
+}
+.ab-insp-h {
+  margin-top: 0;
+  text-align: center;
+}
+.ab-insp-list {
+  margin-top: 72px;
+  display: flex;
+  gap: 28px;
+}
+.ab-art {
+  flex: 1;
+  min-width: 0;
+}
+.ab-art a {
+  display: block;
+  height: 100%;
+}
+.ab-art-ph {
+  height: 300px;
+  overflow: hidden;
+}
+.ab-art-b {
+  padding: 28px 28px 32px;
+  background: var(--color-paper-2);
+  height: calc(100% - 300px);
+}
+.ab-art-tag {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ab-art h3 {
+  margin-top: 10px;
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.ab-art-x {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.ab-art a:hover h3 {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+/* ---------- Ajakan penutup ---------- */
+.ab-cta {
+  position: relative;
+  height: 720px;
+  overflow: hidden;
+  color: var(--color-paper);
+  text-align: center;
+  background: var(--color-night);
+}
+.ab-cta-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ab-cta-shade {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-ink) 42%, transparent);
+}
+.ab-cta-b {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 170px 41px 0;
+}
+.ab-cta h2 {
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-paper);
+}
+.ab-cta p {
+  margin-top: 28px;
+  max-width: 520px;
+  font-size: 20px;
+  line-height: 30px;
+  opacity: 0.95;
+}
+.ab-cta-act {
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.ab-cta-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  text-decoration: underline !important;
+  text-underline-offset: 6px;
+}
+
+/* ============================== Tablet (< 1280) ============================== */
+@media (max-width: 1279px) {
+  .ab-hero {
+    height: 640px;
+  }
+  .ab-hero-tx {
+    left: 32px;
+    right: 32px;
+    bottom: 64px;
+  }
+  .ab-hero h1 {
+    font-size: 64px;
+    line-height: 0.96;
+    max-width: 640px;
+  }
+  .ab-tabs {
+    display: none;
+  }
+  .ab-crumb {
+    padding: 3px 26px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .ab-intro {
+    padding: 80px 32px 88px;
+  }
+  .ab-lead {
+    font-size: 32px;
+  }
+  .ab-intro-body {
+    font-size: 17px;
+    line-height: 28px;
+  }
+  .ab-intro-cta {
+    margin-top: 36px;
+  }
+  .ab-strip {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding: 24px 32px;
+  }
+  .ab-strip-sep {
+    display: none;
+  }
+  .ab-strip-t {
+    flex: 0 0 100%;
+  }
+  .ab-strip-x {
+    flex: 1;
+    min-width: 260px;
+  }
+  .ab-story {
+    padding: 96px 32px 24px;
+  }
+  .ab-row {
+    gap: 32px;
+  }
+  .ab-row + .ab-row {
+    margin-top: 80px;
+  }
+  .ab-row[data-flip='no'] {
+    flex-direction: row-reverse;
+  }
+  .ab-row[data-flip='yes'] {
+    flex-direction: row;
+  }
+  .ab-row-tx {
+    flex: 1 1 0;
+  }
+  .ab-row-ph {
+    flex: 1 1 0;
+    height: 440px;
+  }
+  .ab-h2 {
+    font-size: 44px;
+  }
+  .ab-row-p {
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .ab-row-cta {
+    margin-top: 28px;
+  }
+  .ab-values {
+    padding: 72px 32px 88px;
+  }
+  .ab-cols4 {
+    margin-top: 40px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+  .ab-col {
+    padding-top: 22px;
+  }
+  .ab-num {
+    font-size: 40px;
+  }
+  .ab-h3 {
+    margin-top: 14px;
+    font-size: 26px;
+    line-height: 32px;
+  }
+  .ab-values .ab-h3 {
+    margin-top: 14px;
+  }
+  .ab-h1 {
+    font-size: 52px;
+  }
+  .ab-team {
+    padding: 0 32px 88px;
+  }
+  .ab-team-list {
+    margin-top: 40px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .ab-exp {
+    padding: 0 32px 88px;
+  }
+  .ab-head-left {
+    text-align: left;
+  }
+  .ab-head-left .ab-sub {
+    margin-left: 0;
+  }
+  .ab-exp-grid {
+    margin-top: 40px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .ab-card-ph {
+    height: 220px;
+  }
+  .ab-banner-b {
+    letter-spacing: 0.06em;
+  }
+  .ab-legal {
+    padding: 80px 32px;
+  }
+  .ab-docs {
+    padding: 88px 32px;
+  }
+  .ab-docs-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .ab-docs-note {
+    max-width: none;
+    text-align: left;
+  }
+  .ab-docs-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .ab-doc:nth-child(even) {
+    padding-top: 0;
+  }
+  .ab-doc-ph {
+    height: 340px;
+  }
+  .ab-faq {
+    padding: 0 32px 88px;
+  }
+  .ab-faq .ab-h2 {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .ab-faq .ab-head {
+    text-align: left;
+  }
+  .ab-faq-list {
+    margin-top: 40px;
+  }
+  .ab-testi {
+    padding: 80px 32px;
+  }
+  .ab-testi-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px 40px;
+  }
+  .ab-insp {
+    padding: 88px 32px;
+  }
+  .ab-insp-h {
+    text-align: left;
+  }
+  .ab-insp-list {
+    margin-top: 36px;
+    gap: 20px;
+  }
+  .ab-art-ph {
+    height: 200px;
+  }
+  .ab-art-b {
+    padding: 22px 20px 26px;
+    height: calc(100% - 200px);
+  }
+  .ab-art h3 {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  .ab-art-x {
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .ab-cta {
+    height: 640px;
+  }
+  .ab-cta-b {
+    padding: 140px 32px 0;
+  }
+  .ab-cta h2 {
+    font-size: 64px;
+  }
+  .ab-cta p {
+    font-size: 18px;
+    line-height: 28px;
+  }
+}
+
+/* ============================== Mobile (< 768) ============================== */
+@media (max-width: 767px) {
+  .ab-hero-tx {
+    left: 20px;
+    right: 20px;
+    bottom: 44px;
+  }
+  .ab-hero h1 {
+    margin-top: 16px;
+    font-size: 46px;
+    line-height: 0.98;
+  }
+  .ab-crumb {
+    padding: 0 14px;
+  }
+  .ab-intro {
+    padding: 56px 20px;
+  }
+  .ab-lead {
+    margin-top: 16px;
+    font-size: 27px;
+    line-height: 1.22;
+  }
+  .ab-intro-body {
+    margin-top: 22px;
+    font-size: 16px;
+    line-height: 26px;
+    text-align: left;
+  }
+  .ab-intro-cta {
+    margin-top: 32px;
+  }
+  .ab-strip {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 22px 20px;
+    text-align: center;
+  }
+  .ab-strip-t {
+    flex: none;
+    font-size: 13px;
+  }
+  .ab-strip-x {
+    flex: none;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 20px;
+    letter-spacing: 0.04em;
+  }
+  .ab-strip .ab-pill {
+    margin-top: 8px;
+  }
+  .ab-story {
+    padding: 72px 20px 24px;
+  }
+  /* Urutan frame mobile: judul, foto, teks, tombol. `contents` membuat anak kolom teks ikut diurutkan. */
+  .ab-row,
+  .ab-row[data-flip='no'],
+  .ab-row[data-flip='yes'] {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .ab-row + .ab-row {
+    margin-top: 72px;
+  }
+  .ab-row-tx {
+    display: contents;
+  }
+  .ab-row-tx .hand {
+    font-size: 28px;
+  }
+  .ab-row-p,
+  .ab-row-cta {
+    order: 2;
+  }
+  .ab-row-ph {
+    order: 1;
+    flex: none;
+    width: 100%;
+    height: 360px;
+    margin-top: 28px;
+  }
+  .ab-row-p {
+    margin-top: 24px;
+  }
+  .ab-row-cta {
+    margin-top: 24px;
+  }
+  .ab-h2 {
+    font-size: 40px;
+  }
+  .ab-row-tx .ab-h2 {
+    margin-top: 10px;
+    font-size: 44px;
+  }
+  .ab-values {
+    padding: 72px 20px;
+  }
+  .ab-cols4 {
+    margin-top: 36px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .ab-col {
+    padding-top: 20px;
+  }
+  .ab-num {
+    color: var(--color-dawn-deep);
+  }
+  .ab-legal .ab-col {
+    padding-top: 22px;
+  }
+  .ab-h1 {
+    font-size: 42px;
+    line-height: 1;
+  }
+  .ab-team {
+    padding: 0 0 72px;
+  }
+  .ab-head-pad {
+    padding: 0 20px;
+  }
+  .ab-team .ab-h1 {
+    margin-top: 10px;
+    font-size: 46px;
+    line-height: 0.98;
+  }
+  .ab-sub {
+    margin-top: 18px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .ab-team-list,
+  .ab-docs-list,
+  .ab-insp-list {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 20px;
+    padding: 0 20px 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ab-team-list {
+    margin-top: 36px;
+    gap: 14px;
+  }
+  .ab-member {
+    flex: 0 0 200px;
+    scroll-snap-align: start;
+  }
+  .ab-note {
+    margin: 16px 20px 0;
+    text-align: left;
+    line-height: 20px;
+  }
+  .ab-note-d {
+    display: none;
+  }
+  .ab-note-m {
+    display: block;
+  }
+  .ab-exp {
+    padding: 0 20px 72px;
+  }
+  .ab-exp .ab-h1 {
+    font-size: 42px;
+  }
+  .ab-exp-grid {
+    margin-top: 32px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .ab-card-ph {
+    height: 220px;
+  }
+  .ab-card-b {
+    padding: 22px 20px 24px;
+  }
+  /* Frame mobile tidak memuat tombol "Tanya sekarang" per kartu (ajakan WhatsApp ada di bawah kartu). */
+  .ab-ask {
+    display: none;
+  }
+  .ab-card-b > .ab-more {
+    margin-bottom: 0;
+  }
+  .ab-banner {
+    flex-direction: column;
+    margin-top: 32px;
+  }
+  .ab-banner-ic {
+    display: none;
+  }
+  .ab-banner-b {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px 20px;
+    line-height: 20px;
+  }
+  .ab-legal {
+    padding: 72px 20px;
+  }
+  .ab-legal-cta {
+    margin-top: 36px;
+    text-align: left;
+  }
+  .ab-docs {
+    padding: 72px 0;
+  }
+  .ab-docs-head {
+    padding: 0 20px;
+    margin-bottom: 28px;
+    gap: 10px;
+  }
+  .ab-docs-list {
+    gap: 14px;
+  }
+  .ab-doc {
+    flex: 0 0 240px;
+    scroll-snap-align: start;
+  }
+  .ab-doc-ph {
+    height: 320px;
+  }
+  .ab-doc-cap {
+    margin-top: 10px;
+  }
+  .ab-faq {
+    padding: 0 20px 72px;
+  }
+  .ab-faq .ab-h2 {
+    font-size: 36px;
+    line-height: 1.02;
+  }
+  .ab-faq-list {
+    margin-top: 32px;
+  }
+  .ab-qa {
+    padding: 0 20px;
+  }
+  .ab-qa summary {
+    padding: 12px 0;
+  }
+  .ab-testi {
+    padding: 64px 20px;
+  }
+  .ab-testi-list {
+    margin-top: 36px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+  .ab-testi-list > li + li {
+    padding-top: 36px;
+    border-top: 1px solid color-mix(in srgb, var(--color-paper) 35%, transparent);
+  }
+  .ab-q {
+    font-size: 48px;
+    line-height: 32px;
+  }
+  .ab-testi blockquote {
+    margin-top: 8px;
+    font-size: 23px;
+    line-height: 31px;
+  }
+  .ab-testi figcaption {
+    margin-top: 14px;
+    font-size: 17px;
+  }
+  .ab-testi-foot {
+    margin-top: 40px;
+    line-height: 20px;
+    letter-spacing: 0.02em;
+  }
+  .ab-insp {
+    padding: 72px 0;
+  }
+  .ab-insp-h {
+    padding: 0 20px;
+    font-size: 46px;
+    line-height: 0.98;
+  }
+  .ab-insp-list {
+    margin-top: 32px;
+    gap: 14px;
+  }
+  .ab-art {
+    flex: 0 0 290px;
+    scroll-snap-align: start;
+  }
+  .ab-art-ph {
+    height: 200px;
+  }
+  .ab-art-b {
+    height: calc(100% - 200px);
+    min-height: 216px;
+  }
+  .ab-cta {
+    height: 560px;
+  }
+  .ab-cta-b {
+    padding: 110px 20px 0;
+  }
+  .ab-cta h2 {
+    font-size: 48px;
+    line-height: 0.98;
+  }
+  .ab-cta p {
+    margin-top: 20px;
+    font-size: 17px;
+    line-height: 26px;
+  }
+  .ab-cta-act {
+    margin-top: 32px;
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-hero-tx {
+    animation: none;
+  }
+}

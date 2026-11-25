@@ -1,0 +1,23 @@
+---
+import { docsFacts as f } from '../../content/documentation';
+---
+
+<section class="dc-facts" id="keaslian" aria-labelledby="dc-facts-h">
+  <div class="dc-facts-l">
+    <h2 id="dc-facts-h">
+      {f.titleA} <i>{f.titleI}</i>
+    </h2>
+    <p>{f.text}</p>
+  </div>
+  <ol class="dc-facts-list">
+    {f.items.map((it, i) => (
+      <li>
+        <p class="dc-fit">
+          <span>{String(i + 1).padStart(2, '0')}</span>
+          {it.title}
+        </p>
+        <p class="dc-fd">{it.text}</p>
+      </li>
+    ))}
+  </ol>
+</section>

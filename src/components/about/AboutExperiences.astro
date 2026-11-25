@@ -1,0 +1,58 @@
+---
+import { aboutExperiences as e } from '../../content/about';
+import { bp } from './photo';
+---
+
+<section class="ab-exp" id="pengalaman" aria-labelledby="ab-exp-h">
+  <div class="ab-head ab-head-left">
+    <h2 class="ab-h1" id="ab-exp-h">
+      {e.titleA} <i>{e.titleI}</i>
+      {` ${e.titleB}`}
+    </h2>
+    <p class="ab-sub">{e.text}</p>
+  </div>
+  <ul class="ab-exp-grid">
+    {e.items.map((it) => (
+      <li class="ab-card">
+        <div class="ab-card-ph">
+          <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+        </div>
+        <div class="ab-card-b">
+          <h3 class="ab-card-t">{it.title}</h3>
+          <p class="ab-p">{it.text}</p>
+          <a class="ab-more" href={e.detail.href}>
+            {e.detail.label}
+            <span class="ab-sr"> tentang {it.title}</span>
+          </a>
+          <div class="ab-ask">
+            <a class="ab-chip" href={e.ask.href}>
+              {e.ask.label}
+            </a>
+          </div>
+        </div>
+      </li>
+    ))}
+  </ul>
+  <div class="ab-banner">
+    <span class="ab-banner-ic" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M4 5.5h16v11H11l-5 4v-4H4z"></path>
+      </svg>
+    </span>
+    <div class="ab-banner-b">
+      <p>{e.banner.text}</p>
+      <a class="ab-pill ab-pill-light" href={e.banner.cta.href}>
+        {e.banner.cta.label}
+      </a>
+    </div>
+  </div>
+</section>

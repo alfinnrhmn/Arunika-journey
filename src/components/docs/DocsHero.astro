@@ -1,0 +1,47 @@
+---
+// Hero Destinasi dan Dokumentasi: judul + pengantar, dua foto bertumpuk, dan indeks empat destinasi (tautan anchor).
+import { docsHero as h, destinations } from '../../content/documentation';
+import { bp } from '../about/photo';
+---
+
+<section class="dc-hero">
+  <div class="dc-hero-tx">
+    <span class="hand">{h.hand}</span>
+    <h1>
+      {h.titleA} {h.titleB} <i>{h.titleI}</i>
+    </h1>
+    <p>{h.text}</p>
+  </div>
+  <div class="dc-hero-pics">
+    <div class="dc-hero-ph dc-hero-main">
+      <img
+        class="cover"
+        {...bp(h.main.foto)}
+        fetchpriority="high"
+        decoding="async"
+        alt={h.main.alt}
+      />
+    </div>
+    <div class="dc-hero-ph dc-hero-second">
+      <img
+        class="cover"
+        {...bp(h.second.foto)}
+        loading="lazy"
+        decoding="async"
+        alt={h.second.alt}
+      />
+    </div>
+  </div>
+  <nav class="dc-hn" aria-label="Destinasi">
+    <ol>
+      {destinations.map((d, i) => (
+        <li>
+          <a href={`#${d.id}`}>
+            <span class="dc-hn-n">{String(i + 1).padStart(2, '0')}</span>
+            {d.name}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+</section>

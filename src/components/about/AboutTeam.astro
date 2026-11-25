@@ -1,0 +1,31 @@
+---
+// Kartu tim placeholder: siluet netral di atas warna latar (foto, nama, jabatan diisi klien).
+import { aboutTeam } from '../../content/about';
+---
+
+<section class="ab-team" id="tim" aria-labelledby="ab-team-h">
+  <div class="ab-head ab-head-pad">
+    <span class="hand">{aboutTeam.hand}</span>
+    <h2 class="ab-h1" id="ab-team-h">
+      {aboutTeam.titleA} <i>{aboutTeam.titleI}</i>
+    </h2>
+    <p class="ab-sub">{aboutTeam.text}</p>
+  </div>
+  <ul class="ab-team-list" tabindex="0" aria-label="Anggota tim (placeholder)">
+    {aboutTeam.members.map((m) => (
+      <li class="ab-member" data-tone={m.tone}>
+        <div class="ab-member-ph" aria-hidden="true">
+          <svg viewBox="0 0 120 160" focusable="false">
+            <circle class="sun" cx="60" cy="74" r="46" />
+            <path class="bd" d="M14 160c2-34 20-52 46-52s44 18 46 52z" />
+            <circle class="hd" cx="60" cy="64" r="22" />
+          </svg>
+        </div>
+        <b>{m.name}</b>
+        <span>{m.role}</span>
+      </li>
+    ))}
+  </ul>
+  <p class="ab-note ab-note-d">{aboutTeam.note}</p>
+  <p class="ab-note ab-note-m">{aboutTeam.noteMobile}</p>
+</section>

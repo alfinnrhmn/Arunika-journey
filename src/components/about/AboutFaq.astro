@@ -1,0 +1,37 @@
+---
+// FAQ: <details> bernama (satu terbuka sekali waktu); pertanyaan pertama terbuka seperti frame.
+import { aboutFaq as f } from '../../content/about';
+---
+
+<section class="ab-faq" aria-labelledby="ab-faq-h">
+  <div class="ab-head">
+    <p class="ab-eyebrow ab-eyebrow-ink">{f.eyebrow}</p>
+    <h2 class="ab-h2" id="ab-faq-h">
+      {f.titleA} <i>{f.titleI}</i>
+      {` ${f.titleB}`}
+    </h2>
+  </div>
+  <div class="ab-faq-list">
+    {f.items.map((it, i) => (
+      <details class="ab-qa" name="faq-tentang" open={i === 0}>
+        <summary>
+          <span>{it.q}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </summary>
+        <p>{it.a}</p>
+      </details>
+    ))}
+  </div>
+</section>

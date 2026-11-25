@@ -1,0 +1,22 @@
+---
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { aboutCta as c } from '../../content/about';
+import { bp } from './photo';
+---
+
+<section class="ab-cta" aria-labelledby="ab-cta-h">
+  <img class="ab-cta-img" {...bp(c.foto)} loading="lazy" decoding="async" alt={c.alt} />
+  <div class="ab-cta-shade" aria-hidden="true"></div>
+  <div class="ab-cta-b">
+    <h2 id="ab-cta-h">
+      {c.titleA} <i>{c.titleI}</i>
+    </h2>
+    <p>{c.text}</p>
+    <div class="ab-cta-act">
+      <HFArrowButton tone="light" label={c.primary.label} href={c.primary.href} />
+      <a class="ab-cta-link" href={c.secondary.href}>
+        {c.secondary.label}
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,65 @@
+---
+// Open Trip terdekat dari data sungguhan (bukan salinan rancangan): harga, tanggal, dan kuota dari server.
+import HFItinCard from '../hf/HFItinCard.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { mediaUrl } from '../../lib/photo';
+import { formatDateShort, formatDuration, formatRupiah } from '../../lib/format';
+import { seatLabel } from '../../features/schedules/seats';
+import type { TripCard } from '../../features/trips/queries';
+import { photoSize } from '../trips/photo-size';
+import { docsTrips as t } from '../../content/documentation';
+
+interface Props {
+  items: TripCard[];
+}
+const { items } = Astro.props;
+---
+
+<section class="dc-trips" aria-labelledby="dc-trips-h">
+  <div class="dc-trips-head">
+    <span class="hand">{t.hand}</span>
+    <h2 id="dc-trips-h">
+      {t.titleA} <i>{t.titleI}</i>
+      {` ${t.titleB}`}
+    </h2>
+    <p>{t.text}</p>
+  </div>
+  {items.length > 0 && (
+    <ul class="dc-trips-list" tabindex="0" aria-label="Open Trip terdekat">
+      {items.map((card) => (
+        <li>
+          <HFItinCard
+            showbadge="no"
+            status={card.next?.status ?? 'ok'}
+            where={card.where ?? ''}
+            title={card.title}
+            meta={`${formatDuration(card.durationDays, card.nights)}. Harga mulai dari ${formatRupiah(card.basePrice)} / orang`}
+            date={
+              card.next
+                ? `Berangkat ${formatDateShort(card.next.departureDate)}`
+                : 'Belum ada jadwal terbuka'
+            }
+            seats={card.next ? seatLabel(card.next.seatsLeft) : ''}
+            href={`/trips/${card.slug}`}
+          >
+            <Fragment slot="image">
+              {card.photo && (
+                <img
+                  class="cover"
+                  src={mediaUrl(card.photo)}
+                  alt={card.title}
+                  {...photoSize(card.photo)}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </Fragment>
+          </HFItinCard>
+        </li>
+      ))}
+    </ul>
+  )}
+  <div class="dc-trips-cta">
+    <HFArrowButton tone="dark" label={t.cta.label} href={t.cta.href} />
+  </div>
+</section>

@@ -1,0 +1,42 @@
+---
+import Public from '../layouts/Public.astro';
+import '../styles/pages/about.css';
+import AboutHero from '../components/about/AboutHero.astro';
+import AboutTabs from '../components/about/AboutTabs.astro';
+import AboutIntro from '../components/about/AboutIntro.astro';
+import AboutStory from '../components/about/AboutStory.astro';
+import AboutValues from '../components/about/AboutValues.astro';
+import AboutTeam from '../components/about/AboutTeam.astro';
+import AboutExperiences from '../components/about/AboutExperiences.astro';
+import AboutLegal from '../components/about/AboutLegal.astro';
+import AboutDocs from '../components/about/AboutDocs.astro';
+import AboutFaq from '../components/about/AboutFaq.astro';
+import AboutTestimonials from '../components/about/AboutTestimonials.astro';
+import AboutInspiration from '../components/about/AboutInspiration.astro';
+import AboutCta from '../components/about/AboutCta.astro';
+import { aboutHero } from '../content/about';
+import { foto } from '../lib/photo';
+---
+
+<Public
+  title="Tentang Kami | Arunika Journey"
+  description="Arunika Journey: perjalanan domestik yang personal, terorganisir, dan jujur sejak awal. Kenali cerita, filosofi, nilai, dan legalitas kami."
+  ogImage={foto(aboutHero.foto)}
+  ogImageAlt={aboutHero.alt}
+>
+  <main class="ab">
+    <AboutHero />
+    <AboutTabs />
+    <AboutIntro />
+    <AboutStory />
+    <AboutValues />
+    <AboutTeam />
+    <AboutExperiences />
+    <AboutLegal />
+    <AboutDocs />
+    <AboutFaq />
+    <AboutTestimonials />
+    <AboutInspiration />
+    <AboutCta />
+  </main>
+</Public>

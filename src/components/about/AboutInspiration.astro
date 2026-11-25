@@ -1,0 +1,27 @@
+---
+import { aboutInspiration as n } from '../../content/about';
+import { bp } from './photo';
+---
+
+<section class="ab-insp" aria-labelledby="ab-insp-h">
+  <h2 class="ab-h1 ab-insp-h" id="ab-insp-h">
+    {n.titleA} <i>{n.titleI}</i>
+    {n.titleB}
+  </h2>
+  <ul class="ab-insp-list" tabindex="0" aria-label="Artikel panduan">
+    {n.items.map((it) => (
+      <li class="ab-art">
+        <a href={n.href}>
+          <div class="ab-art-ph">
+            <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          </div>
+          <div class="ab-art-b">
+            <p class="ab-art-tag">{it.tag}</p>
+            <h3>{it.title}</h3>
+            <p class="ab-art-x">{it.text}</p>
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>

@@ -1,0 +1,27 @@
+---
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { contactRoutes as r } from '../../content/about';
+---
+
+<section class="ct-routes" aria-labelledby="ct-routes-h">
+  <div class="ct-routes-head">
+    <p class="ct-eyebrow">{r.eyebrow}</p>
+    <h2 class="ct-h2" id="ct-routes-h">
+      {r.titleA} <i>{r.titleI}</i>
+    </h2>
+  </div>
+  <ul class="ct-routes-list">
+    {r.items.map((it) => (
+      <li class="ct-route">
+        <div class="ct-route-t">
+          <p class="ct-eyebrow">{it.eyebrow}</p>
+          <h3>{it.title}</h3>
+          <p class="ct-route-x">{it.text}</p>
+        </div>
+        <div class="ct-route-a">
+          <HFArrowButton tone="outline" label={it.cta.label} href={it.cta.href} />
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>

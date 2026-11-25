@@ -1,0 +1,57 @@
+---
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/documentation.css';
+import { getDb } from '../../server/db';
+import { listOpenTrips, type TripCard } from '../../features/trips/queries';
+import HFNavRD from '../../components/hf/HFNavRD.astro';
+import DocsHero from '../../components/docs/DocsHero.astro';
+import DocsFilterBar from '../../components/docs/DocsFilterBar.astro';
+import DocsDestination from '../../components/docs/DocsDestination.astro';
+import DocsFacts from '../../components/docs/DocsFacts.astro';
+import DocsTrips from '../../components/docs/DocsTrips.astro';
+import DocsTestimonials from '../../components/docs/DocsTestimonials.astro';
+import DocsCta from '../../components/docs/DocsCta.astro';
+import { destinations, docsHero } from '../../content/documentation';
+import { foto } from '../../lib/photo';
+
+// Filter disaring di server dari query string (?jenis=open|private&format=foto|video): berfungsi tanpa JS.
+const rawJenis = Astro.url.searchParams.get('jenis');
+const rawFormat = Astro.url.searchParams.get('format');
+const jenis = rawJenis === 'open' || rawJenis === 'private' ? rawJenis : null;
+const format = rawFormat === 'foto' || rawFormat === 'video' ? rawFormat : null;
+
+const filtered = destinations.map((d) =>
+  d.items.filter((it) => (!jenis || it.kind === jenis) && (!format || it.format === format)),
+);
+const shown = filtered.reduce((n, items) => n + items.length, 0);
+const filterAktif = Boolean(jenis || format);
+
+// Open Trip terdekat (data sungguhan). Bila data tidak dapat dimuat, bagian kartu dilewati, halaman tetap tampil.
+let trips: TripCard[] = [];
+try {
+  trips = (await listOpenTrips(getDb(), { limit: 3, offset: 0 })).items;
+} catch {
+  trips = [];
+}
+---
+
+<Public
+  title="Destinasi dan Dokumentasi Trip | Arunika Journey"
+  description="Jelajahi destinasi Arunika Journey, Bromo, Dieng, Yogyakarta, dan Karimunjawa, lewat dokumentasi trip yang benar-benar berangkat, lengkap dengan nama trip dan bulan keberangkatan."
+  noindex={filterAktif}
+  ogImage={foto(docsHero.main.foto)}
+  ogImageAlt={docsHero.main.alt}
+>
+  <HFNavRD tone="solid" />
+  <main class="dc">
+    <DocsHero />
+    <DocsFilterBar jenis={jenis} format={format} shown={shown} />
+    {destinations.map((d, i) => (
+      <DocsDestination dest={d} index={i} total={destinations.length} items={filtered[i]} />
+    ))}
+    <DocsFacts />
+    <DocsTrips items={trips} />
+    <DocsTestimonials />
+    <DocsCta />
+  </main>
+</Public>

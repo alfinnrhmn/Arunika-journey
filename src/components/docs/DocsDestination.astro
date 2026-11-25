@@ -1,0 +1,77 @@
+---
+// Satu destinasi: panorama bernama besar, ringkasan + dua tombol, lalu deret dokumentasi bergaya majalah.
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { docsCaption, docsFilters, type Destination } from '../../content/documentation';
+import { bp } from '../about/photo';
+
+interface Props {
+  dest: Destination;
+  index: number;
+  total: number;
+  /** Item yang lolos filter. */
+  items: Destination['items'];
+}
+const { dest, index, total, items } = Astro.props;
+const flip = index % 2 === 1;
+const no = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+const kindLabel = { open: 'Open Trip', private: 'Private Trip' } as const;
+---
+
+<section class="dc-ds" id={dest.id} aria-labelledby={`${dest.id}-h`}>
+  <div class="dc-pano" data-flip={flip ? 'yes' : 'no'}>
+    <img
+      class="cover"
+      {...bp(dest.pano.foto)}
+      loading="lazy"
+      decoding="async"
+      alt={dest.pano.alt}
+    />
+    <div class="dc-ov" aria-hidden="true"></div>
+    <div class="dc-pl">
+      <p class="dc-no">{no}</p>
+      <h2 class="dc-nm" id={`${dest.id}-h`}>
+        {dest.name}
+      </h2>
+    </div>
+    <p class="dc-pr">
+      <b>{items.length} dokumentasi</b>
+      Open Trip dan Private Trip
+    </p>
+  </div>
+  <div class="dc-meta" data-flip={flip ? 'yes' : 'no'}>
+    <p class="dc-lead">{dest.lead}</p>
+    <div>
+      <p class="dc-body">{dest.body}</p>
+      <div class="dc-acts">
+        <HFArrowButton
+          tone="dark"
+          label={`Lihat Open Trip ${dest.name}`}
+          href={`/trips?destinasi=${dest.slug}`}
+        />
+        <HFArrowButton tone="outline" label="Request a Quote" href="/private-trip" />
+      </div>
+    </div>
+  </div>
+  {items.length > 0 ? (
+    <ul class="dc-strip" data-pattern={dest.pattern}>
+      {items.map((it) => (
+        <li class="dc-it">
+          <figure>
+            <div class="dc-im">
+              <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+              <span class="dc-tg">{kindLabel[it.kind]}</span>
+              {it.format === 'video' && <span class="dc-vd">Video</span>}
+              <span class="dc-ovc">{docsCaption}</span>
+            </div>
+            <figcaption class="dc-cap">
+              <span class="dc-ct">{it.title}</span>
+              <small>{docsCaption}</small>
+            </figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="dc-em">{docsFilters.empty}</p>
+  )}
+</section>

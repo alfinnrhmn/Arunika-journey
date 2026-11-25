@@ -1,0 +1,91 @@
+---
+// Ulasan contoh: deret slide yang bisa digulir (scroll-snap, berfungsi tanpa JS). Tombol sebelumnya/berikutnya
+// di desktop disembunyikan sampai src/scripts/docs-testimoni.ts dimuat.
+import HFIcon from '../hf/HFIcon.astro';
+import { docsTestimonials as t } from '../../content/documentation';
+import { bp } from '../about/photo';
+---
+
+<section class="dc-tm" aria-labelledby="dc-tm-h">
+  <div class="dc-tm-in">
+    <div class="dc-tm-card">
+      <ul
+        class="dc-tm-track"
+        tabindex="0"
+        aria-label="Ulasan peserta (contoh), geser untuk berikutnya"
+        data-tm-track
+      >
+        {t.slides.map((s) => (
+          <li class="dc-slide" data-tm-slide>
+            <img class="cover" {...bp(s.foto)} loading="lazy" decoding="async" alt={s.alt} />
+            <div class="dc-slide-sh" aria-hidden="true" />
+            <figure class="dc-tq">
+              <blockquote>{s.text}</blockquote>
+              <figcaption>
+                <span class="dc-tn1">{t.by}</span>
+                <span class="dc-tn2">{t.note}</span>
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="dc-tm-side">
+      <div class="dc-tm-dark">
+        <h2 id="dc-tm-h">
+          {t.titleA} <i>{t.titleI}</i>
+          <br />
+          {t.titleB}
+        </h2>
+        <p class="dc-rate">
+          <span class="dc-stars" aria-hidden="true">
+            {[0, 1, 2, 3, 4].map(() => (
+              <HFIcon name="star" size={16} />
+            ))}
+          </span>
+          <span>{t.rating}</span>
+        </p>
+      </div>
+      <div class="dc-tm-nav" data-tm-nav hidden>
+        <button class="dc-tb" type="button" data-tm-prev aria-label="Ulasan sebelumnya">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M11 6l-6 6 6 6"></path>
+          </svg>
+        </button>
+        <button class="dc-tb dc-tb-f" type="button" data-tm-next aria-label="Ulasan berikutnya">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </button>
+        <p class="dc-tcount" aria-live="polite">
+          <b data-tm-cur>1</b>/{t.slides.length}
+        </p>
+      </div>
+    </div>
+  </div>
+  <p class="dc-tm-hint">{t.hint}</p>
+</section>
+
+<script>
+  import '../../scripts/docs-testimoni.ts';
+</script>
