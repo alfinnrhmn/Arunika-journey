@@ -1,5 +1,6 @@
 ---
 import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 
 // Satu sumber untuk baris daftar dan foto yang mengikuti kursor (kunci harus sama). Contoh isi: nama
@@ -63,7 +64,7 @@ const lainnya = [
 const semua = [utama, ...lainnya];
 ---
 
-<section class="hp61">
+<section class="hp61 hd">
   <div class="hp69">
     <span class="hand rv">Penginapan pilihan</span>
     <h3 class="hp40 rv">
@@ -93,6 +94,7 @@ const semua = [utama, ...lainnya];
         <div
           class={`${i === lainnya.length - 1 ? 'hp79' : 'hp78'} rvd hover-row`}
           data-follow={l.key}
+          data-follow-tap
         >
           {l.nama}
         </div>
@@ -102,18 +104,28 @@ const semua = [utama, ...lainnya];
       <div class="fpx">
         <img
           class="cover"
-          src={foto('cemara-lodge-eksterior')}
+          {...fi('cemara-lodge-eksterior')}
+          loading="lazy"
+          decoding="async"
           alt="Cemara Hill Lodge di lereng pada malam hari"
         />
       </div>
     </div>
   </div>
   <!-- Foto yang mengikuti kursor saat kursor di nama penginapan (src/lib/motion/follow.ts). Gambar baru
-       diunduh saat daftar mendekati layar; di layar sentuh tidak tampil. -->
+       diunduh saat daftar mendekati layar. Di layar sentuh fotonya tampil di barisnya saat diketuk. -->
   <div id="stay-follow" class="follow" aria-hidden="true">
     <div class="follow-in">
       {semua.map((l) => (
-        <img data-key={l.key} data-src={foto(l.img)} alt={l.alt} />
+        <img
+          data-key={l.key}
+          data-src={foto(l.img)}
+          width={fi(l.img).width}
+          height={fi(l.img).height}
+          loading="lazy"
+          decoding="async"
+          alt={l.alt}
+        />
       ))}
     </div>
   </div>

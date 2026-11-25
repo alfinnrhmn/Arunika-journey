@@ -1,16 +1,18 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
-<section id="fam" class="hp12">
+<section id="fam" class="hp12 hd">
   <div class="hp13">
     <div class="fam-item">
       <div class="fam-img rvm hp14">
         <div class="fpx">
           <img
             class="cover"
-            src={foto('pendaki-bukit-hijau')}
+            {...fi('pendaki-bukit-hijau')}
+            loading="lazy"
+            decoding="async"
             alt="Tiga pendaki menyusuri punggungan bukit hijau"
           />
         </div>
@@ -33,7 +35,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <div class="fpx">
           <img
             class="cover"
-            src={foto('potret-perempuan-tenun')}
+            {...fi('potret-perempuan-tenun')}
+            loading="lazy"
+            decoding="async"
             alt="Potret perempuan berselendang tenun"
           />
         </div>
@@ -54,7 +58,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <div class="fpx">
           <img
             class="cover"
-            src={foto('traveler-haluan-perahu')}
+            {...fi('traveler-haluan-perahu')}
+            loading="lazy"
+            decoding="async"
             alt="Tamu duduk di haluan perahu menatap tepi pulau"
           />
         </div>
@@ -63,7 +69,13 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <div class="fam-item">
       <div class="fam-img rvm hp14">
         <div class="fpx">
-          <img class="cover" src={foto('pulau-udara-atas')} alt="Pulau kecil berhutan dari udara" />
+          <img
+            class="cover"
+            {...fi('pulau-udara-atas')}
+            loading="lazy"
+            decoding="async"
+            alt="Pulau kecil berhutan dari udara"
+          />
         </div>
       </div>
       <div class="fam-txt">
@@ -78,7 +90,13 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
       </div>
       <div class="fam-img rvm hp17">
         <div class="fpx">
-          <img class="cover" src={foto('senja-pulau-palem')} alt="Senja di balik pulau berpalem" />
+          <img
+            class="cover"
+            {...fi('senja-pulau-palem')}
+            loading="lazy"
+            decoding="async"
+            alt="Senja di balik pulau berpalem"
+          />
         </div>
       </div>
     </div>
@@ -87,7 +105,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <div class="thumb-in" data-motion="open">
       <img
         class="cover"
-        src={foto('bromo-lautan-kabut')}
+        {...fi('bromo-lautan-kabut')}
+        loading="lazy"
+        decoding="async"
         alt="Kaldera Bromo menyembul dari lautan kabut"
       />
     </div>

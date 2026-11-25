@@ -1,104 +1,224 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
-<section id="dst" class="hp19">
-  <img class="dbg on" src={foto('penanjakan-panorama')} alt="Panorama Bromo dari Penanjakan" />
+<section id="dst" class="hp19 hd">
+  <img
+    class="dbg on"
+    {...fi('penanjakan-panorama')}
+    loading="lazy"
+    decoding="async"
+    alt="Panorama Bromo dari Penanjakan"
+  />
   <img
     class="dbg"
-    src={foto('dieng-teras-kabut')}
+    {...fi('dieng-teras-kabut')}
+    loading="lazy"
+    decoding="async"
     alt="Teras kebun berkabut di dataran tinggi Dieng"
   />
-  <img class="dbg" src={foto('prambanan-senja')} alt="Candi Prambanan saat senja" />
-  <img class="dbg" src={foto('sandbar-perahu')} alt="Perahu di sandbar pasir putih Karimunjawa" />
-  <img class="dbg" src={foto('kawah-ijen')} alt="Danau kawah Ijen berasap" />
-  <img class="dbg" src={foto('savana-banyuwangi')} alt="Savana kuning di bawah langit senja" />
+  <img
+    class="dbg"
+    {...fi('prambanan-senja')}
+    loading="lazy"
+    decoding="async"
+    alt="Candi Prambanan saat senja"
+  />
+  <img
+    class="dbg"
+    {...fi('sandbar-perahu')}
+    loading="lazy"
+    decoding="async"
+    alt="Perahu di sandbar pasir putih Karimunjawa"
+  />
+  <img
+    class="dbg"
+    {...fi('kawah-ijen')}
+    loading="lazy"
+    decoding="async"
+    alt="Danau kawah Ijen berasap"
+  />
+  <img
+    class="dbg"
+    {...fi('savana-banyuwangi')}
+    loading="lazy"
+    decoding="async"
+    alt="Savana kuning di bawah langit senja"
+  />
   <div class="hp20"></div>
   <div class="dpan on hp21">
     <div class="hp22">
       <img
         class="cover"
-        src={foto('bromo-tangga-batu')}
+        {...fi('bromo-tangga-batu')}
+        loading="lazy"
+        decoding="async"
         alt="Pendaki menaiki tangga batu menuju kawah Bromo"
       />
     </div>
     <div class="hp23">
       <img
         class="cover"
-        src={foto('warga-tengger-bromo')}
+        {...fi('warga-tengger-bromo')}
+        loading="lazy"
+        decoding="async"
         alt="Warga Tengger menikmati minuman hangat di Bromo"
       />
     </div>
     <div class="hp24">
-      <img class="cover" src={foto('roda-jip-pasir')} alt="Roda jip di lautan pasir Bromo" />
+      <img
+        class="cover"
+        {...fi('roda-jip-pasir')}
+        loading="lazy"
+        decoding="async"
+        alt="Roda jip di lautan pasir Bromo"
+      />
     </div>
   </div>
   <div class="dpan hp25">
     <div class="hp22">
-      <img class="cover" src={foto('sikunir-lautan-awan')} alt="Lautan awan dari puncak Sikunir" />
+      <img
+        class="cover"
+        {...fi('sikunir-lautan-awan')}
+        loading="lazy"
+        decoding="async"
+        alt="Lautan awan dari puncak Sikunir"
+      />
     </div>
     <div class="hp23">
-      <img class="cover" src={foto('kebun-teh')} alt="Kebun teh berundak di dataran tinggi" />
+      <img
+        class="cover"
+        {...fi('kebun-teh')}
+        loading="lazy"
+        decoding="async"
+        alt="Kebun teh berundak di dataran tinggi"
+      />
     </div>
     <div class="hp24">
       <img
         class="cover"
-        src={foto('dieng-sunrise-emas')}
+        {...fi('dieng-sunrise-emas')}
+        loading="lazy"
+        decoding="async"
         alt="Dua pejalan di jalur Dieng saat fajar"
       />
     </div>
   </div>
   <div class="dpan hp25">
     <div class="hp22">
-      <img class="cover" src={foto('borobudur-stupa')} alt="Stupa Borobudur berkabut" />
-    </div>
-    <div class="hp23">
-      <img class="cover" src={foto('prambanan-fajar')} alt="Prambanan saat fajar" />
-    </div>
-    <div class="hp24">
-      <img class="cover" src={foto('batik-tulis')} alt="Tangan menggambar batik tulis" />
-    </div>
-  </div>
-  <div class="dpan hp25">
-    <div class="hp22">
-      <img class="cover" src={foto('pulau-udara-perahu')} alt="Pulau Karimunjawa dari udara" />
-    </div>
-    <div class="hp23">
-      <img class="cover" src={foto('haluan-perahu-laut')} alt="Haluan perahu kayu di laut jernih" />
-    </div>
-    <div class="hp24">
-      <img class="cover" src={foto('senja-perahu-tenang')} alt="Perahu di laut tenang saat senja" />
-    </div>
-  </div>
-  <div class="dpan hp25">
-    <div class="hp22">
-      <img class="cover" src={foto('ijen-api-biru')} alt="Api biru Ijen pada malam hari" />
+      <img
+        class="cover"
+        {...fi('borobudur-stupa')}
+        loading="lazy"
+        decoding="async"
+        alt="Stupa Borobudur berkabut"
+      />
     </div>
     <div class="hp23">
       <img
         class="cover"
-        src={foto('pendaki-malam-headlamp')}
+        {...fi('prambanan-fajar')}
+        loading="lazy"
+        decoding="async"
+        alt="Prambanan saat fajar"
+      />
+    </div>
+    <div class="hp24">
+      <img
+        class="cover"
+        {...fi('batik-tulis')}
+        loading="lazy"
+        decoding="async"
+        alt="Tangan menggambar batik tulis"
+      />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img
+        class="cover"
+        {...fi('pulau-udara-perahu')}
+        loading="lazy"
+        decoding="async"
+        alt="Pulau Karimunjawa dari udara"
+      />
+    </div>
+    <div class="hp23">
+      <img
+        class="cover"
+        {...fi('haluan-perahu-laut')}
+        loading="lazy"
+        decoding="async"
+        alt="Haluan perahu kayu di laut jernih"
+      />
+    </div>
+    <div class="hp24">
+      <img
+        class="cover"
+        {...fi('senja-perahu-tenang')}
+        loading="lazy"
+        decoding="async"
+        alt="Perahu di laut tenang saat senja"
+      />
+    </div>
+  </div>
+  <div class="dpan hp25">
+    <div class="hp22">
+      <img
+        class="cover"
+        {...fi('ijen-api-biru')}
+        loading="lazy"
+        decoding="async"
+        alt="Api biru Ijen pada malam hari"
+      />
+    </div>
+    <div class="hp23">
+      <img
+        class="cover"
+        {...fi('pendaki-malam-headlamp')}
+        loading="lazy"
+        decoding="async"
         alt="Pendaki dengan headlamp di punggungan malam"
       />
     </div>
     <div class="hp24">
-      <img class="cover" src={foto('ijen-kawah-pendaki')} alt="Pendaki di tepi kawah Ijen" />
+      <img
+        class="cover"
+        {...fi('ijen-kawah-pendaki')}
+        loading="lazy"
+        decoding="async"
+        alt="Pendaki di tepi kawah Ijen"
+      />
     </div>
   </div>
   <div class="dpan hp25">
     <div class="hp22">
       <img
         class="cover"
-        src={foto('savana-pendaki-barisan')}
+        {...fi('savana-pendaki-barisan')}
+        loading="lazy"
+        decoding="async"
         alt="Barisan pendaki menyeberangi savana"
       />
     </div>
     <div class="hp23">
-      <img class="cover" src={foto('ubud-pendopo-sawah')} alt="Pendopo di tepi sawah berkabut" />
+      <img
+        class="cover"
+        {...fi('ubud-pendopo-sawah')}
+        loading="lazy"
+        decoding="async"
+        alt="Pendopo di tepi sawah berkabut"
+      />
     </div>
     <div class="hp24">
-      <img class="cover" src={foto('sawah-teras-ubud')} alt="Sawah berteras di Ubud" />
+      <img
+        class="cover"
+        {...fi('sawah-teras-ubud')}
+        loading="lazy"
+        decoding="async"
+        alt="Sawah berteras di Ubud"
+      />
     </div>
   </div>
   <div class="hp26">

@@ -1,10 +1,10 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFItinCard from '../hf/HFItinCard.astro';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
-<section class="hp39">
+<section class="hp39 hd">
   <span class="hand">Dapat inspirasi</span>
   <h3 class="hp57">
     Tukar buku panduan dengan <i>cerita yang baik</i>
@@ -20,7 +20,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <Fragment slot="image">
           <img
             class="cover"
-            src={foto('bromo-sunrise-grup')}
+            {...fi('bromo-sunrise-grup')}
+            loading="lazy"
+            decoding="async"
             alt="Peserta Bromo Sunrise Experience menatap kaldera"
           />
         </Fragment>
@@ -28,7 +30,7 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     </div>
     <div>
       <HFItinCard
-        href={'/trips/bromo-sunrise-experience'}
+        href={'/trips/dieng-golden-sunrise'}
         date={'Berangkat Jum, 18 Des 2026'}
         meta={'2 hari 1 malam. Harga mulai dari Rp 1.650.000 / orang'}
         seats={'Sisa 6 kursi'}
@@ -39,7 +41,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <Fragment slot="image">
           <img
             class="cover"
-            src={foto('dieng-sunrise-emas')}
+            {...fi('dieng-sunrise-emas')}
+            loading="lazy"
+            decoding="async"
             alt="Dua pejalan di jalur Dieng saat fajar emas"
           />
         </Fragment>
@@ -47,7 +51,7 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     </div>
     <div>
       <HFItinCard
-        href={'/trips/bromo-sunrise-experience'}
+        href={'/trips/yogyakarta-heritage-weekend'}
         date={'Berangkat Sab, 9 Jan 2027'}
         meta={'3 hari 2 malam. Harga mulai dari Rp 1.450.000 / orang'}
         seats={'Sisa 3 kursi'}
@@ -59,7 +63,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <Fragment slot="image">
           <img
             class="cover"
-            src={foto('jogja-gerbang-bata')}
+            {...fi('jogja-gerbang-bata')}
+            loading="lazy"
+            decoding="async"
             alt="Perempuan melangkah di gerbang bata kuno"
           />
         </Fragment>
@@ -67,7 +73,7 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     </div>
     <div>
       <HFItinCard
-        href={'/trips/bromo-sunrise-experience'}
+        href={'/trips/karimunjawa-island-escape'}
         date={'Berangkat Sab, 23 Jan 2027'}
         meta={'3 hari 2 malam. Harga mulai dari Rp 2.350.000 / orang'}
         seats={'Sisa 8 kursi'}
@@ -77,7 +83,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <Fragment slot="image">
           <img
             class="cover"
-            src={foto('karimunjawa-pantai-perahu')}
+            {...fi('karimunjawa-pantai-perahu')}
+            loading="lazy"
+            decoding="async"
             alt="Perahu di pantai Karimunjawa"
           />
         </Fragment>
@@ -85,20 +93,26 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     </div>
     <div>
       <HFItinCard
-        href={'/trips/bromo-sunrise-experience'}
+        href={'/trips/ijen-blue-fire-sunrise'}
         date={'Berangkat Sab, 6 Feb 2027'}
         meta={'2 hari 1 malam. Harga mulai dari Rp 1.550.000 / orang'}
         seats={'Sisa 10 kursi'}
         title={'Ijen Blue Fire Sunrise'}
       >
         <Fragment slot="image">
-          <img class="cover" src={foto('ijen-api-biru')} alt="Api biru Ijen sebelum fajar" />
+          <img
+            class="cover"
+            {...fi('ijen-api-biru')}
+            loading="lazy"
+            decoding="async"
+            alt="Api biru Ijen sebelum fajar"
+          />
         </Fragment>
       </HFItinCard>
     </div>
     <div>
       <HFItinCard
-        href={'/trips/bromo-sunrise-experience'}
+        href={'/trips/borobudur-sunrise-day-trip'}
         date={'Berangkat Min, 14 Feb 2027'}
         meta={'1 hari. Harga mulai dari Rp 650.000 / orang'}
         seats={'Penuh'}
@@ -107,7 +121,13 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         where={'Jawa Tengah'}
       >
         <Fragment slot="image">
-          <img class="cover" src={foto('borobudur-sunrise')} alt="Stupa Borobudur saat fajar" />
+          <img
+            class="cover"
+            {...fi('borobudur-sunrise')}
+            loading="lazy"
+            decoding="async"
+            alt="Stupa Borobudur saat fajar"
+          />
         </Fragment>
       </HFItinCard>
     </div>

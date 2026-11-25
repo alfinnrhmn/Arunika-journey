@@ -1,9 +1,9 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
-<section class="hp61">
+<section class="hp61 hd">
   <div class="hp69">
     <span class="hand">Dokumentasi trip</span>
     <h2 class="hp89">
@@ -18,21 +18,31 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <a href="/dokumentasi" class="hp-link hp92">
       <img
         class="cover"
-        src={foto('anak-muda-jogja')}
+        {...fi('anak-muda-jogja')}
+        loading="lazy"
+        decoding="async"
         alt="Anak muda berjalan di pelataran bergaya Jawa"
       />
       <div class="hp93"></div>
       <span class="hp94">01</span>
     </a>
     <a href="/dokumentasi" class="hp-link hp95">
-      <img class="cover" src={foto('angkringan-malam')} alt="Angkringan malam yang hangat" />
+      <img
+        class="cover"
+        {...fi('angkringan-malam')}
+        loading="lazy"
+        decoding="async"
+        alt="Angkringan malam yang hangat"
+      />
       <div class="hp93"></div>
       <span class="hp94">02</span>
     </a>
     <a href="/dokumentasi" class="hp-link hp96">
       <img
         class="cover"
-        src={foto('grup-tertawa-bromo')}
+        {...fi('grup-tertawa-bromo')}
+        loading="lazy"
+        decoding="async"
         alt="Rombongan tertawa dengan latar Bromo"
       />
       <div class="hp93"></div>
@@ -41,7 +51,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <a href="/dokumentasi" class="hp-link hp97">
       <img
         class="cover"
-        src={foto('dermaga-senja-tiga-orang')}
+        {...fi('dermaga-senja-tiga-orang')}
+        loading="lazy"
+        decoding="async"
         alt="Tiga teman bersulang di dermaga saat senja"
       />
       <div class="hp93"></div>
@@ -50,7 +62,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <a href="/dokumentasi" class="hp-link hp98">
       <img
         class="cover"
-        src={foto('malang-warung-jip')}
+        {...fi('malang-warung-jip')}
+        loading="lazy"
+        decoding="async"
         alt="Warung kayu dan jip tua di hutan pinus berkabut"
       />
       <div class="hp93"></div>
@@ -59,7 +73,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
     <a href="/dokumentasi" class="hp-link hp99">
       <img
         class="cover"
-        src={foto('jemput-tengah-malam')}
+        {...fi('jemput-tengah-malam')}
+        loading="lazy"
+        decoding="async"
         alt="Penjemputan peserta tengah malam di depan penginapan"
       />
       <div class="hp93"></div>

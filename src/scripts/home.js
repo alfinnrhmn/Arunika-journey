@@ -1,5 +1,7 @@
 // Interaksi halaman Home (slideshow hero, panel destinasi, daftar Journal, karusel testimoni).
-// Diport apa adanya dari prototipe Doop; animasi berbasis GSAP menyusul (lihat DS 18).
+// Diport dari prototipe Doop. Bagian desktop (slideshow, parallax, testimoni besar) hanya berjalan di layar
+// >= 1280px, tempat bagian itu tampil; di bawahnya bagian itu disembunyikan (kelas hd) dan timernya tidur,
+// jadi tidak ada kerja latar yang menguras baterai. Karusel ulasan kecil ada di blok terakhir.
 
 (function () {
   var $ = function (s, r) {
@@ -7,7 +9,8 @@
     },
     $$ = function (s, r) {
       return Array.prototype.slice.call((r || document).querySelectorAll(s));
-    };
+    },
+    wide = window.matchMedia('(min-width: 1280px)');
   function setText(box, txt) {
     var w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT),
       n;
@@ -52,14 +55,13 @@
     g.addEventListener('click', function () {
       hshow(i);
       clearInterval(ht);
-      ht = setInterval(function () {
-        hshow(hi + 1);
-      }, 6000);
+      ht = setInterval(hnext, 6000);
     });
   });
-  var ht = setInterval(function () {
-    hshow(hi + 1);
-  }, 6000);
+  function hnext() {
+    if (wide.matches) hshow(hi + 1);
+  }
+  var ht = setInterval(hnext, 6000);
   /* 2. destinations: pindah otomatis saat bar progres penuh (animationend); jeda saat section di luar layar */
   var D = [
     {
@@ -172,7 +174,14 @@
   var L = $$('.fpx').map(function (e) {
     return { el: e, y: 0 };
   });
-  (function tick() {
+  // Loop hanya berjalan saat bagian desktop tampil (>= 1280px); di bawahnya berhenti dan menyala lagi bila
+  // jendela diperlebar.
+  var raf = 0;
+  function tick() {
+    if (!wide.matches) {
+      raf = 0;
+      return;
+    }
     var vh = window.innerHeight;
     L.forEach(function (o) {
       var b = o.el.parentElement.getBoundingClientRect();
@@ -182,8 +191,13 @@
       o.y += (t - o.y) * 0.09;
       o.el.style.setProperty('--py', o.y.toFixed(2) + 'px');
     });
-    requestAnimationFrame(tick);
-  })();
+    raf = requestAnimationFrame(tick);
+  }
+  function startParallax() {
+    if (!raf && wide.matches) raf = requestAnimationFrame(tick);
+  }
+  wide.addEventListener('change', startParallax);
+  startParallax();
 })();
 
 (function () {
@@ -231,7 +245,7 @@
   function auto() {
     clearInterval(t);
     t = setInterval(function () {
-      go(c + 1);
+      if (window.matchMedia('(min-width: 1280px)').matches) go(c + 1);
     }, 8000);
   }
   document.getElementById('tprev').addEventListener('click', function () {
@@ -243,4 +257,51 @@
     auto();
   });
   auto();
+})();
+
+/* Karusel ulasan untuk layar < 1280px (HomeCompact): satu kartu terlihat, tombol sebelumnya/berikutnya dan
+   geser jari. Tanpa pergantian otomatis, jadi tidak ada gerakan yang tidak diminta pengguna. */
+(function () {
+  var root = document.querySelector('[data-rq]');
+  if (!root) return;
+  var slides = Array.prototype.slice.call(root.querySelectorAll('[data-rq-slide]')),
+    count = root.querySelector('[data-rq-count]'),
+    stage = root.querySelector('.hc-rq-stage'),
+    cur = 0;
+  if (slides.length < 2) return;
+  function pad(n) {
+    return (n < 10 ? '0' : '') + n;
+  }
+  function go(n) {
+    cur = (n + slides.length) % slides.length;
+    slides.forEach(function (s, i) {
+      s.classList.toggle('on', i === cur);
+      s.setAttribute('aria-hidden', i === cur ? 'false' : 'true');
+    });
+    if (count) count.textContent = pad(cur + 1) + ' / ' + pad(slides.length);
+  }
+  root.querySelector('[data-rq-prev]').addEventListener('click', function () {
+    go(cur - 1);
+  });
+  root.querySelector('[data-rq-next]').addEventListener('click', function () {
+    go(cur + 1);
+  });
+  var x0 = null;
+  stage.addEventListener(
+    'touchstart',
+    function (e) {
+      x0 = e.touches[0].clientX;
+    },
+    { passive: true },
+  );
+  stage.addEventListener(
+    'touchend',
+    function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1));
+    },
+    { passive: true },
+  );
 })();

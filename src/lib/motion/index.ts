@@ -15,10 +15,18 @@
  * "kurangi gerakan" (prefers-reduced-motion), tidak ada animasi: foto tampil pada keadaan akhir.
  * Hanya `transform` dan `clip-path` yang dianimasikan.
  *
+ * Layar: gerak scroll berat (pin, zoom) hanya hidup di >= 1280px (komposisi desktop). Di bawahnya elemen
+ * `data-motion` ada di bagian yang disembunyikan, jadi GSAP tidak diunduh sama sekali sampai jendela
+ * diperlebar melewati 1280px; saat jendela diperkecil kembali, `gsap.matchMedia` mematikan semua ScrollTrigger
+ * dan membersihkan pin-spacer, lalu menghitung ulang.
+ *
  * Catatan: jangan menaruh `overflow: hidden` pada induk yang memuat animasi berbasis CSS
  * `animation-timeline: view()`. Elemen itu menjadi wadah scroll sendiri dan timeline-nya tidak pernah
  * bergerak (inilah sebabnya animasi bawaan desain untuk gambar gunung mati dan diganti modul ini).
  */
+
+/** Gerak scroll hanya untuk komposisi desktop (sama dengan batas kelas hc/hd di home.css). */
+const WIDE = '(min-width: 1280px)';
 
 const num = (value: string | undefined, fallback: number) => {
   const n = Number(value);
@@ -36,6 +44,22 @@ export async function initMotion(root: ParentNode = document): Promise<(() => vo
   // "Kurangi gerakan": tidak ada animasi, jadi GSAP tidak perlu diunduh sama sekali.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
 
+  const wide = window.matchMedia(WIDE);
+  if (!wide.matches) {
+    // Layar kecil: tunggu sampai jendela melebar, baru unduh GSAP dan pasang gerak.
+    let teardown: (() => void) | undefined;
+    const onChange = () => {
+      if (!wide.matches || teardown) return;
+      wide.removeEventListener('change', onChange);
+      initMotion(root).then((t) => (teardown = t));
+    };
+    wide.addEventListener('change', onChange);
+    return () => {
+      wide.removeEventListener('change', onChange);
+      teardown?.();
+    };
+  }
+
   const [{ gsap }, { ScrollTrigger }] = await Promise.all([
     import('gsap'),
     import('gsap/ScrollTrigger'),
@@ -43,7 +67,7 @@ export async function initMotion(root: ParentNode = document): Promise<(() => vo
   gsap.registerPlugin(ScrollTrigger);
 
   const mm = gsap.matchMedia();
-  mm.add('(prefers-reduced-motion: no-preference)', () => {
+  mm.add(`${WIDE} and (prefers-reduced-motion: no-preference)`, () => {
     for (const el of zooms) {
       const scope = el.dataset.zoomScope ? document.querySelector(el.dataset.zoomScope) : null;
       gsap.fromTo(
@@ -91,9 +115,14 @@ export async function initMotion(root: ParentNode = document): Promise<(() => vo
   const refresh = () => ScrollTrigger.refresh();
   if (document.readyState === 'complete') refresh();
   else window.addEventListener('load', refresh, { once: true });
+  // Melewati 1280px (bagian desktop tampil atau hilang) mengubah tinggi halaman: hitung ulang setelah tata
+  // letak baru terpasang. Pemicu sendiri dibuat dan dibuang oleh gsap.matchMedia di atas.
+  const onWide = () => requestAnimationFrame(refresh);
+  wide.addEventListener('change', onWide);
 
   return () => {
     window.removeEventListener('load', refresh);
+    wide.removeEventListener('change', onWide);
     mm.revert();
   };
 }

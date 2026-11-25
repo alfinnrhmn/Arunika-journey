@@ -14,7 +14,9 @@
  *   </div>
  *
  * Aturan:
- * - Hanya untuk perangkat dengan mouse (hover: hover dan pointer: fine). Di layar sentuh tidak ada apa pun.
+ * - Perangkat dengan mouse (hover: hover dan pointer: fine): gambar mengikuti kursor. Layar sentuh tidak punya
+ *   kursor, jadi barisnya yang bertanda `data-follow-tap` bisa diketuk (atau Enter/Spasi): fotonya terbuka di
+ *   bawah baris itu, satu baris pada satu waktu (lihat initTap).
  * - Murni JS + CSS (tanpa GSAP), jadi tidak menambah unduhan.
  * - Gerak mengikuti referensi desain (foto itinerary di Trip Detail): mengejar kursor dengan easing dan miring
  *   mengikuti kecepatan gerak mouse.
@@ -30,10 +32,68 @@ const EASE = 0.14; // 0..1, makin besar makin cepat mengejar
 const TILT = 1.2;
 const MAX_TILT = 14;
 
+/** Pengganti untuk layar sentuh: ketuk baris, foto tampil di bawahnya (tanpa kursor, tanpa gerak). */
+function initTap(lists: HTMLElement[]): (() => void) | undefined {
+  const cleanups: Array<() => void> = [];
+  for (const list of lists) {
+    const box = document.querySelector<HTMLElement>(list.dataset.followList ?? '');
+    if (!box) continue;
+    const rows = [...list.querySelectorAll<HTMLElement>('[data-follow-tap]')];
+    for (const row of rows) {
+      const src = box.querySelector<HTMLImageElement>(`img[data-key="${row.dataset.follow}"]`);
+      if (!src) continue;
+      const wrap = document.createElement('div');
+      wrap.className = 'stay-thumb';
+      const img = document.createElement('img');
+      img.alt = src.alt;
+      img.width = src.width;
+      img.height = src.height;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      wrap.append(img);
+      row.append(wrap);
+      row.setAttribute('role', 'button');
+      row.tabIndex = 0;
+      row.setAttribute('aria-expanded', 'false');
+
+      const toggle = () => {
+        const open = !row.classList.contains('open');
+        for (const other of rows) {
+          other.classList.remove('open');
+          other.setAttribute('aria-expanded', 'false');
+        }
+        if (open) {
+          if (!img.src && src.dataset.src) img.src = src.dataset.src;
+          row.classList.add('open');
+          row.setAttribute('aria-expanded', 'true');
+        }
+      };
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle();
+        }
+      };
+      row.addEventListener('click', toggle);
+      row.addEventListener('keydown', onKey);
+      cleanups.push(() => {
+        row.removeEventListener('click', toggle);
+        row.removeEventListener('keydown', onKey);
+        wrap.remove();
+        row.removeAttribute('role');
+        row.removeAttribute('tabindex');
+        row.removeAttribute('aria-expanded');
+        row.classList.remove('open');
+      });
+    }
+  }
+  return () => cleanups.forEach((fn) => fn());
+}
+
 export function initFollow(root: ParentNode = document): (() => void) | undefined {
   const lists = [...root.querySelectorAll<HTMLElement>('[data-follow-list]')];
   if (lists.length === 0) return undefined;
-  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return undefined;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return initTap(lists);
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const cleanups: Array<() => void> = [];
