@@ -39,7 +39,7 @@ async function makeStaff(role: 'owner' | 'admin_ops' = 'admin_ops'): Promise<Sta
     role,
     password: 'sandi-uji-yang-cukup-panjang',
   });
-  return { id: u.id, name: 'Admin Uji', email, role };
+  return { id: u.id, name: 'Admin Uji', email, role, twoFactorEnabled: true };
 }
 
 /** Booking pending_payment dengan bukti transfer terunggah (masuk antrean verifikasi). */

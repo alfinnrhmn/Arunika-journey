@@ -57,6 +57,7 @@ const EXPECTED_TABLES = [
   'trip_media',
   'trip_schedules',
   'trips',
+  'two_factors',
   'users',
   'verifications',
 ];

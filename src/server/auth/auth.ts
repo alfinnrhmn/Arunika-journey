@@ -1,10 +1,11 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError } from 'better-auth/api';
+import { twoFactor } from 'better-auth/plugins/two-factor';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db';
 import { uuidv7 } from '../db/id';
-import { accounts, sessions, users, verifications } from '../db/schema';
+import { accounts, sessions, twoFactors, users, verifications } from '../db/schema';
 
 /**
  * Autentikasi pengguna internal (Owner dan Admin Operasional) dengan Better Auth: email + sandi, tanpa
@@ -18,8 +19,7 @@ import { accounts, sessions, users, verifications } from '../db/schema';
  * - Pengguna berstatus bukan `active` (diundang/dinonaktifkan) tidak bisa membuat sesi.
  * - Cookie sesi httpOnly, SameSite Lax, Secure di produksi; sesi tidak di-cache di cookie sehingga penonaktifan
  *   akun berlaku pada permintaan berikutnya.
- * - 2FA TOTP (wajib untuk kedua peran menurut PRD) ditambahkan sebagai langkah terpisah lewat plugin two-factor;
- *   kolom `users.two_factor_enabled` sudah disiapkan.
+ * - 2FA TOTP wajib untuk kedua peran (plugin two-factor): masuk dua langkah, kode cadangan, pengunci akun.
  */
 export const SESSION_HOURS = 12;
 export const MIN_PASSWORD_LENGTH = 12;
@@ -39,8 +39,26 @@ function createAuth() {
     trustedOrigins: [baseURL],
     database: drizzleAdapter(db, {
       provider: 'pg',
-      schema: { user: users, session: sessions, account: accounts, verification: verifications },
+      schema: {
+        user: users,
+        session: sessions,
+        account: accounts,
+        verification: verifications,
+        twoFactor: twoFactors,
+      },
     }),
+    // 2FA TOTP (aplikasi autentikator) wajib untuk kedua peran: kewajibannya ditegakkan middleware (staf tanpa 2FA
+    // hanya dapat membuka halaman aktivasi). Kode cadangan untuk kehilangan ponsel; reset oleh Owner. Pengunci akun
+    // bawaan plugin menghentikan tebakan kode: 5 kegagalan beruntun mengunci akun 15 menit, dan tiap tantangan masuk
+    // (cookie 10 menit) punya batas percobaan sendiri.
+    plugins: [
+      twoFactor({
+        issuer: 'Arunika Journey',
+        twoFactorCookieMaxAge: 10 * 60,
+        backupCodeOptions: { amount: 10, length: 10 },
+        accountLockout: { enabled: true, maxFailedAttempts: 5, durationSeconds: 15 * 60 },
+      }),
+    ],
     emailAndPassword: {
       enabled: true,
       disableSignUp: true,
@@ -80,7 +98,14 @@ function createAuth() {
               throw new APIError('FORBIDDEN', { message: 'Akun tidak aktif' });
             }
           },
+          // Pengguna ber-2FA mendapat sesi sementara saat sandi benar (dihapus plugin sebelum kode diverifikasi), jadi
+          // "login terakhir" mereka dicatat oleh verifyTwoFactorLogin setelah kode benar, bukan di sini.
           after: async (session) => {
+            const [u] = await db
+              .select({ twoFactorEnabled: users.twoFactorEnabled })
+              .from(users)
+              .where(eq(users.id, session.userId));
+            if (u?.twoFactorEnabled) return;
             await db
               .update(users)
               .set({ lastLoginAt: new Date() })

@@ -47,3 +47,30 @@ export function clientIp(request: Request, fallback = 'unknown'): string {
   const fwd = request.headers.get('x-forwarded-for');
   return fwd?.split(',')[0]?.trim() || fallback;
 }
+
+/**
+ * Pemeriksaan TANPA menambah hitungan: apakah kunci ini masih boleh mencoba? Dipakai bersama
+ * `rateLimitFail` untuk pembatas yang hanya menghitung percobaan GAGAL (mis. masuk): login yang berhasil tidak
+ * boleh memakan jatah, kalau tidak staf yang berbagi IP (satu kantor, satu Wi-Fi) saling mengunci.
+ */
+export function rateLimitPeek(key: string, limit: number, now: number = Date.now()): RateResult {
+  const b = buckets.get(key);
+  if (!b || b.resetAt <= now) return { allowed: true, remaining: limit, retryAfter: 1 };
+  return {
+    allowed: b.count < limit,
+    remaining: Math.max(0, limit - b.count),
+    retryAfter: Math.max(1, Math.ceil((b.resetAt - now) / 1000)),
+  };
+}
+
+/** Mencatat satu kegagalan pada kunci (membuka jendela baru bila belum ada atau sudah lewat). */
+export function rateLimitFail(key: string, windowMs: number, now: number = Date.now()): void {
+  const b = buckets.get(key);
+  if (!b || b.resetAt <= now) buckets.set(key, { count: 1, resetAt: now + windowMs });
+  else b.count += 1;
+}
+
+/** Menghapus hitungan sebuah kunci (mis. email yang berhasil masuk). Jangan dipakai untuk kunci IP. */
+export function rateLimitReset(key: string): void {
+  buckets.delete(key);
+}

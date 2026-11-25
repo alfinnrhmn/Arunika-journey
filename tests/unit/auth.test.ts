@@ -3,12 +3,14 @@ import { ABILITIES, can, type Ability } from '../../src/server/auth/permissions'
 import { guard, isUuid } from '../../src/server/auth/guard';
 import { safeNext } from '../../src/server/auth/session';
 import { isSameOriginRequest } from '../../src/server/auth/origin';
+import { twoFactorGate } from '../../src/server/auth/two-factor-gate';
 
 const staff = (role: 'owner' | 'admin_ops') => ({
   id: 'u1',
   name: 'Uji',
   email: 'uji@uji.example',
   role,
+  twoFactorEnabled: true,
 });
 
 describe('matriks izin (PRD 6.7)', () => {
@@ -141,5 +143,37 @@ describe('isSameOriginRequest (CSRF dashboard)', () => {
     expect(isSameOriginRequest(req('POST', { 'sec-fetch-site': 'cross-site' }), SITE)).toBe(false);
     expect(isSameOriginRequest(req('POST', { 'sec-fetch-site': 'same-site' }), SITE)).toBe(false);
     expect(isSameOriginRequest(req('POST', { 'sec-fetch-site': 'same-origin' }), SITE)).toBe(true);
+  });
+});
+
+describe('twoFactorGate (2FA wajib)', () => {
+  const on = { twoFactorEnabled: true };
+  const off = { twoFactorEnabled: false };
+
+  it('staf ber-2FA boleh ke mana saja di dashboard', () => {
+    for (const p of [
+      '/dashboard',
+      '/dashboard/pembayaran',
+      '/dashboard/keamanan/2fa',
+      '/dashboard/keluar',
+    ]) {
+      expect(twoFactorGate(on, p), p).toBe('ok');
+    }
+  });
+
+  it('staf tanpa 2FA hanya boleh ke halaman aktivasi dan keluar; semua lainnya diarahkan ke aktivasi', () => {
+    expect(twoFactorGate(off, '/dashboard/keamanan/2fa')).toBe('ok');
+    expect(twoFactorGate(off, '/dashboard/keamanan/2fa/')).toBe('ok');
+    expect(twoFactorGate(off, '/dashboard/keluar')).toBe('ok');
+    for (const p of [
+      '/dashboard',
+      '/dashboard/pembayaran',
+      '/dashboard/pembayaran/abc/setujui',
+      '/dashboard/pembayaran/abc/bukti',
+      '/dashboard/keamanan',
+      '/dashboard/keamanan/2fa-lain',
+    ]) {
+      expect(twoFactorGate(off, p), p).toBe('setup');
+    }
   });
 });

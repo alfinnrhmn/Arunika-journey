@@ -1,6 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { isSameOriginRequest } from './server/auth/origin';
 import { getStaff } from './server/auth/session';
+import { TWO_FACTOR_SETUP_PATH, twoFactorGate } from './server/auth/two-factor-gate';
 
 /**
  * Pagar dashboard: semua `/dashboard/**` kecuali halaman masuk dan halaman status akses mewajibkan sesi staf
@@ -10,12 +11,13 @@ import { getStaff } from './server/auth/session';
  */
 const OPEN_PATHS = new Set([
   '/dashboard/masuk',
+  '/dashboard/masuk/verifikasi',
   '/dashboard/sesi-berakhir',
   '/dashboard/tidak-ada-akses',
 ]);
 
-/** Nama cookie sesi Better Auth (cookiePrefix "arj"). */
-const SESSION_COOKIE = 'arj.session_token';
+/** Nama cookie sesi Better Auth (cookiePrefix "arj"); di produksi (cookie aman) diberi awalan __Secure-. */
+const SESSION_COOKIES = ['arj.session_token', '__Secure-arj.session_token'];
 
 function markPrivate(response: Response): Response {
   response.headers.set('Cache-Control', 'private, no-store');
@@ -35,9 +37,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const staff = await getStaff(context.request.headers);
   if (staff) context.locals.staff = staff;
+  // 2FA wajib: staf tanpa 2FA hanya boleh ke halaman aktivasi dan keluar; selebihnya (halaman maupun endpoint aksi)
+  // diarahkan ke aktivasi, sehingga tidak ada rute yang bisa lupa memeriksanya.
+  if (staff && !OPEN_PATHS.has(pathname) && twoFactorGate(staff, pathname) === 'setup') {
+    return markPrivate(context.redirect(`${TWO_FACTOR_SETUP_PATH}?wajib=1`, 303));
+  }
   if (staff || OPEN_PATHS.has(pathname)) return markPrivate(await next());
 
   const params = new URLSearchParams({ lanjut: pathname + search });
-  if (context.cookies.has(SESSION_COOKIE)) params.set('sesi', 'berakhir');
+  if (SESSION_COOKIES.some((name) => context.cookies.has(name))) params.set('sesi', 'berakhir');
   return markPrivate(context.redirect(`/dashboard/masuk?${params}`, 303));
 });

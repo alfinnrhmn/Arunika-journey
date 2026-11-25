@@ -105,7 +105,13 @@ describe('masuk, sesi, dan keluar', () => {
     expect(session!.toLowerCase()).toContain('samesite=lax');
 
     const staff = await getStaff(headers);
-    expect(staff).toEqual({ id: user.id, name: 'Staf Uji', email: user.email, role: 'owner' });
+    expect(staff).toEqual({
+      id: user.id,
+      name: 'Staf Uji',
+      email: user.email,
+      role: 'owner',
+      twoFactorEnabled: false,
+    });
 
     const [row] = await db().select().from(users).where(eq(users.id, user.id));
     expect(row!.lastLoginAt).toBeTruthy();
@@ -230,5 +236,37 @@ describe('masuk, sesi, dan keluar', () => {
       );
     expect(err, 'pendaftaran publik harus ditolak').not.toBeNull();
     expect(await db().select().from(users).where(eq(users.email, email))).toHaveLength(0);
+  });
+});
+
+describe('pembatas masuk hanya menghitung kegagalan', () => {
+  it('banyak staf sah masuk berhasil dari satu IP (kantor) tanpa saling terkunci', async () => {
+    const office = ip();
+    for (let i = 0; i < 8; i++) {
+      const user = await makeUser();
+      const r = await signInStaff(req(), { email: user.email, password: PASSWORD }, office);
+      expect(r.ok, `masuk sah ke-${i + 1}: ${JSON.stringify(r)}`).toBe(true);
+    }
+  });
+
+  it('login berhasil tidak mengosongkan hitungan gagal IP: penebak tidak bisa "mereset" dengan akunnya sendiri', async () => {
+    const mine = await makeUser();
+    const victim = await makeUser();
+    const attacker = ip();
+    for (let i = 0; i < 4; i++) {
+      await signInStaff(
+        req(),
+        { email: victim.email, password: `tebak-${i}-tebak-tebak` },
+        attacker,
+      );
+    }
+    // masuk sah dengan akun sendiri dari IP yang sama TIDAK menghapus 4 kegagalan tadi
+    expect((await signInStaff(req(), { email: mine.email, password: PASSWORD }, attacker)).ok).toBe(
+      true,
+    );
+    await signInStaff(req(), { email: victim.email, password: 'tebak-4-tebak-tebak' }, attacker);
+    expect(
+      await signInStaff(req(), { email: victim.email, password: PASSWORD }, attacker),
+    ).toMatchObject({ ok: false, reason: 'rate_limited' });
   });
 });

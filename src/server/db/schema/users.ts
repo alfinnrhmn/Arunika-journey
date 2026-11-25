@@ -1,4 +1,13 @@
-import { boolean, index, pgEnum, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { check } from 'drizzle-orm/pg-core';
 import { pk, timestamps, tstz } from './_helpers';
@@ -86,4 +95,28 @@ export const verifications = pgTable(
     ...timestamps(),
   },
   (t) => [index('verifications_identifier_idx').on(t.identifier)],
+);
+
+/**
+ * Rahasia TOTP dan kode cadangan untuk 2FA (plugin two-factor Better Auth). Kolom `secret` dan `backup_codes`
+ * tersimpan terenkripsi (kunci dari BETTER_AUTH_SECRET); jangan membacanya langsung. `verified` bernilai false
+ * sampai pengguna berhasil memasukkan kode pertama saat aktivasi; penghitung kegagalan dan `locked_until` dipakai
+ * pengunci akun untuk verifikasi yang gagal berulang.
+ */
+export const twoFactors = pgTable(
+  'two_factors',
+  {
+    id: pk(),
+    secret: text('secret').notNull(),
+    backupCodes: text('backup_codes').notNull(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    verified: boolean('verified').notNull().default(true),
+    failedVerificationCount: integer('failed_verification_count').notNull().default(0),
+    lockedUntil: tstz('locked_until'),
+    ...timestamps(),
+  },
+  // Satu baris 2FA per pengguna. Tanpa indeks pada `secret`: isinya terenkripsi sehingga tidak pernah dicari.
+  (t) => [uniqueIndex('two_factors_user_unique').on(t.userId)],
 );
