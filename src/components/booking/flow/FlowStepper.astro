@@ -1,0 +1,34 @@
+---
+// Penunjuk langkah (desain: hf-st). Langkah yang sudah lewat menaut kembali ke halamannya; langkah
+// "Konfirmasi" adalah halaman pesanan sesudah pembayaran dimulai, jadi tidak pernah menjadi tautan.
+interface Props {
+  current: 1 | 2 | 3 | 4;
+  slug: string;
+}
+const { current, slug } = Astro.props;
+const steps = [
+  { n: 1, label: 'Jadwal dan peserta', href: `/booking/${slug}/jadwal` },
+  { n: 2, label: 'Data pemesan', href: `/booking/${slug}/data` },
+  { n: 3, label: 'Pembayaran DP', href: `/booking/${slug}/bayar` },
+  { n: 4, label: 'Konfirmasi', href: '' },
+];
+---
+
+<nav class="bf-st" data-current={current} aria-label="Langkah pemesanan">
+  <ol>
+    {steps.map((s, i) => {
+      const Tag = s.n < current && s.href ? 'a' : 'span';
+      return (
+        <>
+          {i > 0 && <li class="bar" aria-hidden="true" />}
+          <li class={`s s${s.n}`} aria-current={s.n === current ? 'step' : undefined}>
+            <Tag class="in" href={Tag === 'a' ? s.href : undefined}>
+              <span class="c">{s.n}</span>
+              <span class="l">{s.label}</span>
+            </Tag>
+          </li>
+        </>
+      );
+    })}
+  </ol>
+</nav>

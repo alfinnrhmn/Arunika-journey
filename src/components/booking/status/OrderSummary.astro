@@ -1,0 +1,65 @@
+---
+// Ringkasan pesanan di kolom kanan (frame "HFOrderSummaryDesktop"): foto dan judul trip, jadwal, peserta,
+// rincian harga. Semua angka datang dari booking di server (snapshot saat hold dibuat), bukan dari klien.
+import HFIcon from '../../hf/HFIcon.astro';
+import HFPriceSummary from '../../hf/HFPriceSummary.astro';
+import { formatDateShort, formatDuration } from '../../../lib/format';
+import { mediaUrl } from '../../../lib/photo';
+import type { BookingView } from '../../../features/booking/status';
+import { partyText, type TripSummary } from './lib';
+
+interface Props {
+  view: BookingView;
+  /** Dari getTripDetail; kosong bila trip sudah tidak terbit (ringkasan tetap tampil tanpa foto). */
+  trip: TripSummary | null;
+}
+const { view, trip } = Astro.props;
+
+const meta = trip
+  ? [formatDuration(trip.durationDays, trip.nights), trip.where].filter(Boolean).join(' · ')
+  : '';
+const price = {
+  lines: view.priceLines,
+  seatCount: view.seatCount,
+  total: view.totalAmount,
+  dpPercent: view.dpPercent,
+  dp: view.dpAmount,
+  balance: view.totalAmount - view.dpAmount,
+};
+---
+
+<div class="bs-side-inner">
+  <aside class="bs-os" aria-label="Ringkasan pesanan">
+    <div class="eb">Ringkasan pesanan</div>
+    <div class="trip">
+      <div class="th">
+        {trip?.coverPhoto ? (
+          <img class="cover" src={mediaUrl(trip.coverPhoto)} alt={view.trip.title} />
+        ) : (
+          <span class="ph" aria-hidden="true"></span>
+        )}
+      </div>
+      <div class="tx">
+        <h3 class="tt">{view.trip.title}</h3>
+        {meta && <p class="tm">{meta}</p>}
+      </div>
+    </div>
+    <div class="facts">
+      <div class="f">
+        <HFIcon name="calendar" size={16} />
+        <span>
+          {formatDateShort(view.schedule.departureDate)}
+          {view.schedule.returnDate !== view.schedule.departureDate && (
+            <> sampai {formatDateShort(view.schedule.returnDate)}</>
+          )}
+        </span>
+      </div>
+      <div class="f">
+        <HFIcon name="users" size={16} />
+        <span>{partyText(view.adults, view.children)}</span>
+      </div>
+    </div>
+    <HFPriceSummary price={price} balanceNote="dilunasi sesuai jadwal pelunasan [diisi klien]." />
+  </aside>
+  <p class="bs-ppn">Harga sudah termasuk PPN</p>
+</div>

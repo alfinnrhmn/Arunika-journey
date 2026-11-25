@@ -8,10 +8,11 @@ afterAll(async () => {
 
 describe('kode booking dan permintaan', () => {
   it('berformat ARJ-YYMM-NNNN dan RQ-YYMM-NNNN dengan urutan terpisah', async () => {
-    const t = new Date('2026-11-23T05:00:00Z');
-    expect(await nextCode(getDb(), 'ARJ', t)).toBe('ARJ-2611-0001');
-    expect(await nextCode(getDb(), 'ARJ', t)).toBe('ARJ-2611-0002');
-    expect(await nextCode(getDb(), 'RQ', t)).toBe('RQ-2611-0001');
+    // Periode tetap di masa depan yang tidak dipakai tes lain (tes booking memakai bulan berjalan dan 2030-01).
+    const t = new Date('2029-03-15T05:00:00Z');
+    expect(await nextCode(getDb(), 'ARJ', t)).toBe('ARJ-2903-0001');
+    expect(await nextCode(getDb(), 'ARJ', t)).toBe('ARJ-2903-0002');
+    expect(await nextCode(getDb(), 'RQ', t)).toBe('RQ-2903-0001');
   });
 
   it('nomor urut di-reset tiap bulan', async () => {

@@ -1,0 +1,15 @@
+---
+// Kolom "langkah berikutnya" bernomor (frame "HFTimelineStep").
+interface Props {
+  num: string;
+  title: string;
+  desc: string;
+}
+const { num, title, desc } = Astro.props;
+---
+
+<div class="bs-ts">
+  <div class="n">{num}</div>
+  <h3 class="t">{title}</h3>
+  <p class="d">{desc}</p>
+</div>

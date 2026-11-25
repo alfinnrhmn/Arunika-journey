@@ -1,0 +1,53 @@
+---
+// Tombol pil alur booking (desain: hf-btn). primary = terisi ink, secondary = garis. Menjadi <a> bila ada
+// href, selain itu <button>. Panah opsional untuk aksi maju.
+interface Props {
+  label: string;
+  tone?: 'primary' | 'secondary';
+  href?: string;
+  arrow?: boolean;
+  type?: 'submit' | 'button';
+  id?: string;
+  disabled?: boolean;
+  /** Atribut data-bf-* untuk skrip; dilewatkan apa adanya. */
+  [key: `data-${string}`]: string | boolean | undefined;
+}
+const {
+  label,
+  tone = 'primary',
+  href,
+  arrow = false,
+  type = 'submit',
+  id,
+  disabled,
+  ...rest
+} = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class="bf-btn"
+  data-tone={tone}
+  href={href}
+  type={href ? undefined : type}
+  id={id}
+  disabled={href ? undefined : disabled}
+  {...rest}
+>
+  <span data-bf-label>{label}</span>
+  {arrow && (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  )}
+</Tag>

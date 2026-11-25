@@ -1,0 +1,71 @@
+---
+// Kerangka halaman alur booking (header ringkas, penunjuk langkah, judul, dua kolom, footer ringkas).
+// Slot: `heading` (isi h1, boleh memakai <i>), `heading-aside` (kanan judul), default (kolom utama).
+// Gaya dan skrip dimuat di sini agar semua langkah dan state memakai yang sama.
+import Public from '../../../layouts/Public.astro';
+import '../../../styles/pages/booking-flow.css';
+import FlowHeader from './FlowHeader.astro';
+import FlowFooter from './FlowFooter.astro';
+import FlowStepper from './FlowStepper.astro';
+import FlowSummary from './FlowSummary.astro';
+import type { PriceResult } from '../../../features/pricing/pricing';
+
+interface Props {
+  title: string;
+  step: 1 | 2 | 3 | 4;
+  slug: string;
+  hand: string;
+  lead?: string;
+  summary?: {
+    title: string;
+    meta: string;
+    cover: string | null;
+    dateLabel: string | null;
+    partyText: string;
+    price: PriceResult | null;
+    editHref: string;
+    live?: boolean;
+  } | null;
+}
+const { title, step, slug, hand, lead, summary = null } = Astro.props;
+const hasAside = Astro.slots.has('heading-aside');
+---
+
+<Public title={title} hideFooter noindex>
+  <script is:inline>
+    document.documentElement.classList.add('bf-js');
+  </script>
+  <div class="bf-page">
+    <FlowHeader />
+    <section class="bf-top">
+      <div class="bf-top-in">
+        <FlowStepper current={step} {slug} />
+        <div class:list={['bf-intro', { split: hasAside }]}>
+          <div>
+            <span class="hand">{hand}</span>
+            <h1>
+              <slot name="heading" />
+            </h1>
+            {lead && <p class="lead">{lead}</p>}
+          </div>
+          {hasAside && (
+            <div class="aside">
+              <slot name="heading-aside" />
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+    <main class="bf-grid">
+      <div class="bf-main">
+        <slot />
+      </div>
+      <div class="bf-side">{summary && <FlowSummary {...summary} />}</div>
+    </main>
+    <FlowFooter />
+  </div>
+</Public>
+
+<script>
+  import '../../../scripts/booking-flow.ts';
+</script>

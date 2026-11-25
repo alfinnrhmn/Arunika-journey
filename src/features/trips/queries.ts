@@ -16,7 +16,7 @@ import { seatStatus, seatsLeft, type SeatStatus } from '../schedules/seats';
 /**
  * Kueri baca katalog Open Trip untuk halaman publik. Hanya trip `published` dan belum dihapus yang
  * terlihat; hanya jadwal `open`/`full` yang belum lewat yang ditampilkan. Foto dikembalikan sebagai
- * kunci penyimpanan (storage key); halaman memetakannya ke URL lewat `photo()`.
+ * kunci penyimpanan (storage key); halaman memetakannya ke URL lewat `mediaUrl()`.
  */
 
 export interface ScheduleView {

@@ -1,0 +1,132 @@
+---
+// Frame "Langkah 4: Konfirmasi (Confirmed)": kode, detail reservasi, rincian pembayaran, langkah berikutnya.
+// Berbeda tegas dari Pending Payment (lencana hijau bertuliskan Confirmed, judul besar, tanpa form unggah).
+// "Unduh ringkasan" memakai cetak browser (stylesheet @media print); PDF dari server menyusul.
+import SectionHead from './SectionHead.astro';
+import DetailRow from './DetailRow.astro';
+import TextStep from './TextStep.astro';
+import { formatDateShort, formatRupiah } from '../../../lib/format';
+import type { BookingView } from '../../../features/booking/status';
+import { whatsappHref } from '../../trips/detail/words';
+import { KIND_LABEL, partyText } from './lib';
+
+interface Props {
+  view: BookingView;
+}
+const { view } = Astro.props;
+
+const dpPaid = view.payment?.status === 'paid' ? view.payment.amount : view.dpAmount;
+const rest = view.totalAmount - dpPaid;
+const meeting = view.trip.meetingPoint?.trim() || '[ditentukan klien]';
+const balanceOwed = view.balanceStatus === 'due' || view.balanceStatus === 'overdue';
+---
+
+<div class="bs-codecard">
+  <div>
+    <div class="k">Kode booking</div>
+    <div class="code">{view.code}</div>
+  </div>
+  <button class="bs-btn bs-print" data-tone="secondary" type="button" data-print hidden>
+    <span>Simpan atau cetak</span>
+  </button>
+</div>
+
+<div>
+  <SectionHead num="01" title="Detail reservasi" />
+  <div class="bs-rows">
+    <DetailRow label="Trip" value={view.trip.title} />
+    <DetailRow label="Berangkat" value={formatDateShort(view.schedule.departureDate)} />
+    <DetailRow label="Kembali" value={formatDateShort(view.schedule.returnDate)} />
+    <DetailRow label="Titik kumpul" value={meeting} />
+    <DetailRow label="Peserta" value={partyText(view.adults, view.children)} />
+    <DetailRow label="Pemesan" value={`${view.contactName} · ${view.contactEmail}`} />
+  </div>
+  {view.participants.length > 0 && (
+    <ol class="bs-people" aria-label="Daftar peserta">
+      {view.participants.map((p) => (
+        <li>
+          <span class="n">{p.fullName}</span>
+          <span class="t">{KIND_LABEL[p.kind]}</span>
+          {p.specialNeeds && <span class="x">Catatan: {p.specialNeeds}</span>}
+        </li>
+      ))}
+    </ol>
+  )}
+</div>
+
+<div>
+  <SectionHead num="02" title="Konfirmasi pembayaran" />
+  <div class="bs-rows">
+    <DetailRow label="Total" value={formatRupiah(view.totalAmount)} />
+    <DetailRow label="DP dibayar" value={`${formatRupiah(dpPaid)} · terverifikasi`} />
+    {view.balanceStatus === 'paid' && <DetailRow label="Pelunasan" value="Lunas" />}
+    {view.balanceStatus === 'due' && (
+      <DetailRow
+        label="Sisa pelunasan"
+        value={`${formatRupiah(rest)} · jatuh tempo [ditentukan klien]`}
+      />
+    )}
+    {view.balanceStatus === 'overdue' && (
+      <DetailRow label="Sisa pelunasan" value={`${formatRupiah(rest)} · melewati jatuh tempo`} />
+    )}
+    <DetailRow label="Metode" value="Transfer bank" />
+  </div>
+  <p class="bs-fine">Harga sudah termasuk PPN</p>
+</div>
+
+<div>
+  <SectionHead num="03" title="Langkah berikutnya" />
+  <div class="bs-nexts">
+    <div>
+      {balanceOwed ? (
+        <TextStep
+          num="01"
+          title="Lunasi pembayaran"
+          desc="Sisa pembayaran dilunasi sebelum batas waktu di ketentuan."
+        />
+      ) : (
+        <TextStep
+          num="01"
+          title="Pembayaran selesai"
+          desc="Tidak ada sisa tagihan yang perlu Anda bayar."
+        />
+      )}
+    </div>
+    <div>
+      <TextStep
+        num="02"
+        title="Terima briefing"
+        desc="Detail titik kumpul dan perlengkapan dikirim menjelang berangkat."
+      />
+    </div>
+    <div>
+      <TextStep num="03" title="Berangkat" desc="Pemandu kami menunggu Anda di titik kumpul." />
+    </div>
+  </div>
+</div>
+
+<div class="bs-actions">
+  <a class="bs-btn" data-tone="primary" href="/cek-status">
+    <span>Cek status booking</span>
+    <svg
+      class="arr"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12h16M14 6l6 6-6 6"></path>
+    </svg>
+  </a>
+  {whatsappHref && (
+    <a class="bs-btn" data-tone="secondary" href={whatsappHref} rel="noopener">
+      <span>Hubungi kami</span>
+    </a>
+  )}
+  <span class="bs-fine-inline">Kebijakan batal dan refund: [diisi klien].</span>
+</div>

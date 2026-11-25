@@ -1,0 +1,401 @@
+---
+// Booking Open Trip, langkah 2: data pemesan dan peserta (frame Doop J8q1wvrJ5e; validasi: kpgtA-1Wlv).
+// Butuh draf dari langkah 1 (cookie httpOnly). POST menyimpan lewat `saveDetails`; bila ada bidang yang
+// belum benar, halaman yang sama dirender ulang (HTTP 422) dengan isian dipertahankan dan pesan per bidang.
+import FlowShell from '../../../components/booking/flow/FlowShell.astro';
+import FlowMissing from '../../../components/booking/flow/FlowMissing.astro';
+import FlowAlert from '../../../components/booking/flow/FlowAlert.astro';
+import FlowButton from '../../../components/booking/flow/FlowButton.astro';
+import FlowField from '../../../components/booking/flow/FlowField.astro';
+import FlowSh from '../../../components/booking/flow/FlowSh.astro';
+import StateQuota from '../../../components/booking/flow/StateQuota.astro';
+import StateUnavailable from '../../../components/booking/flow/StateUnavailable.astro';
+import HFIcon from '../../../components/hf/HFIcon.astro';
+import {
+  draftIssues,
+  fieldIdFor,
+  formText,
+  issueLabel,
+  kindsFor,
+  loadFlowTrip,
+  partyLabel,
+  problemFor,
+  safePrice,
+} from '../../../components/booking/flow/data';
+import {
+  attempt,
+  getBookingSettings,
+  getDraft,
+  loadSchedule,
+  maybeHousekeep,
+  readDraftToken,
+  saveDetails,
+} from '../../../features/booking';
+import { getDb } from '../../../server/db';
+import { formatDateShort, formatDuration } from '../../../lib/format';
+
+maybeHousekeep();
+
+const { slug = '' } = Astro.params;
+const db = getDb();
+const token = readDraftToken(Astro.cookies);
+const draft = await getDraft(db, token);
+// Tanpa draf (belum mulai, atau sudah habis): mulai dari langkah 1.
+if (!draft) return Astro.redirect(`/booking/${slug}/jadwal`, 303);
+
+const flow = slug ? await loadFlowTrip(db, slug) : null;
+// Jadwal draf dimuat langsung (bukan dari daftar katalog) agar jadwal yang baru ditutup/penuh tetap terbaca.
+const found = flow
+  ? (flow.found.get(draft.scheduleId) ?? (await loadSchedule(db, draft.scheduleId)))
+  : null;
+// Draf milik trip lain: arahkan ke alamat trip yang benar.
+if (!flow) {
+  Astro.response.status = 404;
+} else if (!found || found.trip.id !== flow.detail.id) {
+  return Astro.redirect(`/booking/${slug}/jadwal`, 303);
+}
+
+const settings = await getBookingSettings(db);
+const seats = draft.adults + draft.children;
+const kinds = kindsFor(draft.adults, draft.children);
+const problem = flow ? problemFor(found, seats) : null;
+
+interface Values {
+  nama: string;
+  email: string;
+  wa: string;
+  setuju: boolean;
+  people: { nama: string; khusus: string }[];
+}
+const values: Values = {
+  nama: draft.contact?.name ?? '',
+  email: draft.contact?.email ?? '',
+  wa: draft.contact?.phone ?? '',
+  setuju: Boolean(draft.acceptedAt),
+  people: kinds.map((_, i) => ({
+    nama: draft.participants[i]?.fullName ?? '',
+    khusus: draft.participants[i]?.specialNeeds ?? '',
+  })),
+};
+
+let issues: Record<string, string> = {};
+let formError: string | null = null;
+
+if (flow && !problem) {
+  if (Astro.request.method === 'POST') {
+    const form = await Astro.request.formData();
+    values.nama = formText(form, 'nama');
+    values.email = formText(form, 'email');
+    values.wa = formText(form, 'wa');
+    values.setuju = formText(form, 'setuju') === '1';
+    values.people = kinds.map((_, i) => ({
+      nama: formText(form, `p${i}_nama`),
+      khusus: formText(form, `p${i}_khusus`),
+    }));
+    // Jenis peserta (dewasa/anak) berasal dari draf di server, bukan dari form.
+    const res = await attempt(() =>
+      saveDetails(db, token, {
+        contact: { name: values.nama, email: values.email, phone: values.wa },
+        participants: kinds.map((kind, i) => ({
+          fullName: values.people[i]!.nama,
+          kind,
+          specialNeeds: values.people[i]!.khusus,
+        })),
+        accepted: values.setuju,
+      }),
+    );
+    if (res.ok) {
+      if (res.value.ok) return Astro.redirect(`/booking/${slug}/bayar`, 303);
+      issues = res.value.issues;
+      Astro.response.status = 422;
+    } else if (res.state === 'not_found') {
+      return Astro.redirect(`/booking/${slug}/jadwal?habis=1`, 303);
+    } else {
+      formError = res.error.message;
+      Astro.response.status = 422;
+    }
+  } else if (Astro.url.searchParams.get('lengkapi') === '1') {
+    // Kembali dari langkah 3 karena data belum lengkap: tampilkan kekurangannya.
+    issues = draftIssues(draft);
+  }
+}
+
+// Urutan galat mengikuti urutan bidang di halaman.
+const weight = (k: string) => {
+  if (k === 'contact.name') return 0;
+  if (k === 'contact.phone') return 1;
+  if (k === 'contact.email') return 2;
+  if (k === 'participants') return 3;
+  const m = /^participants\.(\d+)\.(\w+)$/.exec(k);
+  if (m) return 10 + Number(m[1]) * 2 + (m[2] === 'fullName' ? 0 : 1);
+  return 1000;
+};
+const issueList = Object.entries(issues).sort((a, b) => weight(a[0]) - weight(b[0]));
+const hasIssues = issueList.length > 0 || formError !== null;
+
+const dateLabel = found ? formatDateShort(found.schedule.departureDate) : '';
+const duration = flow ? formatDuration(flow.detail.durationDays, flow.detail.nights) : '';
+const price = flow
+  ? safePrice(found, { adults: draft.adults, children: draft.children }, settings.dpPercent)
+  : null;
+const failed = flow?.schedules.find((s) => s.id === draft.scheduleId) ?? null;
+const candidates =
+  flow?.schedules.filter((s) => s.open && s.id !== draft.scheduleId && s.seatsLeft >= seats) ?? [];
+const summary = flow
+  ? {
+      title: flow.detail.title,
+      meta: [duration, flow.detail.where].filter(Boolean).join(' · '),
+      cover: flow.detail.coverPhoto,
+      dateLabel:
+        problem?.state === 'unavailable'
+          ? candidates[0]
+            ? formatDateShort(candidates[0].departureDate)
+            : null
+          : dateLabel,
+      partyText:
+        partyLabel(draft.adults, draft.children) +
+        (problem?.state === 'quota' ? ' (melebihi kuota)' : ''),
+      price,
+      editHref: `/booking/${slug}/jadwal`,
+      live: false,
+    }
+  : null;
+if (problem) Astro.response.status = 409;
+const err = (key: string) => issues[key];
+---
+
+{!flow || !summary ? (
+  <FlowMissing />
+) : problem?.state === 'quota' ? (
+  <FlowShell
+    title={`Kuota tidak mencukupi | ${flow.detail.title} | Arunika Journey`}
+    step={1}
+    {slug}
+    hand="Kuota dicek sebelum pembayaran"
+    {summary}
+  >
+    <Fragment slot="heading">
+      Kuota <i>tidak mencukupi</i>
+    </Fragment>
+    <StateQuota
+      {slug}
+      scheduleId={draft.scheduleId}
+      dateLabel={dateLabel}
+      adults={draft.adults}
+      children={draft.children}
+      left={problem.left}
+      others={candidates}
+    />
+  </FlowShell>
+) : problem?.state === 'unavailable' ? (
+  <FlowShell
+    title={`Tanggal tidak tersedia | ${flow.detail.title} | Arunika Journey`}
+    step={1}
+    {slug}
+    hand="Jadwal berubah"
+    {summary}
+  >
+    <Fragment slot="heading">
+      Tanggal ini <i>tidak tersedia</i> lagi
+    </Fragment>
+    <StateUnavailable
+      {slug}
+      reason={problem.reason}
+      previous={failed}
+      dateLabel={dateLabel}
+      {candidates}
+      adults={draft.adults}
+      children={draft.children}
+      durationDays={flow.detail.durationDays}
+      nights={flow.detail.nights}
+      backHref={`/booking/${slug}/jadwal`}
+    />
+  </FlowShell>
+) : (
+  <FlowShell
+    title={`Data pemesan dan peserta | ${flow.detail.title} | Arunika Journey`}
+    step={2}
+    {slug}
+    hand={hasIssues ? 'Langkah 2 dari 4' : 'Langkah 2 dari 4 · sekitar 3 menit'}
+    {summary}
+  >
+    <Fragment slot="heading">
+      Data <i>pemesan</i> dan peserta
+    </Fragment>
+    <Fragment slot="heading-aside">
+      <span class="ok">
+        <HFIcon name="check" size={16} />
+      </span>
+      Isian tetap tersimpan
+    </Fragment>
+    {hasIssues && (
+      <FlowAlert
+        tone="error"
+        icon="clock"
+        title={
+          formError && issueList.length === 0
+            ? formError
+            : `Ada ${issueList.length} isian yang perlu dilengkapi sebelum lanjut.`
+        }
+      >
+        {issueList.length > 0 && (
+          <ul>
+            {issueList.map(([key, message]) => {
+              const target = fieldIdFor(key);
+              return (
+                <li>
+                  {target ? <a href={`#${target}`}>{issueLabel(key)}</a> : issueLabel(key)}:{' '}
+                  {message}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <div class="sub small">Isian lain tetap tersimpan, tidak perlu diulang.</div>
+      </FlowAlert>
+    )}
+    <form
+      class="bf-form"
+      method="post"
+      action={`/booking/${slug}/data`}
+      novalidate
+      data-bf-form
+      data-bf-mode="details"
+    >
+      <div>
+        <FlowSh n="01" title="Data pemesan" />
+        <div class="bf-grid2 first">
+          <FlowField
+            id="f-nama"
+            name="nama"
+            label="Nama lengkap"
+            value={values.nama}
+            hint="Sesuai identitas yang berlaku."
+            error={err('contact.name')}
+            autocomplete="name"
+            maxlength={100}
+            required
+          />
+          <FlowField
+            id="f-wa"
+            name="wa"
+            label="No. WhatsApp"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            value={values.wa}
+            hint="Kontak utama untuk info booking, contoh: 0812 3456 7890."
+            error={err('contact.phone')}
+            maxlength={20}
+            required
+          />
+          <div class="wide">
+            <FlowField
+              id="f-email"
+              name="email"
+              label="Email"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              value={values.email}
+              hint="Kode booking dan konfirmasi dikirim ke email ini."
+              error={err('contact.email')}
+              maxlength={254}
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <FlowSh n="02" title="Data peserta" note={`${seats} peserta · ${dateLabel}`} />
+        <label class="bf-toggle" hidden data-bf-same>
+          <input type="checkbox" role="switch" />
+          Peserta 1 sama dengan pemesan
+        </label>
+        {issues.participants && (
+          <p class="bf-field-err" id="f-peserta" tabindex="-1">
+            {issues.participants}
+          </p>
+        )}
+        {kinds.map((kind, i) => (
+          <>
+            <div class="bf-pl">
+              Peserta {i + 1}
+              <span class="kind">{kind === 'adult' ? 'Dewasa' : 'Anak'}</span>
+            </div>
+            <div class="bf-grid2">
+              <FlowField
+                id={`f-p${i}-nama`}
+                name={`p${i}_nama`}
+                label="Nama lengkap"
+                value={values.people[i]?.nama}
+                hint="Sesuai identitas."
+                error={err(`participants.${i}.fullName`)}
+                maxlength={100}
+                required
+                data-bf-person-name={i === 0 ? '' : undefined}
+              />
+              <FlowField
+                id={`f-p${i}-khusus`}
+                name={`p${i}_khusus`}
+                label="Kebutuhan khusus"
+                optional
+                value={values.people[i]?.khusus}
+                hint="Mis. alergi makanan atau kebutuhan aksesibilitas."
+                error={err(`participants.${i}.specialNeeds`)}
+                maxlength={300}
+              />
+            </div>
+          </>
+        ))}
+        <p class="bf-muted">Data identitas yang dibutuhkan tiap peserta: [dikonfirmasi klien].</p>
+      </div>
+
+      <div>
+        <FlowSh n="03" title="Persetujuan" />
+        <div class="bf-pad">
+          <label class="bf-chk" for="f-setuju">
+            <input
+              type="checkbox"
+              id="f-setuju"
+              name="setuju"
+              value="1"
+              checked={values.setuju}
+              aria-invalid={err('accepted') ? 'true' : undefined}
+              aria-describedby={err('accepted') ? 'f-setuju-note' : undefined}
+            />
+            <span>
+              Saya menyetujui{' '}
+              <a href="/legal/syarat-ketentuan" target="_blank" rel="noopener">
+                Syarat dan Ketentuan
+              </a>
+              ,{' '}
+              <a href="/legal/kebijakan-privasi" target="_blank" rel="noopener">
+                Kebijakan Privasi
+              </a>
+              , serta{' '}
+              <a href="/legal/pembatalan-refund" target="_blank" rel="noopener">
+                Kebijakan Batal dan Refund
+              </a>{' '}
+              Arunika Journey.
+            </span>
+          </label>
+          {err('accepted') && (
+            <p class="bf-field-err" id="f-setuju-note">
+              {err('accepted')}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <div class="bf-actions">
+          <FlowButton tone="secondary" label="Kembali" href={`/booking/${slug}/jadwal`} />
+          <FlowButton label="Lanjut ke pembayaran" arrow />
+          <span class="side-note">Kuota dicek ulang sebelum pembayaran.</span>
+        </div>
+      </div>
+    </form>
+  </FlowShell>
+)}

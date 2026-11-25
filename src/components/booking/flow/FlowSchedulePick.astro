@@ -1,0 +1,68 @@
+---
+// Daftar tanggal keberangkatan sebagai radio (desain: hf-do). Tiap baris adalah <label> sehingga seluruh baris
+// dapat diklik; radio asli tetap ada (visual disembunyikan, tetap bisa difokus keyboard). Baris yang tidak
+// dapat dipilih memakai radio nonaktif dan tetap membawa teks status, bukan hanya warna.
+import HFBadge from '../../hf/HFBadge.astro';
+import { seatLabel } from '../../../features/schedules/seats';
+import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
+import type { FlowSchedule } from './data';
+import { reasonBadge } from './data';
+
+interface Props {
+  schedules: FlowSchedule[];
+  selectedId: string | null;
+  durationDays: number;
+  nights: number;
+  name?: string;
+  legend?: string;
+  /** Jadwal yang gagal dipesan: ditampilkan nonaktif dengan keterangan "Jadwal pilihan sebelumnya". */
+  previousId?: string;
+}
+const {
+  schedules,
+  selectedId,
+  durationDays,
+  nights,
+  name = 'jadwal',
+  legend = 'Tanggal keberangkatan',
+  previousId,
+} = Astro.props;
+const duration = formatDuration(durationDays, nights);
+const tone = { ok: 'ok', few: 'pending', full: 'full' } as const;
+---
+
+<fieldset class="bf-dates">
+  <legend class="bf-sr">{legend}</legend>
+  {schedules.map((s) => {
+    const isPrev = s.id === previousId;
+    return (
+      <label class="bf-do" data-state={s.open && !isPrev ? 'default' : 'full'}>
+        <input
+          type="radio"
+          name={name}
+          value={s.id}
+          checked={s.id === selectedId}
+          disabled={!s.open || isPrev}
+          data-price={s.price}
+          data-left={s.seatsLeft}
+          data-date={formatDateShort(s.departureDate)}
+        />
+        <span class="r" aria-hidden="true" />
+        <span class="d">
+          <b>{formatDateShort(s.departureDate)}</b>
+          <span>
+            {isPrev
+              ? 'Jadwal pilihan sebelumnya'
+              : `${duration} · ${formatRupiah(s.price)} / orang`}
+          </span>
+        </span>
+        <span class="s">
+          <HFBadge
+            label={s.open ? seatLabel(s.seatsLeft) : s.why === 'ok' ? 'Penuh' : reasonBadge(s.why)}
+            tone={s.open ? tone[s.status] : 'full'}
+          />
+        </span>
+      </label>
+    );
+  })}
+</fieldset>

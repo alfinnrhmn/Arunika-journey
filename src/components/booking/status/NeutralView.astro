@@ -1,0 +1,85 @@
+---
+// Status tanpa frame khusus: `needs_attention` (tim meninjau pembayaran), `cancelled`, dan `refunded`.
+// Memakai gaya halaman verifikasi supaya terasa satu keluarga, dengan teks netral dan jalan keluar yang jelas.
+import SectionHead from './SectionHead.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import type { BookingView } from '../../../features/booking/status';
+
+interface Props {
+  view: BookingView;
+  kind: 'needs_attention' | 'cancelled' | 'refunded';
+}
+const { view, kind } = Astro.props;
+
+const body = {
+  needs_attention: {
+    head: 'Tim kami sedang meninjau pembayaran Anda.',
+    text: 'Kami akan menghubungi Anda lewat WhatsApp atau email. Anda tidak perlu membayar ulang atau melakukan apa pun saat ini.',
+  },
+  cancelled: {
+    head: 'Booking ini telah dibatalkan.',
+    text: 'Kursi untuk booking ini sudah dilepas. Bila pembatalan ini tidak Anda harapkan, hubungi kami dengan kode booking di bawah.',
+  },
+  refunded: {
+    head: 'Pembayaran untuk booking ini telah direfund.',
+    text: 'Bila Anda ingin memastikan rincian atau waktu dana diterima, hubungi kami dengan kode booking di bawah.',
+  },
+}[kind];
+---
+
+<div class="bs-callout">
+  <span class="ic">
+    <HFIcon name={kind === 'needs_attention' ? 'clock' : 'shield'} size={20} />
+  </span>
+  <div>
+    <b>{body.head}</b> {body.text}
+  </div>
+</div>
+
+<div>
+  <SectionHead num="01" title="Langkah selanjutnya" />
+  <div class="bs-reasons">
+    {kind === 'needs_attention' ? (
+      <>
+        <div class="rs">
+          <b>Kursi Anda</b>
+          <span>Kami menjaga posisi Anda sambil pembayaran diperiksa.</span>
+        </div>
+        <div class="rs last">
+          <b>Kabar dari kami</b>
+          <span>Hasil peninjauan dikirim ke email pemesan dan, bila perlu, lewat WhatsApp.</span>
+        </div>
+      </>
+    ) : (
+      <>
+        <div class="rs">
+          <b>Status</b>
+          <span>{kind === 'cancelled' ? 'Dibatalkan' : 'Refund'}</span>
+        </div>
+        <div class="rs last">
+          <b>Pesan lagi</b>
+          <span>Anda dapat memesan kembali selama kuota masih tersedia.</span>
+        </div>
+      </>
+    )}
+  </div>
+</div>
+
+<div class="bs-actions bs-actions-top">
+  {kind === 'needs_attention' ? (
+    <a class="bs-btn" data-tone="primary" href="/cek-status">
+      <span>Cek status booking</span>
+    </a>
+  ) : (
+    <a class="bs-btn" data-tone="primary" href={`/trips/${view.trip.slug}`}>
+      <span>Lihat trip ini</span>
+    </a>
+  )}
+  {whatsappHref && (
+    <a class="bs-btn" data-tone="secondary" href={whatsappHref} rel="noopener">
+      <span>Hubungi kami</span>
+    </a>
+  )}
+  <span class="bs-fine-inline">Kode booking: {view.code}</span>
+</div>

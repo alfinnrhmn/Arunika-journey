@@ -20,7 +20,9 @@ afterAll(async () => {
 
 // Tabel menurut PRD Bagian 8 (+ code_counters untuk penomoran). Menjaga skema dan PRD tetap sejalan.
 const EXPECTED_TABLES = [
+  'accounts',
   'audit_logs',
+  'booking_drafts',
   'booking_participants',
   'bookings',
   'cancellation_policies',
@@ -44,6 +46,7 @@ const EXPECTED_TABLES = [
   'quote_requests',
   'refunds',
   'schedule_waitlist',
+  'sessions',
   'settings',
   'tags',
   'testimonials',
@@ -54,7 +57,9 @@ const EXPECTED_TABLES = [
   'trip_media',
   'trip_schedules',
   'trips',
+  'two_factors',
   'users',
+  'verifications',
 ];
 
 describe('skema hasil migrasi', () => {

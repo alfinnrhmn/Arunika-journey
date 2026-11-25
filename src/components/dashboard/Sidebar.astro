@@ -1,0 +1,73 @@
+---
+import type { Staff } from '../../server/auth/session';
+import Icon from './Icon.astro';
+import { navFor } from './nav';
+import { initials, ROLE_LABEL } from './lib';
+
+interface Props {
+  staff: Staff;
+  /** Kunci menu yang sedang dibuka (ringkasan, pembayaran, ...). */
+  active?: string;
+  /** Jumlah pembayaran menunggu verifikasi untuk lencana menu Pembayaran. */
+  awaiting?: number;
+}
+const { staff, active, awaiting = 0 } = Astro.props;
+const groups = navFor(staff.role);
+---
+
+<aside class="d-sb">
+  <div class="d-brand">
+    <span class="w">Arunika</span>
+    <span class="t">Dashboard</span>
+  </div>
+  <nav class="d-nav" aria-label="Menu utama">
+    {groups.map((g) => (
+      <>
+        <p class="d-ng">{g.label}</p>
+        <ul>
+          {g.items.map((item) =>
+            item.href ? (
+              <li>
+                <a
+                  class="d-ni"
+                  href={item.href}
+                  aria-current={active === item.key ? 'page' : undefined}
+                >
+                  <span class="ic">
+                    <Icon name={item.icon} />
+                  </span>
+                  <span class="lb">{item.label}</span>
+                  {item.key === 'pembayaran' && awaiting > 0 && (
+                    <span class="c">
+                      {awaiting}
+                      <span class="d-sr"> menunggu verifikasi</span>
+                    </span>
+                  )}
+                </a>
+              </li>
+            ) : (
+              <li>
+                <span class="d-ni" aria-disabled="true" role="link">
+                  <span class="ic">
+                    <Icon name={item.icon} />
+                  </span>
+                  <span class="lb">{item.label}</span>
+                  <span class="soon">segera</span>
+                </span>
+              </li>
+            ),
+          )}
+        </ul>
+      </>
+    ))}
+  </nav>
+  <div class="d-user">
+    <span class="d-av" aria-hidden="true">
+      {initials(staff.name)}
+    </span>
+    <div class="ui">
+      <div class="un">{staff.name}</div>
+      <div class="ur">{ROLE_LABEL[staff.role]}</div>
+    </div>
+  </div>
+</aside>

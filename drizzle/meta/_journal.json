@@ -36,6 +36,27 @@
       "when": 1795490611508,
       "tag": "0004_itinerary_entries",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795507316262,
+      "tag": "0005_booking_drafts",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795573916348,
+      "tag": "0006_auth_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795576975620,
+      "tag": "0007_two_factors",
+      "breakpoints": true
     }
   ]
 }

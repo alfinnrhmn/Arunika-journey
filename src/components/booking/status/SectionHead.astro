@@ -1,0 +1,13 @@
+---
+// Judul bagian bernomor dengan garis atas tebal (kelas ".sh" di frame).
+interface Props {
+  num: string;
+  title: string;
+}
+const { num, title } = Astro.props;
+---
+
+<div class="bs-sh">
+  <span>{num}</span>
+  <h2>{title}</h2>
+</div>

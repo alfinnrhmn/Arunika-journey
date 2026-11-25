@@ -1,0 +1,386 @@
+---
+// Detail Reservasi (DB-28): hanya baca. Semua angka (harga, DP beku, sudah dibayar, sisa) datang dari
+// features/reservations; halaman tidak menghitung ulang. Satu-satunya aksi nyata adalah tautan ke antrean
+// verifikasi Pembayaran (verifikasi tetap di halaman itu). Pembatalan, pindah jadwal, kirim ulang konfirmasi,
+// dan catatan internal belum ada di server, jadi tidak ditampilkan. Izin `reservasi.kelola` dicek di server.
+import '../../../styles/pages/dashboard-reservasi.css';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Badge from '../../../components/dashboard/Badge.astro';
+import Icon from '../../../components/dashboard/Icon.astro';
+import {
+  ago,
+  bookingTone,
+  dateWithDay,
+  eventLabel,
+  formatBytes,
+  initials,
+  KIND_LABEL,
+  PARTICIPANT_LABEL,
+  paymentBadge,
+  safeBack,
+  stamp,
+  whatsappLink,
+} from '../../../components/dashboard/lib';
+import { BOOKING_STATUS_LABEL, getReservation } from '../../../features/reservations/queries';
+import { formatDuration, formatRupiah } from '../../../lib/format';
+import { guard } from '../../../server/auth/guard';
+import { getDb } from '../../../server/db';
+
+const g = guard(Astro.locals, 'reservasi.kelola');
+if ('response' in g) return g.response;
+
+const detail = await getReservation(getDb(), Astro.params.id ?? '');
+const back = safeBack(Astro.url.searchParams.get('balik'));
+const now = new Date();
+if (!detail) Astro.response.status = 404;
+
+const b = detail?.booking;
+const trip = detail?.trip ?? null;
+const schedule = detail?.schedule ?? null;
+const awaiting = detail?.payments.find((p) => p.status === 'needs_verification');
+const tripTitle = trip?.title ?? 'Private Trip';
+const wa = b ? whatsappLink(b.contactPhone) : null;
+const holding = !!b && ['pending_payment', 'confirmed', 'completed'].includes(b.status);
+
+let paymentSummary = '';
+if (detail && b) {
+  if (detail.paidAmount >= b.totalAmount && b.totalAmount > 0) paymentSummary = 'Lunas';
+  else if (detail.paidAmount > 0)
+    paymentSummary = `Sudah dibayar ${formatRupiah(detail.paidAmount)}, sisa ${formatRupiah(detail.remainingAmount)}`;
+  else if (awaiting) paymentSummary = 'Bukti menunggu verifikasi';
+  else paymentSummary = 'Belum dibayar';
+}
+---
+
+<Dashboard
+  title={detail && b ? `Reservasi ${b.code}` : 'Reservasi tidak ditemukan'}
+  crumb={['Reservasi', detail && b ? b.code : 'Tidak ditemukan']}
+  active="reservasi"
+>
+  <a class="r-back" href={back}>
+    <Icon name="arrow" size={14} /> Kembali ke Reservasi
+  </a>
+
+  {!detail || !b ? (
+    <section class="d-pn">
+      <div class="d-empty">
+        <b>Reservasi tidak ditemukan</b>
+        Tautannya mungkin salah, atau reservasi ini tidak ada.{' '}
+        <a class="ac" href={back}>
+          Kembali ke daftar
+        </a>
+      </div>
+    </section>
+  ) : (
+    <>
+      <div>
+        <div class="r-head">
+          <h1>{b.code}</h1>
+          <Badge tone={bookingTone(b.status)} label={BOOKING_STATUS_LABEL[b.status]} />
+        </div>
+        <p class="r-sub">
+          {b.contactName} · {b.seatCount} peserta · {tripTitle}
+          {schedule && ` · ${dateWithDay(schedule.departureDate)}`}
+        </p>
+      </div>
+
+      {b.status === 'needs_attention' && (
+        <div class="d-flash" data-tone="warn" role="status">
+          <Icon name="alert" size={16} />
+          <span>
+            Kuota habis setelah hold berakhir. Putuskan pindah jadwal atau refund; fitur ini
+            menyusul.
+          </span>
+        </div>
+      )}
+
+      <div class="d-cols">
+        <div class="d-stack">
+          <section class="d-pn" aria-labelledby="h-ringkasan">
+            <header>
+              <h2 id="h-ringkasan">Ringkasan perjalanan</h2>
+            </header>
+            <dl class="r-grid2">
+              <div class="d-rw">
+                <dt>Paket</dt>
+                <dd>{tripTitle}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Berangkat</dt>
+                <dd>{schedule ? dateWithDay(schedule.departureDate) : '-'}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Tipe</dt>
+                <dd>{b.type === 'open' ? 'Open Trip' : 'Private Trip'}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Pulang</dt>
+                <dd>{schedule ? dateWithDay(schedule.returnDate) : '-'}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Durasi</dt>
+                <dd>{trip ? formatDuration(trip.durationDays, trip.nights) : '-'}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Titik kumpul</dt>
+                <dd>{trip?.meetingPoint ?? '-'}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Kuota jadwal</dt>
+                <dd>
+                  {schedule ? `${schedule.seatsTaken} dari ${schedule.capacity} terisi` : '-'}
+                </dd>
+              </div>
+              <div class="d-rw">
+                <dt>Dibuat</dt>
+                <dd>{stamp(b.createdAt, true)} WIB</dd>
+              </div>
+            </dl>
+            {schedule && (
+              <p class="d-note">
+                {holding
+                  ? `Reservasi ini menahan ${b.seatCount} kursi pada jadwal ${dateWithDay(schedule.departureDate)}. Sisa kuota jadwal ${Math.max(0, schedule.capacity - schedule.seatsTaken)} kursi.`
+                  : `Reservasi ini tidak lagi menahan kursi pada jadwal ${dateWithDay(schedule.departureDate)}.`}
+              </p>
+            )}
+          </section>
+
+          <section class="d-pn" aria-labelledby="h-peserta">
+            <header>
+              <h2 id="h-peserta">Peserta</h2>
+              <span class="d-help">{detail.participants.length} orang</span>
+            </header>
+            {detail.participants.length === 0 ? (
+              <div class="d-empty">Belum ada data peserta.</div>
+            ) : (
+              <table class="r-ptbl">
+                <caption class="d-sr">Daftar peserta</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Jenis</th>
+                    <th scope="col">Kebutuhan khusus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.participants.map((p, i) => (
+                    <tr>
+                      <th scope="row">
+                        {p.fullName}
+                        {i === 0 && <span class="sub">Pemesan</span>}
+                      </th>
+                      <td>{PARTICIPANT_LABEL[p.kind]}</td>
+                      <td class={p.specialNeeds ? undefined : 'r-muted'}>
+                        {p.specialNeeds ?? 'Tidak ada'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            <p class="d-note">Kebutuhan khusus diteruskan ke tim lapangan sebelum keberangkatan.</p>
+          </section>
+
+          <section class="d-pn" aria-labelledby="h-harga">
+            <header>
+              <h2 id="h-harga">Rincian harga</h2>
+              <span class="d-help">{paymentSummary}</span>
+            </header>
+            <dl class="r-lines">
+              {b.priceLines.map((l) => (
+                <div class="d-rw">
+                  <dt>
+                    {l.label} × {l.qty} @ {formatRupiah(l.unitPrice)}
+                  </dt>
+                  <dd>{formatRupiah(l.amount)}</dd>
+                </div>
+              ))}
+              <div class="d-rw total">
+                <dt>Total</dt>
+                <dd>{formatRupiah(b.totalAmount)}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>DP yang harus dibayar ({b.dpPercent}%)</dt>
+                <dd>{formatRupiah(b.dpAmount)}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Sudah dibayar</dt>
+                <dd>{formatRupiah(detail.paidAmount)}</dd>
+              </div>
+              <div class="d-rw remain">
+                <dt>Sisa pembayaran</dt>
+                <dd>{formatRupiah(detail.remainingAmount)}</dd>
+              </div>
+            </dl>
+            <p class="d-note">
+              Harga sudah termasuk PPN. Persentase DP dibekukan saat reservasi dibuat, jadi
+              perubahan di Pengaturan tidak memengaruhinya.
+            </p>
+          </section>
+
+          <section class="d-pn" aria-labelledby="h-bayar">
+            <header>
+              <h2 id="h-bayar">Riwayat pembayaran</h2>
+              {awaiting && (
+                <a class="ac" href={`/dashboard/pembayaran?tab=verifikasi&pilih=${awaiting.id}`}>
+                  Buka antrean verifikasi
+                </a>
+              )}
+            </header>
+            {detail.payments.length === 0 ? (
+              <div class="d-empty">Belum ada pembayaran untuk reservasi ini.</div>
+            ) : (
+              <table class="r-ptbl">
+                <caption class="d-sr">Riwayat pembayaran</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Pembayaran</th>
+                    <th scope="col" class="num">
+                      Jumlah
+                    </th>
+                    <th scope="col">Metode dan bukti</th>
+                    <th scope="col">Diverifikasi oleh</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.payments.map((p) => {
+                    const pb = paymentBadge(p.status);
+                    return (
+                      <tr>
+                        <th scope="row">
+                          {KIND_LABEL[p.kind]}
+                          <span class="sub">{stamp(p.createdAt, true)}</span>
+                        </th>
+                        <td class="num">{formatRupiah(p.amount)}</td>
+                        <td>
+                          {p.method ?? '-'}
+                          <span class="sub">
+                            {p.hasProof
+                              ? `Bukti ${p.proofSize ? formatBytes(p.proofSize) : 'terunggah'}`
+                              : 'Belum ada bukti'}
+                          </span>
+                        </td>
+                        <td class={p.verifiedAt ? undefined : 'r-muted'}>
+                          {p.verifiedAt ? (p.verifiedByName ?? 'Sistem') : 'Belum ada'}
+                          {p.verifiedAt && <span class="sub">{stamp(p.verifiedAt, true)}</span>}
+                        </td>
+                        <td>
+                          <Badge tone={pb.tone} label={pb.label} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </section>
+        </div>
+
+        <div class="d-stack">
+          <section class="d-pn" aria-labelledby="h-kontak">
+            <header>
+              <h2 id="h-kontak">Kontak pemesan</h2>
+              <button class="d-bt" type="button" data-copy-contact data-js-only hidden>
+                Salin kontak
+              </button>
+            </header>
+            <div class="r-person">
+              <span class="d-av" aria-hidden="true">
+                {initials(b.contactName)}
+              </span>
+              <div>
+                <div class="nm">{b.contactName}</div>
+                <div class="rl">Pemesan</div>
+              </div>
+            </div>
+            <dl class="r-pn-body" data-contact>
+              <div class="d-rw">
+                <dt>Email</dt>
+                <dd data-copy>{b.contactEmail}</dd>
+              </div>
+              <div class="d-rw">
+                <dt>Telepon</dt>
+                <dd data-copy>{b.contactPhone}</dd>
+              </div>
+            </dl>
+            {wa && (
+              <div class="r-acts">
+                <a class="d-bt" href={wa} target="_blank" rel="noopener noreferrer">
+                  Hubungi via WhatsApp
+                </a>
+              </div>
+            )}
+          </section>
+
+          <section class="d-pn" aria-labelledby="h-status">
+            <header>
+              <h2 id="h-status">Status dan aksi</h2>
+              <span class="d-help">Diubah {stamp(b.updatedAt)}</span>
+            </header>
+            <dl class="r-pn-body">
+              <div class="d-rw">
+                <dt>Status reservasi</dt>
+                <dd>
+                  <Badge tone={bookingTone(b.status)} label={BOOKING_STATUS_LABEL[b.status]} />
+                </dd>
+              </div>
+              <div class="d-rw">
+                <dt>Pembayaran</dt>
+                <dd>{paymentSummary}</dd>
+              </div>
+              {b.status === 'pending_payment' && b.holdExpiresAt && (
+                <div class="d-rw">
+                  <dt>Batas hold</dt>
+                  <dd>
+                    {stamp(b.holdExpiresAt, true)} WIB
+                    <small>{ago(b.holdExpiresAt, now)}</small>
+                  </dd>
+                </div>
+              )}
+            </dl>
+            {awaiting && (
+              <div class="r-acts">
+                <a
+                  class="d-bt"
+                  data-tone="primary"
+                  href={`/dashboard/pembayaran?tab=verifikasi&pilih=${awaiting.id}`}
+                >
+                  Buka antrean verifikasi
+                </a>
+              </div>
+            )}
+            <p class="d-note">Pembatalan, pindah jadwal, dan catatan internal menyusul.</p>
+          </section>
+
+          <section class="d-pn" aria-labelledby="h-riwayat">
+            <header>
+              <h2 id="h-riwayat">Riwayat status</h2>
+              <span class="d-help">{detail.events.length} peristiwa</span>
+            </header>
+            {detail.events.length === 0 ? (
+              <div class="d-empty">Belum ada peristiwa tercatat.</div>
+            ) : (
+              <ol class="r-tl">
+                {detail.events.map((e) => (
+                  <li>
+                    <div>
+                      <b>{eventLabel(e.action)}</b>
+                      <span class="d-help">
+                        {stamp(e.at, true)} WIB{e.actorName ? ` · oleh ${e.actorName}` : ''}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </div>
+      </div>
+    </>
+  )}
+</Dashboard>
+
+<script>
+  import '../../../scripts/dashboard';
+</script>

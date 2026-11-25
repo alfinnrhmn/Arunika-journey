@@ -1,0 +1,456 @@
+---
+// Pengaturan (SY-02), hanya Owner: kuota dan checkout, DP default, dan rekening transfer manual. Hanya
+// pengaturan yang benar-benar ada di server yang tampil. Server hanya memakai kolom milik tab yang disimpan
+// (formForTab); tab lain tidak tersentuh walau halaman yang dikirim sudah basi. Validasi,
+// penyimpanan, dan log audit milik features/settings; halaman ini membaca form, memanggilnya, dan menyajikan hasil.
+// Pola Post/Redirect/Get: sukses 303 ke GET dengan penanda jumlah perubahan; galat dirender ulang (422).
+import '../../../styles/pages/dashboard-pengaturan.css';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Icon from '../../../components/dashboard/Icon.astro';
+import { getBookingSettings } from '../../../features/booking/settings';
+import { calcPrice } from '../../../features/pricing/pricing';
+import {
+  MAX_MANUAL_ACCOUNTS,
+  formForTab,
+  parseBookingSettingsForm,
+  saveBookingSettings,
+  type RawSettingsForm,
+  type SettingsErrors,
+} from '../../../features/settings/save';
+import { formatRupiah } from '../../../lib/format';
+import { guard } from '../../../server/auth/guard';
+import { getDb } from '../../../server/db';
+
+const g = guard(Astro.locals, 'pengaturan.kelola');
+if ('response' in g) return g.response;
+
+type Tab = 'booking' | 'pembayaran';
+let tab: Tab = Astro.url.searchParams.get('tab') === 'pembayaran' ? 'pembayaran' : 'booking';
+
+const db = getDb();
+let raw: RawSettingsForm | null = null;
+let errors: SettingsErrors = {};
+
+if (Astro.request.method === 'POST') {
+  let form: FormData | null = null;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    // Badan bukan form yang sah: diperlakukan sebagai form kosong (akan ditolak validasi).
+  }
+  // Hanya kolom milik tab yang disimpan yang dipakai; tab lain tetap pada nilai tersimpan (lihat formForTab).
+  const parsed = parseBookingSettingsForm(
+    formForTab(form ?? new FormData(), tab, await getBookingSettings(db)),
+  );
+  if (parsed.ok) {
+    const result = await saveBookingSettings(db, {
+      actorId: g.staff.id,
+      values: parsed.values,
+      ip: Astro.clientAddress,
+    });
+    return Astro.redirect(
+      `/dashboard/pengaturan?tab=${tab}&tersimpan=${result.changed.length}`,
+      303,
+    );
+  }
+  Astro.response.status = 422;
+  raw = parsed.raw;
+  errors = parsed.errors;
+  // Tampilkan tab yang memuat galat bila tab yang dikirim tidak memuatnya.
+  const inBooking = !!(
+    errors.dpPercent ||
+    errors.holdMinutes ||
+    errors.maxParticipants ||
+    errors.draftHours
+  );
+  const inPayment = !!(errors.manualAccounts || errors.accountRows);
+  if (tab === 'booking' && !inBooking && inPayment) tab = 'pembayaran';
+  if (tab === 'pembayaran' && !inPayment && inBooking) tab = 'booking';
+}
+
+const current = await getBookingSettings(db);
+const f: RawSettingsForm = raw ?? {
+  dpPercent: String(current.dpPercent),
+  holdMinutes: String(current.holdMinutes),
+  maxParticipants: String(current.maxParticipants),
+  draftHours: String(current.draftHours),
+  accounts: current.manualAccounts.map((a) => ({
+    bank: a.bank,
+    number: a.number,
+    holder: a.holder,
+  })),
+};
+
+// Baris rekening: semua baris tetap ada di form (sampai batas); yang kosong di luar baris kosong pertama
+// disembunyikan dan baru muncul lewat tombol "Tambah rekening" (JS). Tanpa JS cukup satu baris kosong.
+const blank = { bank: '', number: '', holder: '' };
+const rows = Array.from({ length: MAX_MANUAL_ACCOUNTS }, (_, i) => f.accounts[i] ?? blank);
+const lastUsed = rows.reduce(
+  (last, r, i) => (r.bank || r.number || r.holder || errors.accountRows?.[i] ? i : last),
+  -1,
+);
+const visibleRows = Math.min(MAX_MANUAL_ACCOUNTS, lastUsed + 2);
+
+// Contoh hitungan memakai fungsi harga milik server; DP dari isian bila sah, selain itu nilai tersimpan.
+const typedDp = /^\d{1,3}$/.test(f.dpPercent) ? Number(f.dpPercent) : current.dpPercent;
+const example = calcPrice({
+  unitPrice: 1_250_000,
+  adults: 2,
+  children: 0,
+  dpPercent: typedDp >= 0 && typedDp <= 100 ? typedDp : current.dpPercent,
+});
+
+// Penanda hasil simpan: hanya bilangan bulat kecil yang dikenali, nilai lain tidak dipantulkan.
+const savedRaw = Astro.url.searchParams.get('tersimpan');
+const saved = savedRaw !== null && /^\d{1,2}$/.test(savedRaw) ? Number(savedRaw) : null;
+
+const summary: { href: string; text: string }[] = [];
+const add = (href: string, text?: string) => text && summary.push({ href, text });
+add('#dp_percent', errors.dpPercent && `DP default: ${errors.dpPercent}`);
+add('#hold_minutes', errors.holdMinutes && `Lama kursi dikunci: ${errors.holdMinutes}`);
+add('#max_participants', errors.maxParticipants && `Maksimal peserta: ${errors.maxParticipants}`);
+add('#draft_hours', errors.draftHours && `Lama draf booking: ${errors.draftHours}`);
+add('#bank-0', errors.manualAccounts && `Rekening: ${errors.manualAccounts}`);
+for (const [i, msg] of Object.entries(errors.accountRows ?? {})) {
+  add(`#bank-${i}`, `Rekening ${Number(i) + 1}: ${msg}`);
+}
+const focusId = summary[0]?.href.slice(1);
+
+const actionUrl = `/dashboard/pengaturan?tab=${tab}`;
+const onBooking = tab === 'booking';
+---
+
+<Dashboard title="Pengaturan" crumb={['Sistem', 'Pengaturan']} active="pengaturan">
+  <div class="d-ph">
+    <div>
+      <h1>Pengaturan</h1>
+      <p>
+        Aturan operasional Arunika Journey. Perubahan berlaku untuk booking baru, bukan booking yang
+        sudah berjalan. Hanya Owner yang dapat mengubah pengaturan.
+      </p>
+    </div>
+    <button class="d-bt" data-tone="primary" type="submit" form="form-pengaturan">
+      <Icon name="check" size={16} /> Simpan perubahan
+    </button>
+  </div>
+
+  <nav class="s-tabs" aria-label="Kelompok pengaturan">
+    <a href="/dashboard/pengaturan?tab=booking" aria-current={onBooking ? 'page' : undefined}>
+      Booking dan kuota
+    </a>
+    <a href="/dashboard/pengaturan?tab=pembayaran" aria-current={onBooking ? undefined : 'page'}>
+      Pembayaran
+    </a>
+  </nav>
+
+  {saved !== null && (
+    <div class="d-flash" data-tone={saved > 0 ? 'ok' : 'warn'} role="status">
+      <Icon name={saved > 0 ? 'check' : 'alert'} size={16} />
+      <span>
+        {saved > 0
+          ? `Pengaturan disimpan (${saved} pengaturan berubah). Berlaku untuk booking baru.`
+          : 'Tidak ada perubahan.'}
+      </span>
+    </div>
+  )}
+
+  {summary.length > 0 && (
+    <div class="d-flash" data-tone="bad" role="alert" id="ringkasan-galat">
+      <Icon name="alert" size={16} />
+      <div>
+        Pengaturan belum disimpan. Periksa isian berikut:
+        <ul class="s-summary">
+          {summary.map((s) => (
+            <li>
+              <a href={s.href}>{s.text}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+
+  <form
+    class="s-form"
+    id="form-pengaturan"
+    method="post"
+    action={actionUrl}
+    data-once
+    data-settings
+  >
+    {onBooking ? (
+      <>
+        <div class="s-grid">
+          <section class="d-pn" aria-labelledby="h-kuota">
+            <header>
+              <h2 id="h-kuota">Kuota dan checkout</h2>
+            </header>
+            <div class="s-body">
+              <div class="d-fd">
+                <label for="hold_minutes">Lama kursi dikunci (menit)</label>
+                <input
+                  class="d-in s-num"
+                  id="hold_minutes"
+                  name="hold_minutes"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                  value={f.holdMinutes}
+                  autofocus={focusId === 'hold_minutes'}
+                  aria-invalid={errors.holdMinutes ? 'true' : undefined}
+                  aria-describedby={`help-hold${errors.holdMinutes ? ' err-hold' : ''}`}
+                />
+                <p class="d-help" id="help-hold">
+                  Kursi ditahan selama pelanggan menyelesaikan pembayaran. Antara 5 dan 1440 menit.
+                </p>
+                {errors.holdMinutes && (
+                  <p class="s-err" id="err-hold">
+                    {errors.holdMinutes}
+                  </p>
+                )}
+              </div>
+              <div class="d-fd">
+                <label for="draft_hours">Lama draf booking (jam)</label>
+                <input
+                  class="d-in s-num"
+                  id="draft_hours"
+                  name="draft_hours"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                  value={f.draftHours}
+                  autofocus={focusId === 'draft_hours'}
+                  aria-invalid={errors.draftHours ? 'true' : undefined}
+                  aria-describedby={`help-draft${errors.draftHours ? ' err-draft' : ''}`}
+                />
+                <p class="d-help" id="help-draft">
+                  Draf booking yang ditinggalkan dibuang setelah jam ini. Antara 1 dan 336 jam (14
+                  hari).
+                </p>
+                {errors.draftHours && (
+                  <p class="s-err" id="err-draft">
+                    {errors.draftHours}
+                  </p>
+                )}
+              </div>
+              <div class="d-fd">
+                <label for="max_participants">Maksimal peserta per booking</label>
+                <input
+                  class="d-in s-num"
+                  id="max_participants"
+                  name="max_participants"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                  value={f.maxParticipants}
+                  autofocus={focusId === 'max_participants'}
+                  aria-invalid={errors.maxParticipants ? 'true' : undefined}
+                  aria-describedby={`help-max${errors.maxParticipants ? ' err-max' : ''}`}
+                />
+                <p class="d-help" id="help-max">
+                  Jumlah kursi (dewasa dan anak) yang boleh dipesan dalam satu booking. Antara 1 dan
+                  50.
+                </p>
+                {errors.maxParticipants && (
+                  <p class="s-err" id="err-max">
+                    {errors.maxParticipants}
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section class="d-pn" aria-labelledby="h-dp">
+            <header>
+              <h2 id="h-dp">Uang muka</h2>
+            </header>
+            <div class="s-body">
+              <div class="d-fd">
+                <label for="dp_percent">DP default (persen)</label>
+                <input
+                  class="d-in s-num"
+                  id="dp_percent"
+                  name="dp_percent"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                  value={f.dpPercent}
+                  autofocus={focusId === 'dp_percent'}
+                  aria-invalid={errors.dpPercent ? 'true' : undefined}
+                  aria-describedby={`help-dp${errors.dpPercent ? ' err-dp' : ''}`}
+                />
+                <p class="d-help" id="help-dp">
+                  Antara 0 dan 100. DP dibulatkan ke atas ke kelipatan Rp 1.000 dan tidak melebihi
+                  total.
+                </p>
+                {errors.dpPercent && (
+                  <p class="s-err" id="err-dp">
+                    {errors.dpPercent}
+                  </p>
+                )}
+              </div>
+              <div class="s-example" aria-live="polite">
+                <h3 class="d-h">Contoh hitungan</h3>
+                <div class="d-price">
+                  <div>
+                    <span>2 peserta × {formatRupiah(1_250_000)}</span>
+                    <b>{formatRupiah(example.total)}</b>
+                  </div>
+                  <div>
+                    <span>
+                      DP (<span data-ex-pct>{example.dpPercent}</span>%)
+                    </span>
+                    <b data-ex-dp>{formatRupiah(example.dp)}</b>
+                  </div>
+                  <div>
+                    <span>Sisa pelunasan</span>
+                    <b data-ex-balance>{formatRupiah(example.balance)}</b>
+                  </div>
+                </div>
+                <p class="d-help">
+                  Harga sudah termasuk PPN. Harga contoh tetap, hanya untuk gambaran.
+                </p>
+              </div>
+            </div>
+            <p class="d-note">
+              Perubahan hanya berlaku untuk booking baru. Booking yang sudah berjalan memakai DP dan
+              harga yang dibekukan saat dibuat.
+            </p>
+          </section>
+        </div>
+        {f.accounts.map((a) => (
+          <>
+            <input type="hidden" name="bank" value={a.bank} />
+            <input type="hidden" name="nomor" value={a.number} />
+            <input type="hidden" name="pemegang" value={a.holder} />
+          </>
+        ))}
+      </>
+    ) : (
+      <>
+        <input type="hidden" name="hold_minutes" value={f.holdMinutes} />
+        <input type="hidden" name="draft_hours" value={f.draftHours} />
+        <input type="hidden" name="max_participants" value={f.maxParticipants} />
+        <input type="hidden" name="dp_percent" value={f.dpPercent} />
+        <section class="d-pn" aria-labelledby="h-rek">
+          <header>
+            <h2 id="h-rek">Rekening transfer manual</h2>
+            <span class="d-help">Hingga {MAX_MANUAL_ACCOUNTS} rekening</span>
+          </header>
+          <div class="s-body">
+            <p class="d-help">
+              Rekening tujuan yang ditampilkan ke pelanggan saat membayar lewat transfer. Kosongkan
+              semua kolom pada satu baris untuk menghapus rekening itu.
+            </p>
+            {errors.manualAccounts && (
+              <p class="s-err" id="err-rekening">
+                {errors.manualAccounts}
+              </p>
+            )}
+            {rows.map((a, i) => (
+              <div
+                class="s-acc"
+                role="group"
+                aria-label={`Rekening ${i + 1}`}
+                data-account-row
+                hidden={i >= visibleRows}
+              >
+                <div class="d-fd">
+                  <label for={`bank-${i}`}>Nama bank</label>
+                  <input
+                    class="d-in"
+                    id={`bank-${i}`}
+                    name="bank"
+                    type="text"
+                    maxlength="60"
+                    autocomplete="off"
+                    value={a.bank}
+                    autofocus={focusId === `bank-${i}`}
+                    aria-invalid={errors.accountRows?.[i] ? 'true' : undefined}
+                    aria-describedby={errors.accountRows?.[i] ? `err-rek-${i}` : undefined}
+                  />
+                </div>
+                <div class="d-fd">
+                  <label for={`nomor-${i}`}>Nomor rekening</label>
+                  <input
+                    class="d-in"
+                    id={`nomor-${i}`}
+                    name="nomor"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="40"
+                    autocomplete="off"
+                    value={a.number}
+                    aria-invalid={errors.accountRows?.[i] ? 'true' : undefined}
+                    aria-describedby={errors.accountRows?.[i] ? `err-rek-${i}` : undefined}
+                  />
+                </div>
+                <div class="d-fd">
+                  <label for={`pemegang-${i}`}>Nama pemilik</label>
+                  <input
+                    class="d-in"
+                    id={`pemegang-${i}`}
+                    name="pemegang"
+                    type="text"
+                    maxlength="100"
+                    autocomplete="off"
+                    value={a.holder}
+                    aria-invalid={errors.accountRows?.[i] ? 'true' : undefined}
+                    aria-describedby={errors.accountRows?.[i] ? `err-rek-${i}` : undefined}
+                  />
+                </div>
+                <button
+                  class="d-bt rm"
+                  type="button"
+                  data-remove-account
+                  data-js-only
+                  hidden
+                  aria-label={`Hapus rekening ${i + 1}`}
+                >
+                  Hapus
+                </button>
+                {errors.accountRows?.[i] && (
+                  <p class="s-err" id={`err-rek-${i}`} style="grid-column:1 / -1">
+                    {errors.accountRows[i]}
+                  </p>
+                )}
+              </div>
+            ))}
+            <button class="d-bt s-add" type="button" data-add-account data-js-only hidden>
+              Tambah rekening
+            </button>
+          </div>
+          <p class="d-note">
+            Perubahan hanya berlaku untuk booking baru. Nomor rekening hanya boleh berisi angka,
+            spasi, titik, atau tanda hubung.
+          </p>
+        </section>
+      </>
+    )}
+
+    <p class="d-help">
+      Pengaturan lain (info bisnis, kebijakan pembatalan, notifikasi, template email) menyusul
+      bersama halamannya.
+    </p>
+
+    <div class="s-dirty" role="status" data-dirty hidden>
+      <span class="dot" aria-hidden="true"></span>
+      <b>Ada perubahan yang belum disimpan</b>
+      <span class="sp"></span>
+      <button class="d-bt" data-tone="ghost" type="button" data-discard>
+        Buang perubahan
+      </button>
+      <button class="d-bt" type="submit">
+        <Icon name="check" size={16} /> Simpan sekarang
+      </button>
+    </div>
+  </form>
+</Dashboard>
+
+<script>
+  import '../../../scripts/dashboard-pengaturan';
+</script>

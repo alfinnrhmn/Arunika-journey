@@ -2,7 +2,7 @@
 // Hero foto penuh 900px: foto sampul, overlay gelap, nav overlay (CTA berlatar kertas), tombol kembali,
 // harga mulai dari, judul, dan baris meta. Semua dari data trip.
 import HFNavRD from '../../hf/HFNavRD.astro';
-import { photo } from '../../../lib/photo';
+import { mediaUrl } from '../../../lib/photo';
 import { formatDuration, formatRupiah } from '../../../lib/format';
 import type { TripDetail } from '../../../features/trips/queries';
 
@@ -14,7 +14,7 @@ const { trip } = Astro.props;
 
 <section class="td-hero">
   {trip.coverPhoto && (
-    <img class="cover td-hero-img" src={photo(trip.coverPhoto)} alt={trip.title} />
+    <img class="cover td-hero-img" src={mediaUrl(trip.coverPhoto)} alt={trip.title} />
   )}
   <div class="td-hero-shade"></div>
   <HFNavRD tone="overlay" cta="Pilih tanggal" ctaHref="/trips" ctaTone="light" />

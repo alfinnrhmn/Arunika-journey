@@ -1,0 +1,54 @@
+---
+// Ringkasan pesanan di kolom kanan (desain: hf-os): foto dan judul trip, tanggal, peserta, rincian harga,
+// tautan ubah, dan catatan kebijakan. Semua angka berasal dari server; pada langkah 1 skrip hanya
+// memperbarui tampilannya saat pengunjung mengubah pilihan (nilai yang disimpan tetap dari server).
+import FlowPrice from './FlowPrice.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import { mediaUrl } from '../../../lib/photo';
+import type { PriceResult } from '../../../features/pricing/pricing';
+
+interface Props {
+  title: string;
+  meta: string;
+  cover: string | null;
+  dateLabel: string | null;
+  partyText: string;
+  price: PriceResult | null;
+  editHref: string;
+  /** Skrip pratinjau boleh memperbarui kolom ini. */
+  live?: boolean;
+}
+const { title, meta, cover, dateLabel, partyText, price, editHref, live = false } = Astro.props;
+---
+
+<aside class="bf-os" aria-label="Ringkasan pesanan" data-bf-summary={live ? '' : undefined}>
+  <div class="eb">Ringkasan pesanan</div>
+  <div class="trip">
+    <div class="th">{cover && <img class="cover" src={mediaUrl(cover)} alt="" />}</div>
+    <div class="tx">
+      <h3 class="tt">{title}</h3>
+      <p class="tm">{meta}</p>
+    </div>
+  </div>
+  <div class="facts">
+    <div class="f">
+      <HFIcon name="calendar" size={16} />
+      <span data-bf-sum-date>{dateLabel ?? 'Belum memilih tanggal'}</span>
+    </div>
+    <div class="f">
+      <HFIcon name="users" size={16} />
+      <span data-bf-sum-party>{partyText}</span>
+    </div>
+  </div>
+  <FlowPrice {price} live={live} />
+  <a class="ed" href={editHref}>
+    Ubah tanggal atau peserta
+  </a>
+  <div class="tr">
+    <HFIcon name="shield" size={16} />
+    <span>
+      Kebijakan batal dan refund tertulis jelas. Kursi Anda divalidasi sebelum pembayaran.
+    </span>
+  </div>
+  <p class="vat">Harga sudah termasuk PPN</p>
+</aside>

@@ -1,0 +1,326 @@
+---
+// Booking Open Trip, langkah 1: jadwal dan jumlah peserta (frame Doop KWTznrt3Rq). Form HTML biasa yang
+// POST ke URL yang sama (POST-Redirect-GET); JavaScript hanya menambah pratinjau harga dan penghitung.
+// Kuota/tanggal bermasalah dirender di URL ini juga (frame lS0xlbyE5q dan Zyfs4lwofL, HTTP 409).
+import FlowShell from '../../../components/booking/flow/FlowShell.astro';
+import FlowMissing from '../../../components/booking/flow/FlowMissing.astro';
+import FlowAlert from '../../../components/booking/flow/FlowAlert.astro';
+import FlowButton from '../../../components/booking/flow/FlowButton.astro';
+import FlowCounter from '../../../components/booking/flow/FlowCounter.astro';
+import FlowSchedulePick from '../../../components/booking/flow/FlowSchedulePick.astro';
+import FlowSh from '../../../components/booking/flow/FlowSh.astro';
+import StateQuota from '../../../components/booking/flow/StateQuota.astro';
+import StateUnavailable from '../../../components/booking/flow/StateUnavailable.astro';
+import HFIcon from '../../../components/hf/HFIcon.astro';
+import {
+  formText,
+  loadFlowTrip,
+  parseCount,
+  partyLabel,
+  safePrice,
+} from '../../../components/booking/flow/data';
+import {
+  attempt,
+  createDraft,
+  getBookingSettings,
+  getDraft,
+  loadSchedule,
+  maybeHousekeep,
+  readDraftToken,
+  setDraftCookie,
+  updateParty,
+  type Bookability,
+} from '../../../features/booking';
+import { getDb } from '../../../server/db';
+import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
+
+maybeHousekeep();
+
+const { slug = '' } = Astro.params;
+const db = getDb();
+const flow = slug ? await loadFlowTrip(db, slug) : null;
+if (!flow) Astro.response.status = 404;
+
+type View =
+  | { kind: 'form' }
+  | { kind: 'quota'; left: number; scheduleId: string }
+  | { kind: 'unavailable'; reason: Bookability; scheduleId: string };
+
+let view: View = { kind: 'form' };
+let formError: string | null = null;
+let adults = 2;
+let children = 0;
+let scheduleId = '';
+let expiredNotice = false;
+const settings = flow ? await getBookingSettings(db) : null;
+
+if (flow && settings) {
+  const token = readDraftToken(Astro.cookies);
+  const draft = await getDraft(db, token);
+  // Draf milik trip lain tidak dipakai untuk mengisi form ini.
+  const draftHere = draft && flow.schedules.some((s) => s.id === draft.scheduleId) ? draft : null;
+  const q = Astro.url.searchParams;
+  scheduleId = q.get('jadwal') ?? draftHere?.scheduleId ?? '';
+  adults = parseCount(q.get('peserta')) ?? draftHere?.adults ?? 2;
+  children = parseCount(q.get('anak')) ?? draftHere?.children ?? 0;
+  expiredNotice = q.get('habis') === '1' && !draft;
+
+  if (Astro.request.method === 'POST') {
+    const form = await Astro.request.formData();
+    scheduleId = formText(form, 'jadwal');
+    const a = parseCount(formText(form, 'peserta'));
+    const c = parseCount(formText(form, 'anak') || '0');
+    if (a === null || c === null) {
+      formError = 'Jumlah peserta harus berupa bilangan bulat.';
+      Astro.response.status = 422;
+    } else {
+      adults = a;
+      children = c;
+      if (!flow.schedules.some((s) => s.id === scheduleId)) {
+        // Id jadwal bukan milik trip ini (form dibuat tangan atau jadwal sudah lewat).
+        view = { kind: 'unavailable', reason: 'not_open', scheduleId };
+        Astro.response.status = 409;
+      } else {
+        const input = { scheduleId, adults, children };
+        const res = await attempt(async () =>
+          draft ? { token, draft: await updateParty(db, token, input) } : createDraft(db, input),
+        );
+        if (res.ok) {
+          setDraftCookie(Astro.cookies, res.value.token, settings.draftHours);
+          return Astro.redirect(`/booking/${slug}/data`, 303);
+        }
+        const detail = res.error.detail;
+        if (res.state === 'quota') {
+          const left = typeof detail.seatsLeft === 'number' ? detail.seatsLeft : 0;
+          view =
+            left > 0
+              ? { kind: 'quota', left, scheduleId }
+              : { kind: 'unavailable', reason: 'full', scheduleId };
+          Astro.response.status = 409;
+        } else if (res.state === 'unavailable' || res.state === 'not_found') {
+          const reason = (detail.reason as Bookability | undefined) ?? 'not_open';
+          view = { kind: 'unavailable', reason, scheduleId };
+          Astro.response.status = 409;
+        } else {
+          const issues = (detail.issues ?? {}) as Record<string, string>;
+          formError = Object.values(issues)[0] ?? res.error.message;
+          Astro.response.status = 422;
+        }
+      }
+    }
+  } else {
+    // Prefill dari query/draf hanya untuk tampilan; batas sebenarnya diperiksa server saat POST.
+    adults = Math.min(Math.max(adults, 1), settings.maxParticipants);
+    children = Math.min(children, Math.max(settings.maxParticipants - adults, 0));
+  }
+}
+
+const seats = adults + children;
+const open = flow?.schedules.filter((s) => s.open) ?? [];
+const selected =
+  flow?.schedules.find((s) => s.id === scheduleId && s.open) ??
+  open.find((s) => s.seatsLeft >= seats) ??
+  open[0] ??
+  null;
+const failed = flow?.schedules.find((s) => s.id === scheduleId) ?? null;
+// Jadwal yang gagal bisa saja sudah keluar dari daftar katalog (baru ditutup): ambil tanggalnya langsung.
+const failedRow =
+  flow && !failed && view.kind !== 'form' && scheduleId ? await loadSchedule(db, scheduleId) : null;
+const failedDate =
+  failedRow && flow && failedRow.trip.id === flow.detail.id
+    ? failedRow.schedule.departureDate
+    : null;
+const candidates = open.filter((s) => s.id !== scheduleId && s.seatsLeft >= seats);
+const duration = flow ? formatDuration(flow.detail.durationDays, flow.detail.nights) : '';
+const dp = settings?.dpPercent ?? 30;
+
+const shown =
+  view.kind === 'unavailable' ? (candidates[0] ?? null) : view.kind === 'quota' ? failed : selected;
+const price = flow && shown ? safePrice(flow.found.get(shown.id), { adults, children }, dp) : null;
+const summary = flow
+  ? {
+      title: flow.detail.title,
+      meta: [duration, flow.detail.where].filter(Boolean).join(' · '),
+      cover: flow.detail.coverPhoto,
+      dateLabel: shown ? formatDateShort(shown.departureDate) : null,
+      partyText: partyLabel(adults, children) + (view.kind === 'quota' ? ' (melebihi kuota)' : ''),
+      price,
+      editHref:
+        view.kind === 'form'
+          ? '#tanggal'
+          : `/booking/${slug}/jadwal?peserta=${adults}&anak=${children}`,
+      live: view.kind !== 'quota',
+    }
+  : null;
+
+const quotaOver = selected ? seats > selected.seatsLeft : false;
+const quotaText = selected
+  ? quotaOver
+    ? `Anda memilih ${seats} peserta, tetapi hanya tersisa ${selected.seatsLeft} kursi pada ${formatDateShort(selected.departureDate)}.`
+    : `Kuota tersedia untuk ${seats} peserta pada ${formatDateShort(selected.departureDate)} (sisa ${selected.seatsLeft} kursi). Kuota dikunci saat pembayaran dimulai.`
+  : 'Belum ada jadwal yang bisa dipesan.';
+const pageTitle = flow ? `Pilih jadwal dan peserta | ${flow.detail.title} | Arunika Journey` : '';
+---
+
+{!flow || !settings || !summary ? (
+  <FlowMissing />
+) : view.kind === 'quota' ? (
+  <FlowShell
+    title={`Kuota tidak mencukupi | ${flow.detail.title} | Arunika Journey`}
+    step={1}
+    slug={slug}
+    hand="Kuota dicek sebelum pembayaran"
+    {summary}
+  >
+    <Fragment slot="heading">
+      Kuota <i>tidak mencukupi</i>
+    </Fragment>
+    <StateQuota
+      {slug}
+      scheduleId={view.scheduleId}
+      dateLabel={
+        failed
+          ? formatDateShort(failed.departureDate)
+          : failedDate
+            ? formatDateShort(failedDate)
+            : 'jadwal yang dipilih'
+      }
+      {adults}
+      {children}
+      left={view.left}
+      others={candidates}
+    />
+  </FlowShell>
+) : view.kind === 'unavailable' ? (
+  <FlowShell
+    title={`Tanggal tidak tersedia | ${flow.detail.title} | Arunika Journey`}
+    step={1}
+    slug={slug}
+    hand="Jadwal berubah"
+    {summary}
+  >
+    <Fragment slot="heading">
+      Tanggal ini <i>tidak tersedia</i> lagi
+    </Fragment>
+    <StateUnavailable
+      {slug}
+      reason={view.reason}
+      previous={failed}
+      dateLabel={failedDate ? formatDateShort(failedDate) : null}
+      {candidates}
+      {adults}
+      {children}
+      durationDays={flow.detail.durationDays}
+      nights={flow.detail.nights}
+      backHref={`/trips/${slug}`}
+    />
+  </FlowShell>
+) : (
+  <FlowShell
+    title={pageTitle}
+    step={1}
+    slug={slug}
+    hand="Langkah 1 dari 4 · sekitar 2 menit"
+    lead={`${flow.detail.title} · ${duration}. Kuota dicek sebelum pembayaran, dan harga tampil sebelum Anda mengisi apa pun.`}
+    {summary}
+  >
+    <Fragment slot="heading">
+      Pilih <i>jadwal</i> dan peserta
+    </Fragment>
+    {expiredNotice && (
+      <FlowAlert tone="pending" icon="clock" title="Sesi pemesanan Anda sudah berakhir.">
+        <div class="sub">
+          Draf pemesanan dibuang otomatis setelah beberapa jam tanpa aktivitas. Pilih jadwal dan isi
+          data sekali lagi; belum ada pembayaran yang diproses.
+        </div>
+      </FlowAlert>
+    )}
+    {!selected && (
+      <FlowAlert tone="pending" icon="calendar" title="Belum ada jadwal yang bisa dipesan.">
+        <div class="sub">
+          Semua jadwal trip ini penuh atau sudah ditutup. Ajukan{' '}
+          <a href="/private-trip">Private Trip</a> untuk tanggal dan rombongan pilihan Anda.
+        </div>
+      </FlowAlert>
+    )}
+    <form
+      class="bf-form"
+      method="post"
+      action={`/booking/${slug}/jadwal`}
+      novalidate
+      data-bf-form
+      data-bf-mode="party"
+      data-dp={settings.dpPercent}
+      data-child-price={flow.childPrice ?? ''}
+      data-max={settings.maxParticipants}
+    >
+      <div id="tanggal">
+        <FlowSh
+          n="01"
+          title="Tanggal keberangkatan"
+          note={`Waktu setempat · ${flow.schedules.length} jadwal`}
+        />
+        <div class="bf-pad">
+          <FlowSchedulePick
+            schedules={flow.schedules}
+            selectedId={selected?.id ?? null}
+            durationDays={flow.detail.durationDays}
+            nights={flow.detail.nights}
+          />
+        </div>
+      </div>
+      <div>
+        <FlowSh
+          n="02"
+          title="Jumlah peserta"
+          note={`Maksimal ${settings.maxParticipants} per booking`}
+        />
+        <div class="bf-cnts">
+          <FlowCounter
+            id="f-dewasa"
+            name="peserta"
+            label="Dewasa"
+            sub="12 tahun ke atas"
+            value={adults}
+            min={1}
+            max={settings.maxParticipants}
+          />
+          <FlowCounter
+            id="f-anak"
+            name="anak"
+            label="Anak"
+            sub={
+              flow.childPrice != null
+                ? `${formatRupiah(flow.childPrice)} / anak · usia [ditentukan klien]`
+                : 'Usia dan harga: [ditentukan klien]'
+            }
+            value={children}
+            min={0}
+            max={settings.maxParticipants}
+          />
+        </div>
+        <div
+          class="bf-quota"
+          data-bf-quota
+          data-tone={quotaOver || !selected ? 'error' : 'ok'}
+          aria-live="polite"
+        >
+          <HFIcon name={quotaOver || !selected ? 'users' : 'check'} size={16} />
+          <span data-bf-quota-text>{quotaText}</span>
+        </div>
+        {formError && (
+          <p class="bf-field-err" role="alert" data-bf-alert tabindex="-1">
+            {formError}
+          </p>
+        )}
+      </div>
+      <div>
+        <div class="bf-actions">
+          <FlowButton tone="secondary" label="Kembali ke trip" href={`/trips/${slug}`} />
+          <FlowButton label="Lanjut ke data pemesan" arrow disabled={!selected} data-bf-submit />
+          <span class="side-note">Belum ada pembayaran pada tahap ini.</span>
+        </div>
+      </div>
+    </form>
+  </FlowShell>
+)}

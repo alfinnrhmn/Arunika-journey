@@ -1,0 +1,83 @@
+---
+// Form unggah bukti transfer. Form HTML biasa (POST-Redirect-GET) ke /pesanan/<kode>/bukti; JS hanya
+// menampilkan nama dan ukuran berkas. Batas 5 MB dan jenis berkas diputuskan server (proof.ts), bukan klien.
+interface Props {
+  code: string;
+  /** Teks galat dari PROOF_ERRORS (sudah dipetakan; bukan nilai query mentah). */
+  error?: string | null;
+  label?: string;
+  submit?: string;
+  /** Awalan id supaya dua form di satu halaman tidak berbagi id. */
+  idPrefix?: string;
+}
+const {
+  code,
+  error = null,
+  label = 'Pilih berkas bukti transfer',
+  submit = 'Kirim bukti transfer',
+  idPrefix = 'bukti',
+} = Astro.props;
+const errId = `${idPrefix}-galat`;
+const infoId = `${idPrefix}-info`;
+---
+
+<form
+  class="bs-proof"
+  method="post"
+  action={`/pesanan/${code}/bukti`}
+  enctype="multipart/form-data"
+  data-proof-form
+>
+  {error && (
+    <p class="bs-err" role="alert" id={errId}>
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 7.5v5.5M12 16.2v.1"></path>
+      </svg>
+      <span>{error}</span>
+    </p>
+  )}
+  <label class="q" for={idPrefix}>
+    {label}
+  </label>
+  <input
+    class="bs-file"
+    id={idPrefix}
+    name="bukti"
+    type="file"
+    accept="image/jpeg,image/png,image/webp,application/pdf"
+    required
+    aria-describedby={error ? `${errId} ${infoId}` : infoId}
+    aria-invalid={error ? 'true' : undefined}
+  />
+  <p class="bs-hint" id={infoId}>
+    JPG, PNG, WebP, atau PDF. Ukuran maksimal 5 MB.
+  </p>
+  <output class="bs-picked" data-proof-picked aria-live="polite"></output>
+  <button class="bs-btn" data-tone="primary" type="submit" data-proof-submit>
+    <span>{submit}</span>
+    <svg
+      class="arr"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12h16M14 6l6 6-6 6"></path>
+    </svg>
+  </button>
+</form>

@@ -1,0 +1,115 @@
+---
+// State "Tanggal tidak tersedia" (frame Doop Zyfs4lwofL), dirender di URL yang sama (HTTP 409). Data yang
+// sudah diisi tetap ada di draf server; formulir ini hanya mengganti tanggalnya lewat langkah 1
+// (`updateParty` mempertahankan data pemesan dan nama peserta).
+import FlowAlert from './FlowAlert.astro';
+import FlowButton from './FlowButton.astro';
+import FlowSchedulePick from './FlowSchedulePick.astro';
+import FlowSh from './FlowSh.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import { formatDateShort } from '../../../lib/format';
+import type { Bookability } from '../../../features/booking';
+import { partyLabel, reasonBody, reasonTitle, type FlowSchedule } from './data';
+
+interface Props {
+  slug: string;
+  reason: Bookability;
+  /** Jadwal yang gagal; null bila tidak lagi ada di daftar. */
+  previous: FlowSchedule | null;
+  /** Tanggal jadwal yang gagal (teks), bila jadwalnya sudah tidak ada di daftar `previous`. */
+  dateLabel?: string | null;
+  candidates: FlowSchedule[];
+  adults: number;
+  children: number;
+  durationDays: number;
+  nights: number;
+  /** Tujuan kembali (langkah sebelumnya). */
+  backHref: string;
+}
+const {
+  slug,
+  reason,
+  previous,
+  dateLabel,
+  candidates,
+  adults,
+  children,
+  durationDays,
+  nights,
+  backHref,
+} = Astro.props;
+const seats = adults + children;
+const prevLabel = previous
+  ? formatDateShort(previous.departureDate)
+  : (dateLabel ?? 'yang Anda pilih');
+const first = candidates[0] ?? null;
+// Jadwal yang gagal ikut ditampilkan (nonaktif) di atas pengganti, seperti desain.
+const rows = previous ? [previous, ...candidates] : candidates;
+const WaTag = whatsappHref ? 'a' : 'span';
+---
+
+<FlowAlert tone="pending" icon="calendar" title={reasonTitle(reason, prevLabel)}>
+  <div class="sub">{reasonBody(reason, partyLabel(adults, children))}</div>
+</FlowAlert>
+
+{first ? (
+  <form
+    class="bf-form"
+    method="post"
+    action={`/booking/${slug}/jadwal`}
+    data-bf-form
+    data-bf-mode="replace"
+    novalidate
+  >
+    <div>
+      <FlowSh
+        n="01"
+        title="Pilih tanggal pengganti"
+        note={`${candidates.length} jadwal tersedia untuk ${seats} peserta`}
+      />
+      <div class="bf-pad">
+        <FlowSchedulePick
+          schedules={rows}
+          selectedId={first.id}
+          {durationDays}
+          {nights}
+          previousId={previous?.id}
+        />
+      </div>
+    </div>
+    <input type="hidden" name="peserta" value={adults} />
+    <input type="hidden" name="anak" value={children} />
+    <div class="bf-actions">
+      <FlowButton tone="secondary" label="Kembali" href={backHref} />
+      <FlowButton
+        label={`Lanjut dengan ${formatDateShort(first.departureDate)}`}
+        arrow
+        data-bf-submit
+      />
+      <span class="side-note">Harga dihitung ulang sesuai jadwal baru.</span>
+    </div>
+  </form>
+) : (
+  <div class="bf-form">
+    <FlowSh n="01" title="Belum ada tanggal pengganti" />
+    <p class="bf-pad bf-body">
+      Belum ada jadwal lain yang punya kursi untuk {seats} peserta. Anda bisa mengurangi jumlah
+      peserta, memilih trip lain, atau mengajukan Private Trip.
+    </p>
+    <div class="bf-actions">
+      <FlowButton
+        tone="secondary"
+        label="Ubah jumlah peserta"
+        href={`/booking/${slug}/jadwal?peserta=${adults}&anak=${children}`}
+      />
+      <FlowButton label="Request a Quote" arrow href="/private-trip" />
+    </div>
+  </div>
+)}
+<div class="bf-note-foot">
+  Masih ragu? Tanya kami lewat WhatsApp{' '}
+  <WaTag href={whatsappHref} class:list={[{ 'bf-link': Boolean(whatsappHref) }]}>
+    [nomor: diisi klien]
+  </WaTag>
+  dan kami bantu mencarikan jadwal yang pas.
+</div>

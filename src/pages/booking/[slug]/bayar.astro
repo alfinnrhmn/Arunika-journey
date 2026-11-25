@@ -1,0 +1,315 @@
+---
+// Booking Open Trip, langkah 3: pembayaran DP (frame Doop dtKSw6zrCR). Ruang lingkup: transfer bank manual
+// saja. POST memanggil `startPayment` (kursi dikunci, kode booking dibuat, harga dan DP dibekukan di
+// server), memasang cookie akses booking, lalu mengarahkan ke /pesanan/<kode>.
+import FlowShell from '../../../components/booking/flow/FlowShell.astro';
+import FlowMissing from '../../../components/booking/flow/FlowMissing.astro';
+import FlowAlert from '../../../components/booking/flow/FlowAlert.astro';
+import FlowButton from '../../../components/booking/flow/FlowButton.astro';
+import FlowPrice from '../../../components/booking/flow/FlowPrice.astro';
+import FlowSh from '../../../components/booking/flow/FlowSh.astro';
+import StateQuota from '../../../components/booking/flow/StateQuota.astro';
+import StateUnavailable from '../../../components/booking/flow/StateUnavailable.astro';
+import HFIcon from '../../../components/hf/HFIcon.astro';
+import {
+  draftIssues,
+  holdLabel,
+  loadFlowTrip,
+  partyLabel,
+  problemFor,
+  safePrice,
+} from '../../../components/booking/flow/data';
+import {
+  attempt,
+  clearDraftCookie,
+  getBookingSettings,
+  getDraft,
+  loadSchedule,
+  maybeHousekeep,
+  readDraftToken,
+  setAccessCookie,
+  startPayment,
+  type Bookability,
+} from '../../../features/booking';
+import { getDb } from '../../../server/db';
+import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
+
+maybeHousekeep();
+
+const { slug = '' } = Astro.params;
+const db = getDb();
+const token = readDraftToken(Astro.cookies);
+const draft = await getDraft(db, token);
+// Tanpa draf: mulai dari langkah 1.
+if (!draft) return Astro.redirect(`/booking/${slug}/jadwal`, 303);
+
+const flow = slug ? await loadFlowTrip(db, slug) : null;
+// Jadwal draf dimuat langsung (bukan dari daftar katalog) agar jadwal yang baru ditutup/penuh tetap terbaca.
+const found = flow
+  ? (flow.found.get(draft.scheduleId) ?? (await loadSchedule(db, draft.scheduleId)))
+  : null;
+if (!flow) Astro.response.status = 404;
+else if (!found || found.trip.id !== flow.detail.id) {
+  return Astro.redirect(`/booking/${slug}/jadwal`, 303);
+}
+
+const settings = await getBookingSettings(db);
+const seats = draft.adults + draft.children;
+const price = safePrice(
+  found,
+  { adults: draft.adults, children: draft.children },
+  settings.dpPercent,
+);
+
+// Langkah 2 harus lengkap dulu; pemeriksaan akhir tetap oleh `startPayment`.
+if (flow && Object.keys(draftIssues(draft)).length > 0) {
+  return Astro.redirect(`/booking/${slug}/data`, 303);
+}
+
+type View =
+  { kind: 'form' } | { kind: 'quota'; left: number } | { kind: 'unavailable'; reason: Bookability };
+let view: View = { kind: 'form' };
+let alert: {
+  tone: 'error' | 'pending';
+  title: string;
+  body: string;
+  checkStatus?: boolean;
+} | null = null;
+
+if (flow) {
+  const problem = problemFor(found, seats);
+  if (problem) {
+    view =
+      problem.state === 'quota'
+        ? { kind: 'quota', left: problem.left }
+        : { kind: 'unavailable', reason: problem.reason };
+    Astro.response.status = 409;
+  } else if (!price) {
+    view = { kind: 'unavailable', reason: 'not_open' };
+    Astro.response.status = 409;
+  }
+}
+
+if (flow && view.kind === 'form' && Astro.request.method === 'POST') {
+  const res = await attempt(() => startPayment(db, token));
+  if (res.ok) {
+    const { booking, accessToken } = res.value;
+    setAccessCookie(Astro.cookies, booking.code, accessToken);
+    clearDraftCookie(Astro.cookies);
+    return Astro.redirect(`/pesanan/${booking.code}`, 303);
+  }
+  const detail = res.error.detail;
+  Astro.response.status = 409;
+  if (res.state === 'quota') {
+    const left = typeof detail.seatsLeft === 'number' ? detail.seatsLeft : 0;
+    view = left > 0 ? { kind: 'quota', left } : { kind: 'unavailable', reason: 'full' };
+  } else if (res.state === 'unavailable' || res.error.code === 'schedule_not_found') {
+    view = {
+      kind: 'unavailable',
+      reason: (detail.reason as Bookability | undefined) ?? 'not_open',
+    };
+  } else if (res.state === 'incomplete') {
+    return Astro.redirect(`/booking/${slug}/data?lengkapi=1`, 303);
+  } else if (res.state === 'not_found') {
+    return Astro.redirect(`/booking/${slug}/jadwal?habis=1`, 303);
+  } else if (res.error.code === 'party_invalid') {
+    return Astro.redirect(`/booking/${slug}/jadwal`, 303);
+  } else if (res.state === 'active_hold') {
+    // Kode booking sengaja tidak ditampilkan (lihat start-payment.ts); pemilik membukanya lewat Cek Status.
+    alert = {
+      tone: 'pending',
+      title: 'Email ini masih punya booking yang menunggu pembayaran.',
+      body: 'Selesaikan pembayaran booking itu atau tunggu hingga batas bayarnya berakhir sebelum membuat booking baru. Data Anda di sini tetap tersimpan.',
+      checkStatus: true,
+    };
+  } else {
+    Astro.response.status = 422;
+    alert = {
+      tone: 'error',
+      title: 'Pembayaran belum dapat dimulai.',
+      body: 'Terjadi kendala saat memproses permintaan Anda. Coba lagi sebentar lagi; data Anda tetap tersimpan.',
+    };
+  }
+}
+
+const failed = flow?.schedules.find((s) => s.id === draft.scheduleId) ?? null;
+const candidates =
+  flow?.schedules.filter((s) => s.open && s.id !== draft.scheduleId && s.seatsLeft >= seats) ?? [];
+const dateLabel = found ? formatDateShort(found.schedule.departureDate) : '';
+const duration = flow ? formatDuration(flow.detail.durationDays, flow.detail.nights) : '';
+const shownDate =
+  view.kind === 'unavailable'
+    ? candidates[0]
+      ? formatDateShort(candidates[0].departureDate)
+      : null
+    : dateLabel;
+const summary = flow
+  ? {
+      title: flow.detail.title,
+      meta: [duration, flow.detail.where].filter(Boolean).join(' · '),
+      cover: flow.detail.coverPhoto,
+      dateLabel: shownDate,
+      partyText:
+        partyLabel(draft.adults, draft.children) +
+        (view.kind === 'quota' ? ' (melebihi kuota)' : ''),
+      price,
+      editHref: `/booking/${slug}/jadwal`,
+      live: false,
+    }
+  : null;
+---
+
+{!flow || !summary ? (
+  <FlowMissing />
+) : view.kind === 'quota' ? (
+  <FlowShell
+    title={`Kuota tidak mencukupi | ${flow.detail.title} | Arunika Journey`}
+    step={1}
+    {slug}
+    hand="Kuota dicek sebelum pembayaran"
+    {summary}
+  >
+    <Fragment slot="heading">
+      Kuota <i>tidak mencukupi</i>
+    </Fragment>
+    <StateQuota
+      {slug}
+      scheduleId={draft.scheduleId}
+      {dateLabel}
+      adults={draft.adults}
+      children={draft.children}
+      left={view.left}
+      others={candidates}
+    />
+  </FlowShell>
+) : view.kind === 'unavailable' ? (
+  <FlowShell
+    title={`Tanggal tidak tersedia | ${flow.detail.title} | Arunika Journey`}
+    step={1}
+    {slug}
+    hand="Jadwal berubah"
+    {summary}
+  >
+    <Fragment slot="heading">
+      Tanggal ini <i>tidak tersedia</i> lagi
+    </Fragment>
+    <StateUnavailable
+      {slug}
+      reason={view.reason}
+      previous={failed}
+      dateLabel={dateLabel}
+      {candidates}
+      adults={draft.adults}
+      children={draft.children}
+      durationDays={flow.detail.durationDays}
+      nights={flow.detail.nights}
+      backHref={`/booking/${slug}/data`}
+    />
+  </FlowShell>
+) : (
+  <FlowShell
+    title={`Pembayaran DP | ${flow.detail.title} | Arunika Journey`}
+    step={3}
+    {slug}
+    hand="Langkah 3 dari 4 · sekitar 2 menit"
+    lead="Kuota tersedia saat ini dan dikunci begitu Anda menekan Bayar DP. Rincian harga, biaya tambahan, total, dan DP tertera di bawah sebelum Anda membayar."
+    {summary}
+  >
+    <Fragment slot="heading">
+      Bayar <i>DP</i> untuk mengunci kursi
+    </Fragment>
+    {alert && (
+      <FlowAlert
+        tone={alert.tone}
+        icon={alert.tone === 'pending' ? 'clock' : 'shield'}
+        title={alert.title}
+      >
+        <div class="sub">
+          {alert.body}
+          {alert.checkStatus && (
+            <>
+              {' '}
+              <a href="/cek-status">Buka lewat Cek Status</a> (kode booking ada di email Anda).
+            </>
+          )}
+        </div>
+      </FlowAlert>
+    )}
+    <div>
+      <FlowSh
+        n="01"
+        title="Rincian pembayaran"
+        note={`${partyLabel(draft.adults, draft.children)} · ${dateLabel}`}
+      />
+      <div class="bf-pay">
+        <FlowPrice {price} />
+        <p class="bf-vat">Harga sudah termasuk PPN</p>
+      </div>
+      <ul class="bf-facts">
+        <li>
+          <HFIcon name="clock" size={16} />
+          <span>
+            <b>Batas bayar {holdLabel(settings.holdMinutes)}.</b> Kursi ditahan selama itu sejak
+            Anda menekan Bayar DP. Bila DP belum kami terima sampai batasnya, kursi dilepas
+            otomatis.
+          </span>
+        </li>
+        <li>
+          <HFIcon name="file" size={16} />
+          <span>
+            Kebijakan batal dan refund tertulis jelas:{' '}
+            <a href="/legal/pembatalan-refund" target="_blank" rel="noopener">
+              baca kebijakannya
+            </a>{' '}
+            sebelum membayar.
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <FlowSh n="02" title="Metode pembayaran" note="Satu metode tersedia" />
+      <div class="bf-method">
+        <span class="r" aria-hidden="true"></span>
+        <div class="b">
+          <div class="t">Transfer bank</div>
+          <div class="d">
+            Anda mentransfer DP secara manual ke rekening Arunika Journey. Rekening tujuan dan
+            jumlah yang harus ditransfer tampil di halaman berikutnya; unggah bukti bayar di sana.
+          </div>
+        </div>
+        <span class="n">Verifikasi manual oleh tim</span>
+      </div>
+    </div>
+
+    <div>
+      <FlowSh n="03" title="Persetujuan" />
+      <p class="bf-agreed bf-pad">
+        <HFIcon name="check" size={16} />
+        <span>
+          Anda sudah menyetujui{' '}
+          <a href="/legal/syarat-ketentuan" target="_blank" rel="noopener">
+            Syarat dan Ketentuan
+          </a>
+          ,{' '}
+          <a href="/legal/kebijakan-privasi" target="_blank" rel="noopener">
+            Kebijakan Privasi
+          </a>
+          , serta{' '}
+          <a href="/legal/pembatalan-refund" target="_blank" rel="noopener">
+            Kebijakan Batal dan Refund
+          </a>{' '}
+          pada langkah 2.
+        </span>
+      </p>
+    </div>
+
+    <form method="post" action={`/booking/${slug}/bayar`} data-bf-form data-bf-mode="pay">
+      <div class="bf-actions">
+        <FlowButton tone="secondary" label="Kembali" href={`/booking/${slug}/data`} />
+        <FlowButton label={`Bayar DP ${formatRupiah(price?.dp ?? 0)}`} arrow data-bf-submit />
+        <span class="side-note">Anda diarahkan ke instruksi pembayaran.</span>
+      </div>
+    </form>
+  </FlowShell>
+)}

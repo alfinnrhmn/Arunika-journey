@@ -1,0 +1,61 @@
+---
+import { BOOKING_STATUS_LABEL, type ReservationRow } from '../../features/reservations/queries';
+import { formatRupiah } from '../../lib/format';
+import Badge from './Badge.astro';
+import { bookingTone, dateWithDay } from './lib';
+
+/**
+ * Tabel daftar reservasi. Setiap baris adalah tautan ke halaman detail (kode booking menjadi tautan yang meluas
+ * ke seluruh baris), sehingga bisa diklik dan difokus keyboard tanpa JavaScript. Private Trip tanpa jadwal tampil
+ * dengan tanggal "-". `back` (jalur daftar beserta filternya) dibawa ke detail lewat `?balik=`.
+ */
+interface Props {
+  rows: ReservationRow[];
+  back: string;
+}
+const { rows, back } = Astro.props;
+const href = (id: string) => `/dashboard/reservasi/${id}?balik=${encodeURIComponent(back)}`;
+---
+
+<table class="d-tbl r-tbl">
+  <caption class="d-sr">Daftar reservasi, terbaru di atas</caption>
+  <colgroup>
+    <col style="width:190px" />
+    <col />
+    <col style="width:150px" />
+    <col style="width:150px" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">Reservasi</th>
+      <th scope="col">Trip dan jadwal</th>
+      <th scope="col" class="num">
+        Total
+      </th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((r) => (
+      <tr>
+        <th scope="row">
+          <a class="rowlink" href={href(r.id)}>
+            {r.code}
+          </a>
+          <span class="who">{r.contactName}</span>
+        </th>
+        <td>
+          {r.tripTitle ?? 'Private Trip'}
+          <span class="sub">{r.departureDate ? dateWithDay(r.departureDate) : '-'}</span>
+        </td>
+        <td class="num">
+          {formatRupiah(r.totalAmount)}
+          <span class="sub">{r.seatCount} peserta</span>
+        </td>
+        <td>
+          <Badge tone={bookingTone(r.status)} label={BOOKING_STATUS_LABEL[r.status]} />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>

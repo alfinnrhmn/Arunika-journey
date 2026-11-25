@@ -1,0 +1,98 @@
+---
+// Frame "Pembayaran belum berhasil": dipakai untuk booking `expired`. Penyebabnya dua: hold berakhir tanpa
+// bukti, atau bukti ditolak admin (payment.status = rejected). Alasan penolakan hanya ada di email; halaman
+// ini tidak mengarang alasan. Kursi sudah dilepas, jadi satu-satunya jalan ke depan adalah memesan ulang.
+import SectionHead from './SectionHead.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import type { BookingView } from '../../../features/booking/status';
+
+interface Props {
+  view: BookingView;
+  rejected: boolean;
+}
+const { view, rejected } = Astro.props;
+---
+
+<div class="bs-alert" role="status">
+  <span class="ic">
+    <HFIcon name="clock" size={20} />
+  </span>
+  <div>
+    <b>
+      {rejected
+        ? 'Bukti transfer Anda belum dapat kami terima.'
+        : 'Pembayaran DP belum kami terima sebelum batas waktu.'}
+    </b>
+    <div class="sub">
+      Kursi untuk booking ini sudah dilepas kembali ke jadwal. Jika Anda sudah mentransfer, hubungi
+      kami dengan kode booking di bawah.
+    </div>
+  </div>
+</div>
+
+<div>
+  <SectionHead num="01" title={rejected ? 'Yang perlu Anda ketahui' : 'Kemungkinan penyebab'} />
+  <div class="bs-reasons">
+    {rejected ? (
+      <>
+        <div class="rs">
+          <b>Bukti ditolak</b>
+          <span>Tim kami memeriksa bukti transfer dan belum dapat memastikan pembayarannya.</span>
+        </div>
+        <div class="rs">
+          <b>Alasan penolakan</b>
+          <span>Alasan lengkap sudah kami kirim ke email pemesan. Periksa juga folder spam.</span>
+        </div>
+        <div class="rs last">
+          <b>Langkah selanjutnya</b>
+          <span>Mulai ulang booking dari langkah pertama selama kuota masih tersedia.</span>
+        </div>
+      </>
+    ) : (
+      <>
+        <div class="rs">
+          <b>Waktu habis</b>
+          <span>Pembayaran dan bukti transfer tidak diterima sebelum batas waktu.</span>
+        </div>
+        <div class="rs">
+          <b>Saldo atau limit</b>
+          <span>Saldo atau limit transaksi bank tidak mencukupi.</span>
+        </div>
+        <div class="rs last">
+          <b>Gangguan sementara</b>
+          <span>Bank atau aplikasi pembayaran sedang bermasalah.</span>
+        </div>
+      </>
+    )}
+  </div>
+</div>
+
+<div class="bs-actions bs-actions-top">
+  <a class="bs-btn" data-tone="primary" href={`/trips/${view.trip.slug}`}>
+    <span>Mulai ulang</span>
+    <svg
+      class="arr"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12h16M14 6l6 6-6 6"></path>
+    </svg>
+  </a>
+  {whatsappHref && (
+    <a class="bs-btn" data-tone="secondary" href={whatsappHref} rel="noopener">
+      <span>Hubungi kami</span>
+    </a>
+  )}
+</div>
+<p class="bs-fine">
+  Sudah membayar tetapi masih melihat pesan ini? Hubungi kami lewat WhatsApp [nomor: diisi klien]
+  dengan kode booking <b>{view.code}</b>.
+</p>

@@ -1,0 +1,23 @@
+---
+// Kotak pemberitahuan di atas kolom utama: error (merah), pending (kuning). role="alert" agar pembaca layar
+// membacakannya saat halaman dirender ulang oleh server; tabindex=-1 supaya bisa difokuskan skrip.
+import HFIcon from '../../hf/HFIcon.astro';
+
+interface Props {
+  tone?: 'error' | 'pending';
+  icon?: 'users' | 'calendar' | 'clock' | 'shield';
+  title: string;
+  id?: string;
+}
+const { tone = 'error', icon = 'clock', title, id } = Astro.props;
+---
+
+<div class="bf-alert" data-tone={tone} role="alert" tabindex="-1" id={id} data-bf-alert>
+  <span class="ic">
+    <HFIcon name={icon} size={20} />
+  </span>
+  <div>
+    <b>{title}</b>
+    <slot />
+  </div>
+</div>

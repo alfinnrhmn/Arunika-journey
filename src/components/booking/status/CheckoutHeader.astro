@@ -1,0 +1,24 @@
+---
+// Header alur fokus (frame "HFCheckoutHeaderDesktop"): wordmark di kiri, bantuan di kanan. Tautan WhatsApp
+// disembunyikan sampai klien memberi nomor; gantinya tautan Cek Status agar sisi kanan tidak kosong.
+import { whatsappHref } from '../../trips/detail/words';
+---
+
+<header class="bs-head">
+  <a class="bs-wm" href="/" aria-label="Arunika Journey, beranda">
+    <span class="a">Arunika</span>
+    <span class="j">Journey</span>
+  </a>
+  <div class="bs-help">
+    <span>Butuh bantuan?</span>
+    {whatsappHref ? (
+      <a class="bs-pill" href={whatsappHref} rel="noopener">
+        WhatsApp
+      </a>
+    ) : (
+      <a class="bs-pill" href="/cek-status">
+        Cek Status Booking
+      </a>
+    )}
+  </div>
+</header>

@@ -1,5 +1,5 @@
 ---
-import { photo } from '../../../lib/photo';
+import { mediaUrl } from '../../../lib/photo';
 import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
 import { seatLabel } from '../../../features/schedules/seats';
 import type { TripCard } from '../../../features/trips/queries';
@@ -38,7 +38,7 @@ const { items } = Astro.props;
           {card.photo && (
             <img
               class="cover"
-              src={photo(card.photo)}
+              src={mediaUrl(card.photo)}
               alt={card.title}
               loading={i < 4 ? 'eager' : 'lazy'}
             />

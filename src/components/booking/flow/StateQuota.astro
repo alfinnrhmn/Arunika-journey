@@ -1,0 +1,99 @@
+---
+// State "Kuota tidak mencukupi" (frame Doop lS0xlbyE5q). Dirender di URL yang sama dengan halaman yang
+// memicunya (HTTP 409). Tiga jalan keluar: kurangi peserta (mengirim form ke langkah 1, draf tetap),
+// pilih tanggal lain, atau Private Trip.
+import FlowAlert from './FlowAlert.astro';
+import FlowButton from './FlowButton.astro';
+import FlowSh from './FlowSh.astro';
+import HFBadge from '../../hf/HFBadge.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import { seatLabel } from '../../../features/schedules/seats';
+import { formatDateShort } from '../../../lib/format';
+import type { FlowSchedule } from './data';
+
+interface Props {
+  slug: string;
+  scheduleId: string;
+  dateLabel: string;
+  adults: number;
+  children: number;
+  left: number;
+  /** Jadwal lain yang masih punya kursi untuk jumlah peserta yang diminta. */
+  others: FlowSchedule[];
+}
+const { slug, scheduleId, dateLabel, adults, children, left, others } = Astro.props;
+const requested = adults + children;
+// Pengurangan mempertahankan anak bila mungkin (minimal 1 dewasa); hasilnya selalu berjumlah `left`.
+const reducedAdults = Math.max(1, left - children);
+const reducedChildren = Math.max(0, left - reducedAdults);
+const canReduce = left >= 1;
+const WaTag = whatsappHref ? 'a' : 'span';
+const pickHref = `/booking/${slug}/jadwal?peserta=${adults}&anak=${children}`;
+---
+
+<FlowAlert
+  tone="error"
+  icon="users"
+  title={`Anda memilih ${requested} peserta, tetapi hanya tersisa ${left} kursi pada ${dateLabel}.`}
+>
+  <div class="sub">Belum ada pembayaran yang diproses. Pilihan lain Anda tetap tersimpan.</div>
+</FlowAlert>
+
+<div>
+  <FlowSh n="01" title="Pilih salah satu" />
+  <div class="bf-opts">
+    {canReduce && (
+      <form class="bf-opt" method="post" action={`/booking/${slug}/jadwal`}>
+        <input type="hidden" name="jadwal" value={scheduleId} />
+        <input type="hidden" name="peserta" value={reducedAdults} />
+        <input type="hidden" name="anak" value={reducedChildren} />
+        <div>
+          <h3>Kurangi menjadi {left} peserta</h3>
+          <p>Tetap berangkat di tanggal yang sama. Total dan DP dihitung ulang otomatis.</p>
+        </div>
+        <FlowButton label={`Ubah jadi ${left} peserta`} arrow />
+      </form>
+    )}
+    <div class="bf-opt">
+      <div>
+        <h3>Pilih tanggal lain</h3>
+        {others.length > 0 ? (
+          <>
+            <p>Jadwal berikut masih punya kursi untuk {requested} peserta.</p>
+            <ul class="bf-alt">
+              {others.map((s) => (
+                <li>
+                  <b>{formatDateShort(s.departureDate)}</b>
+                  <HFBadge
+                    label={seatLabel(s.seatsLeft)}
+                    tone={s.status === 'few' ? 'pending' : 'ok'}
+                  />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p>Belum ada tanggal lain yang punya kursi untuk {requested} peserta.</p>
+        )}
+      </div>
+      <FlowButton tone="secondary" label="Lihat jadwal" href={pickHref} />
+    </div>
+    <div class="bf-opt">
+      <div>
+        <h3>Butuh lebih banyak kursi?</h3>
+        <p>
+          Untuk rombongan lebih besar, Private Trip memberi tanggal dan itinerary yang fleksibel.
+          Harga lewat proposal, tanpa pembayaran di awal.
+        </p>
+      </div>
+      <FlowButton tone="secondary" label="Request a Quote" href="/private-trip" />
+    </div>
+  </div>
+</div>
+<div class="bf-note-foot">
+  Masih ragu? Tanya kami lewat WhatsApp{' '}
+  <WaTag href={whatsappHref} class:list={[{ 'bf-link': Boolean(whatsappHref) }]}>
+    [nomor: diisi klien]
+  </WaTag>
+  dan kami bantu mencarikan jadwal yang pas.
+</div>

@@ -1,0 +1,27 @@
+---
+// Header alur booking (desain: hf-ckh): wordmark di kiri, bantuan WhatsApp di kanan. Sengaja tanpa menu
+// utama agar pengunjung fokus menyelesaikan pemesanan.
+import HFIcon from '../../hf/HFIcon.astro';
+import { whatsappHref } from '../../trips/detail/words';
+
+const Wa = whatsappHref ? 'a' : 'span';
+---
+
+<header class="bf-head">
+  <a class="wm" href="/" aria-label="Arunika Journey, beranda">
+    <span class="a">Arunika</span>
+    <span class="j">Journey</span>
+  </a>
+  <div class="help">
+    <span>Butuh bantuan?</span>
+    <Wa
+      class="wa"
+      href={whatsappHref}
+      target={whatsappHref ? '_blank' : undefined}
+      rel={whatsappHref ? 'noopener' : undefined}
+    >
+      <HFIcon name="chat" size={16} />
+      WhatsApp
+    </Wa>
+  </div>
+</header>

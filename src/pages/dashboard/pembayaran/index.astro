@@ -1,0 +1,170 @@
+---
+// Pembayaran: antrean verifikasi bukti transfer (DB-04) dan riwayat keputusan. Halaman ini hanya MENYAJIKAN data
+// dari domain pembayaran; keputusan (setujui/tolak) dikirim sebagai form biasa ke endpoint yang menjaga izin,
+// status, kuota, dan log audit. Query dibaca sebagai kunci tetap: `tab`, `pilih` (UUID tervalidasi), serta
+// `hasil` dan `galat` yang dipetakan ke teks tetap, jadi nilai mentah tidak pernah dipantulkan ke HTML.
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Icon from '../../../components/dashboard/Icon.astro';
+import PaymentDetail from '../../../components/dashboard/PaymentDetail.astro';
+import PaymentTable from '../../../components/dashboard/PaymentTable.astro';
+import { ago, paymentFlash } from '../../../components/dashboard/lib';
+import {
+  countAwaitingVerification,
+  getPaymentReview,
+  listPayments,
+  type QueueTab,
+} from '../../../features/payments';
+import { formatRupiah } from '../../../lib/format';
+import { guard, isUuid } from '../../../server/auth/guard';
+import { getDb } from '../../../server/db';
+
+const g = guard(Astro.locals, 'pembayaran.verifikasi');
+if ('response' in g) return g.response;
+
+const params = Astro.url.searchParams;
+const tab: QueueTab = params.get('tab') === 'riwayat' ? 'riwayat' : 'verifikasi';
+const flash = paymentFlash(params.get('hasil'), params.get('galat'));
+const reasonError = params.get('galat') === 'alasan';
+
+const db = getDb();
+const now = new Date();
+const [awaiting, queue] = await Promise.all([
+  countAwaitingVerification(db),
+  listPayments(db, 'verifikasi'),
+]);
+const history = tab === 'riwayat' ? await listPayments(db, 'riwayat') : [];
+const rows = tab === 'verifikasi' ? queue : history;
+
+// `pilih` yang bukan UUID atau tidak ada: tampilkan daftar tanpa panel (bukan galat).
+const pickRaw = params.get('pilih') ?? '';
+const review = isUuid(pickRaw) ? await getPaymentReview(db, pickRaw) : null;
+
+const oldest = queue[0];
+const queueSum = queue.reduce((sum, r) => sum + r.amount, 0);
+const closeHref = `/dashboard/pembayaran?tab=${tab}`;
+---
+
+<Dashboard
+  title="Pembayaran"
+  crumb={['Operasional', 'Pembayaran']}
+  active="pembayaran"
+  awaiting={awaiting}
+>
+  <div class="d-ph">
+    <div>
+      <h1>Pembayaran</h1>
+      <p>
+        {awaiting > 0
+          ? `${awaiting} bukti transfer menunggu verifikasi${oldest ? ` · Terlama diunggah ${ago(oldest.submittedAt, now)}` : ''}`
+          : 'Tidak ada bukti transfer yang menunggu verifikasi'}
+      </p>
+    </div>
+  </div>
+
+  {flash && (
+    <div class="d-flash" data-tone={flash.tone} role={flash.tone === 'bad' ? 'alert' : 'status'}>
+      <Icon name={flash.tone === 'ok' ? 'check' : 'alert'} size={16} />
+      <span>{flash.text}</span>
+    </div>
+  )}
+
+  <div class="d-stats">
+    <div class="d-st" data-tone={awaiting > 0 ? 'warn' : 'good'}>
+      <span class="l">Perlu verifikasi</span>
+      <span class="v">{awaiting}</span>
+      <span class="n">{oldest ? `Terlama ${ago(oldest.submittedAt, now)}` : 'Antrean kosong'}</span>
+    </div>
+    <div class="d-st">
+      <span class="l">Nominal menunggu</span>
+      <span class="v sm">{formatRupiah(queueSum)}</span>
+      <span class="n">
+        {awaiting > queue.length ? `Dari ${queue.length} teratas antrean` : 'Total DP di antrean'}
+      </span>
+    </div>
+  </div>
+
+  <div class="d-tools">
+    <nav class="d-chips" aria-label="Tab pembayaran">
+      <a
+        class="d-ch"
+        href="/dashboard/pembayaran?tab=verifikasi"
+        aria-current={tab === 'verifikasi' ? 'page' : undefined}
+      >
+        <span>Perlu verifikasi</span>
+        <i>{awaiting}</i>
+      </a>
+      <a
+        class="d-ch"
+        href="/dashboard/pembayaran?tab=riwayat"
+        aria-current={tab === 'riwayat' ? 'page' : undefined}
+      >
+        <span>Riwayat</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="d-cols" data-solo={review ? undefined : ''}>
+    <div class="d-stack">
+      <section class="d-pn" aria-labelledby="judul-daftar">
+        <header>
+          <h2 id="judul-daftar">
+            {tab === 'verifikasi' ? 'Antrean verifikasi' : 'Riwayat keputusan'}
+          </h2>
+          <span class="d-help">{tab === 'verifikasi' ? 'Urut: terlama' : 'Urut: terbaru'}</span>
+        </header>
+        {rows.length === 0 ? (
+          <div class="d-empty">
+            <b>{tab === 'verifikasi' ? 'Tidak ada yang menunggu' : 'Belum ada keputusan'}</b>
+            {tab === 'verifikasi'
+              ? 'Bukti transfer yang diunggah pemesan akan muncul di sini.'
+              : 'Pembayaran yang sudah disetujui atau ditolak akan tercatat di sini.'}
+          </div>
+        ) : (
+          <PaymentTable rows={rows} tab={tab} selectedId={review?.payment.id} now={now} />
+        )}
+      </section>
+
+      {tab === 'verifikasi' && (
+        <section class="d-pn" aria-labelledby="judul-cek">
+          <header>
+            <h2 id="judul-cek">Yang dicek sebelum memverifikasi</h2>
+          </header>
+          <div class="d-sec">
+            <ul>
+              <li class="d-li">
+                <Icon name="check" size={16} />
+                <span>Nominal di bukti sama dengan DP yang harus dibayar, atau lebih besar.</span>
+              </li>
+              <li class="d-li">
+                <Icon name="check" size={16} />
+                <span>Rekening tujuan sesuai rekening Arunika Journey.</span>
+              </li>
+              <li class="d-li">
+                <Icon name="check" size={16} />
+                <span>Tanggal transfer berada dalam batas waktu pembayaran (batas hold).</span>
+              </li>
+              <li class="d-li">
+                <Icon name="check" size={16} />
+                <span>
+                  Nama pengirim cocok dengan pemesan, atau dicatat bila atas nama orang lain.
+                </span>
+              </li>
+            </ul>
+          </div>
+          <p class="d-note">
+            Setelah disetujui, booking menjadi Confirmed dan pemesan menerima email konfirmasi.
+            Menolak melepas kursi dan mengirim alasan ke pemesan.
+          </p>
+        </section>
+      )}
+    </div>
+
+    {review && (
+      <PaymentDetail review={review} now={now} closeHref={closeHref} reasonError={reasonError} />
+    )}
+  </div>
+</Dashboard>
+
+<script>
+  import '../../../scripts/dashboard';
+</script>

@@ -20,7 +20,9 @@
     "db:studio": "drizzle-kit studio",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "db:check": "drizzle-kit check",
-    "db:seed": "tsx scripts/seed-dev.ts"
+    "db:seed": "tsx scripts/seed-dev.ts",
+    "user:create": "tsx --env-file-if-exists=.env scripts/create-user.ts",
+    "user:reset-2fa": "tsx --env-file-if-exists=.env scripts/reset-2fa.ts"
   },
   "dependencies": {
     "@astrojs/node": "11.1.13",
@@ -34,6 +36,7 @@
     "pg": "8.23.1",
     "pg-boss": "12.38.2",
     "preact": "11.2.0",
+    "qrcode-generator": "2.0.4",
     "sharp": "0.35.5",
     "zod": "4.6.7"
   },

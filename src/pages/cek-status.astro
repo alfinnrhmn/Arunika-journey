@@ -1,0 +1,320 @@
+---
+// Cek Status Booking (publik, tanpa akun). GET menampilkan form (prefill ?kode=); POST memverifikasi kode
+// DAN (email ATAU empat digit akhir WhatsApp). Verifikasi sukses = pemilik: token akses diterbitkan, dipasang
+// di cookie, dan pengunjung dialihkan ke halaman pesanan (pola POST-Redirect-GET). Gagal: pesan yang SAMA
+// untuk kode salah maupun verifikasi salah, HTTP 200, agar kode tidak bisa ditebak.
+import Public from '../layouts/Public.astro';
+import '../styles/pages/booking-status.css';
+import HFNavRD from '../components/hf/HFNavRD.astro';
+import HFArrowButton from '../components/hf/HFArrowButton.astro';
+import TextStep from '../components/booking/status/TextStep.astro';
+import { getDb } from '../server/db';
+import { clientIp, rateLimit } from '../server/rate-limit';
+import {
+  findBookingForLookup,
+  isBookingCode,
+  issueAccessToken,
+  maybeHousekeep,
+  setAccessCookie,
+} from '../features/booking';
+import { whatsappHref } from '../components/trips/detail/words';
+
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+
+maybeHousekeep();
+
+const tab = Astro.url.searchParams.get('tab') === 'private' ? 'private' : 'booking';
+
+/** Hanya bentuk kode yang valid yang boleh mengisi form dari query; selain itu dikosongkan. */
+const fromQuery = (Astro.url.searchParams.get('kode') ?? '').trim().toUpperCase();
+let kode = isBookingCode(fromQuery) ? fromQuery : '';
+let email = '';
+let digits = '';
+let problem: 'none' | 'failed' | 'missing' | 'limited' = 'none';
+let retryMinutes = 0;
+
+if (Astro.request.method === 'POST') {
+  const limit = rateLimit(`cek:${clientIp(Astro.request)}`, 10, 15 * 60_000);
+  // Isian dibaca juga saat dibatasi, hanya agar form tidak kosong lagi; pencarian tidak dijalankan.
+  let form: FormData | null = null;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    form = null;
+  }
+  const field = (name: string, max: number) =>
+    String(form?.get(name) ?? '')
+      .trim()
+      .slice(0, max);
+  kode = field('kode', 24).toUpperCase();
+  email = field('email', 254);
+  digits = field('digits', 12).replace(/D/g, '').slice(0, 4);
+
+  if (!limit.allowed) {
+    problem = 'limited';
+    retryMinutes = Math.ceil(limit.retryAfter / 60);
+    Astro.response.status = 429;
+    Astro.response.headers.set('Retry-After', String(limit.retryAfter));
+  } else {
+    if (!email && digits.length !== 4) {
+      problem = 'missing';
+    } else {
+      const view = isBookingCode(kode)
+        ? await findBookingForLookup(getDb(), {
+            code: kode,
+            email: email || undefined,
+            phoneLast4: digits || undefined,
+          })
+        : null;
+      if (view) {
+        // Pemilik terverifikasi: token lama dicabut, perangkat ini mendapat akses baru.
+        const token = await issueAccessToken(getDb(), view.id);
+        setAccessCookie(Astro.cookies, view.code, token);
+        return Astro.redirect(`/pesanan/${view.code}`, 303);
+      }
+      problem = 'failed';
+    }
+  }
+}
+
+const bad = problem === 'failed';
+---
+
+<Public
+  title="Cek Status Booking | Arunika Journey"
+  description="Cek status booking Open Trip Anda dengan kode booking dan email, tanpa perlu masuk akun."
+>
+  <HFNavRD tone="solid" cta="Lihat jadwal" ctaHref="/trips" />
+  <main class="cs-page" id="isi">
+    <section class="cs-hero">
+      <span class="hand cs-hand">Cek status</span>
+      <h1>
+        Cek status <i>perjalanan</i> Anda
+      </h1>
+      <p>
+        Masukkan kode booking beserta email atau empat digit terakhir WhatsApp yang Anda pakai saat
+        memesan. Tidak perlu masuk akun.
+      </p>
+    </section>
+
+    <section class="cs-card" aria-labelledby="cs-judul">
+      <h2 id="cs-judul" class="sr">
+        Cek status
+      </h2>
+      <nav class="cs-tabs" aria-label="Jenis pengecekan">
+        <a class="tab" href="/cek-status" aria-current={tab === 'booking' ? 'page' : undefined}>
+          Booking Open Trip
+        </a>
+        <a
+          class="tab"
+          href="/cek-status?tab=private"
+          aria-current={tab === 'private' ? 'page' : undefined}
+        >
+          Permintaan Private Trip
+        </a>
+      </nav>
+
+      {tab === 'private' ? (
+        <div class="cs-private">
+          <p class="lead">Pengecekan permintaan Private Trip akan tersedia.</p>
+          <p>
+            Untuk saat ini, status permintaan (nomor berawalan RQ) kami kabarkan lewat email. Bila
+            Anda butuh kabar lebih cepat, hubungi kami lewat WhatsApp [nomor: diisi klien].
+          </p>
+          <a class="cs-link" href="/cek-status">
+            Cek status booking Open Trip
+          </a>
+        </div>
+      ) : (
+        <form method="post" action="/cek-status" novalidate>
+          {problem === 'limited' && (
+            <p class="bs-err cs-err" role="alert">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7.5v5.5M12 16.2v.1"></path>
+              </svg>
+              <span>
+                Terlalu banyak percobaan dalam waktu singkat. Tunggu sekitar {retryMinutes} menit,
+                lalu coba lagi.
+              </span>
+            </p>
+          )}
+          <div class="cs-field">
+            <label class="q" for="kode">
+              Kode booking
+            </label>
+            <input
+              id="kode"
+              name="kode"
+              class:list={['in', { err: bad }]}
+              value={kode}
+              placeholder="Contoh: ARJ-2611-0187"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              maxlength="24"
+              aria-invalid={bad ? 'true' : undefined}
+              aria-describedby={bad ? 'kode-galat kode-info' : 'kode-info'}
+            />
+            {bad && (
+              <p class="bs-err" role="alert" id="kode-galat">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7.5v5.5M12 16.2v.1"></path>
+                </svg>
+                <span>
+                  Kode atau data pemesan tidak cocok. Periksa kembali; kode booking berbentuk{' '}
+                  <b>ARJ-2611-0187</b>.
+                </span>
+              </p>
+            )}
+            <p class="hint" id="kode-info">
+              Ada di email konfirmasi dan di halaman pesanan.
+            </p>
+          </div>
+          <div class="cs-field">
+            <label class="q" for="email">
+              Email pemesan
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              class:list={['in', { err: bad }]}
+              value={email}
+              placeholder="nama@email.com"
+              autocomplete="email"
+              maxlength="254"
+              aria-invalid={bad ? 'true' : undefined}
+              aria-describedby="email-info"
+            />
+            <p class="hint" id="email-info">
+              Pakai email yang sama dengan saat booking.
+            </p>
+          </div>
+          <div class="cs-field">
+            <label class="q" for="digits">
+              Atau empat digit terakhir WhatsApp
+            </label>
+            <input
+              id="digits"
+              name="digits"
+              class:list={['in', { err: problem === 'missing' }]}
+              value={digits}
+              placeholder="Contoh: 7890"
+              inputmode="numeric"
+              autocomplete="off"
+              maxlength="4"
+              pattern="[0-9]{4}"
+              aria-invalid={problem === 'missing' ? 'true' : undefined}
+              aria-describedby={problem === 'missing' ? 'digits-galat digits-info' : 'digits-info'}
+            />
+            {problem === 'missing' && (
+              <p class="bs-err" role="alert" id="digits-galat">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7.5v5.5M12 16.2v.1"></path>
+                </svg>
+                <span>
+                  Isi email pemesan, atau empat digit terakhir nomor WhatsApp yang Anda daftarkan.
+                </span>
+              </p>
+            )}
+            <p class="hint" id="digits-info">
+              Isi salah satu: email atau empat digit ini.
+            </p>
+          </div>
+          <div class="cs-submit">
+            <span class="cs-wa-note">
+              Kode tidak ketemu? Hubungi kami lewat WhatsApp [nomor: diisi klien].
+            </span>
+            <button class="cs-go" type="submit">
+              <span class="l">Cek status</span>
+              <span class="ic">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
+
+    <section class="cs-help" aria-labelledby="cs-bantuan">
+      <div class="head">
+        <div class="eyebrow">Bantuan</div>
+        <h2 id="cs-bantuan">
+          Di mana menemukan <i>kode</i> Anda
+        </h2>
+      </div>
+      <div class="steps">
+        <TextStep
+          num="01"
+          title="Email konfirmasi booking"
+          desc="Kami mengirim email berjudul Booking Anda di Arunika Journey. Kode booking ada di baris pertama detail reservasi. Cek juga folder spam."
+        />
+        <TextStep
+          num="02"
+          title="Halaman pesanan"
+          desc="Setelah pembayaran dimulai, kode tampil di halaman pesanan. Simpan atau tangkap layar agar mudah dicari."
+        />
+        <TextStep
+          num="03"
+          title="Nomor permintaan Private Trip"
+          desc="Nomor berawalan RQ dikirim ke email Anda setelah Request a Quote terkirim. Pengecekannya di halaman ini menyusul."
+        />
+      </div>
+      <div class="cs-box">
+        <div>
+          <div class="t">Email atau kode tidak juga ketemu?</div>
+          <p>
+            Kirim nama pemesan dan tanggal perjalanan lewat WhatsApp [nomor: diisi klien]. Tim kami
+            membantu memeriksa pada jam layanan [diisi klien].
+          </p>
+        </div>
+        {whatsappHref && (
+          <HFArrowButton tone="outline" label="Hubungi lewat WhatsApp" href={whatsappHref} />
+        )}
+      </div>
+    </section>
+  </main>
+</Public>

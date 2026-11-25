@@ -1,0 +1,1203 @@
+/* Halaman pesanan (/pesanan/[kode]) dan Cek Status (/cek-status). Diport dari frame Doop "Booking:
+   Menunggu pembayaran / Pembayaran sedang diverifikasi / Langkah 4: Konfirmasi / Pembayaran belum berhasil" dan
+   "Cek Status Booking dan Permintaan / Kode tidak ditemukan"; gaya inline desain dijadikan kelas bs-* (pesanan)
+   dan cs-* (Cek Status). Warna dan ukuran lewat token; reset dan .hand ada di global.css. */
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.bs-page {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+}
+:where(.bs-page) a {
+  color: inherit;
+}
+
+/* ---- Header dan footer alur fokus ---- */
+.bs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 84px;
+  padding: 0 64px;
+  background: var(--color-paper);
+  border-bottom: 1px solid var(--color-line);
+}
+.bs-wm {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.bs-wm .a {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.bs-wm .j {
+  font-size: 10.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.bs-help {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+.bs-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-ink);
+  color: var(--color-ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+.bs-legal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 72px;
+  padding: 0 64px;
+  background: var(--color-paper);
+  border-top: 1px solid var(--color-line);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+.bs-legal .r {
+  display: flex;
+  gap: 28px;
+}
+.bs-legal a {
+  text-decoration: none;
+}
+.bs-legal a:hover {
+  text-decoration: underline;
+}
+
+/* ---- Penunjuk langkah ---- */
+.bs-top {
+  padding: 40px 64px 0;
+}
+.bs-top-step {
+  max-width: 832px;
+}
+.bs-stepper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: var(--color-ink-2);
+}
+.bs-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.bs-step .c {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-line);
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--color-ink-2);
+}
+.bs-step .l {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.bs-step[data-state='done'] .c {
+  background: var(--color-dawn-soft);
+  border-color: var(--color-dawn-soft);
+  color: var(--color-dawn-deep);
+}
+.bs-step[data-state='now'] .c {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+.bs-step[data-state='now'] .l {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.bs-sep {
+  flex: 1;
+  min-width: 24px;
+  height: 1px;
+  background: var(--color-line);
+}
+
+/* ---- Judul ---- */
+.bs-title {
+  margin-top: 48px;
+  max-width: 832px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.bs-title:first-child {
+  margin-top: 0;
+}
+.bs-title[data-display='yes'] {
+  margin-top: 56px;
+  max-width: 900px;
+  gap: 32px;
+}
+.bs-hand {
+  color: var(--color-dawn-deep);
+}
+.bs-title h1 {
+  margin-top: 12px;
+  font-size: var(--text-title);
+  line-height: 54px;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-2);
+}
+.bs-title[data-display='yes'] h1 {
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+.bs-lede {
+  margin-top: 14px;
+  max-width: 620px;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--color-ink-2);
+}
+.bs-title[data-display='yes'] .bs-lede {
+  margin-top: 20px;
+  font-size: 17px;
+  line-height: 28px;
+}
+.bs-code {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.bs-code b {
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.bs-badge {
+  padding-top: 14px;
+}
+.bs-title[data-display='yes'] .bs-badge {
+  padding-top: 12px;
+}
+.bs-notice {
+  margin-top: 28px;
+  max-width: 832px;
+  padding: 14px 18px;
+  background: var(--color-status-ok-soft);
+  color: var(--color-status-ok);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+/* ---- Dua kolom ---- */
+.bs-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 80px;
+  padding: 48px 64px 96px;
+}
+.bs-main {
+  width: 832px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.bs-side {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- Angka besar: DP dan batas waktu ---- */
+.bs-figs {
+  display: flex;
+  background: var(--color-bg);
+}
+.bs-fig {
+  flex: 1;
+  padding: 28px 32px;
+}
+.bs-fig + .bs-fig {
+  border-left: 1px solid var(--color-line);
+}
+.bs-fig .k,
+.bs-acct .k,
+.bs-codecard .k {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.bs-fig .big {
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 50px;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.bs-fig .s {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-ink-2);
+}
+.bs-count {
+  color: var(--color-status-pending);
+}
+.bs-fig[data-state='lapsed'] .bs-count {
+  color: var(--color-status-full);
+}
+.bs-fig[data-state='lapsed'] .bs-live-only {
+  display: none;
+}
+.bs-count-hint {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 500;
+  color: var(--color-status-full);
+}
+.bs-count-hint[hidden] {
+  display: none;
+}
+.bs-count-hint a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- Judul bagian ---- */
+.bs-sh {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-ink);
+}
+.bs-sh span {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.bs-sh h2 {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 400;
+}
+
+/* ---- Rekening tujuan dan langkah transfer ---- */
+.bs-accts {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bs-sh + .bs-acct {
+  margin-top: 24px;
+}
+.bs-acct {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 24px;
+  background: var(--color-bg);
+}
+.bs-acct .k {
+  color: var(--color-ink-2);
+}
+.bs-acct .num {
+  margin-top: 6px;
+  font-size: 26px;
+  line-height: 32px;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  user-select: all;
+}
+.bs-acct .holder {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.bs-acct-empty .num {
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  color: var(--color-ink-2);
+  user-select: auto;
+}
+.bs-copy {
+  cursor: pointer;
+  border: 0;
+  border-bottom: 1px solid var(--color-ink);
+  padding: 0 0 2px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--color-ink);
+}
+.bs-copy[hidden] {
+  display: none;
+}
+.bs-steps {
+  margin-top: 28px;
+  border-bottom: 1px solid var(--color-line);
+}
+.bs-steps .st {
+  display: flex;
+  gap: 20px;
+  padding: 18px 0;
+  border-top: 1px solid var(--color-line);
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.bs-steps .st b {
+  flex: 0 0 28px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 26px;
+  color: var(--color-dawn);
+}
+
+/* ---- Form unggah ---- */
+.bs-formwrap {
+  margin-top: 24px;
+}
+.bs-proof {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.bs-proof .q,
+.cs-field .q {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 30px;
+  color: var(--color-ink-2);
+}
+.bs-file {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 18px 20px;
+  border: 1px dashed var(--color-line-strong);
+  background: var(--color-bg);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  color: var(--color-ink);
+}
+.bs-file::file-selector-button {
+  margin-right: 16px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-ink);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bs-file[aria-invalid='true'] {
+  border-color: var(--color-status-full);
+}
+.bs-hint,
+.cs-field .hint {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.bs-picked {
+  display: block;
+  margin-top: 8px;
+  min-height: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-status-ok);
+}
+.bs-picked[data-state='bad'] {
+  color: var(--color-status-full);
+}
+.bs-err {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--color-status-full-soft);
+  color: var(--color-status-full);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+}
+.bs-err b {
+  white-space: nowrap;
+}
+.bs-err svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.cs-field .bs-err {
+  margin: 10px 0 0;
+}
+.bs-fine {
+  margin-top: 18px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-ink-2);
+}
+.bs-fine b {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+/* ---- Tombol (HFButton) ---- */
+.bs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+}
+.bs-btn[data-tone='secondary'] {
+  background: transparent;
+  color: var(--color-ink);
+}
+.bs-btn[hidden] {
+  display: none;
+}
+.bs-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.bs-proof .bs-btn {
+  margin-top: 20px;
+}
+.bs-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-line);
+}
+.bs-actions-top {
+  margin-top: 0;
+}
+.bs-fine-inline {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Linimasa (HFTrackStep) ---- */
+.bs-track {
+  margin-top: 32px;
+  max-width: 640px;
+}
+.bs-tk {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  padding-bottom: 36px;
+}
+.bs-tk[data-last='yes'] {
+  padding-bottom: 0;
+}
+.bs-tk .mk {
+  position: relative;
+  width: 28px;
+  flex-shrink: 0;
+}
+.bs-tk .dot {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-line);
+  background: var(--color-paper);
+}
+.bs-tk .mk::after {
+  content: '';
+  position: absolute;
+  left: 13.5px;
+  top: 36px;
+  bottom: -8px;
+  width: 1px;
+  background: var(--color-line);
+}
+.bs-tk[data-last='yes'] .mk::after {
+  display: none;
+}
+.bs-tk[data-state='done'] .dot {
+  position: relative;
+  background: var(--color-status-ok);
+  border-color: var(--color-status-ok);
+}
+.bs-tk[data-state='done'] .dot::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  width: 6px;
+  height: 11px;
+  border: solid var(--color-paper);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.bs-tk[data-state='current'] .dot {
+  border: 2px solid var(--color-dawn);
+  background: var(--color-dawn-soft);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-dawn) 22%, transparent);
+}
+.bs-tk .bd {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 2px;
+}
+.bs-tk .wh {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.bs-tk .ti {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.bs-tk .ds {
+  max-width: 520px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.bs-tk[data-state='todo'] .ti {
+  color: var(--color-ink-2);
+}
+
+/* ---- Kotak pesan: verifikasi (netral) dan gagal (merah) ---- */
+.bs-callout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 24px 28px;
+  background: var(--color-bg);
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.bs-callout .ic {
+  display: flex;
+  padding-top: 2px;
+  color: var(--color-status-ok);
+}
+.bs-callout b {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.bs-alert {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 22px 26px;
+  background: var(--color-status-full-soft);
+  color: var(--color-status-full);
+  font-size: 15px;
+  line-height: 24px;
+}
+.bs-alert .ic {
+  display: flex;
+  padding-top: 2px;
+}
+.bs-alert b {
+  font-weight: 600;
+}
+.bs-alert .sub {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--color-ink-2);
+}
+.bs-reasons {
+  margin-top: 20px;
+}
+.bs-reasons .rs {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--color-line);
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.bs-reasons .rs.last {
+  border-bottom: 1px solid var(--color-line);
+}
+.bs-reasons .rs b {
+  flex: 0 0 200px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ---- Ganti bukti (details) ---- */
+.bs-replace {
+  padding-top: 8px;
+}
+.bs-replace summary {
+  display: inline-block;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-ink);
+  padding-bottom: 2px;
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+/* ---- Konfirmasi ---- */
+.bs-main:has(.bs-codecard) {
+  gap: 56px;
+}
+.bs-codecard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 32px;
+  background: var(--color-bg);
+}
+.bs-codecard .code {
+  margin-top: 6px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 42px;
+  color: var(--color-ink);
+  letter-spacing: 0.01em;
+}
+.bs-rows {
+  margin-top: 12px;
+}
+.bs-dr {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+  line-height: 22px;
+}
+.bs-dr .l {
+  flex-shrink: 0;
+  color: var(--color-ink-2);
+}
+.bs-dr .v {
+  color: var(--color-ink);
+  font-weight: 500;
+  text-align: right;
+}
+.bs-people {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 32px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.bs-people li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  color: var(--color-ink);
+}
+.bs-people .t {
+  color: var(--color-ink-2);
+}
+.bs-people .x {
+  flex-basis: 100%;
+  font-size: 13px;
+  color: var(--color-ink-2);
+}
+.bs-nexts {
+  margin-top: 32px;
+  display: flex;
+  gap: 40px;
+}
+.bs-nexts > div {
+  flex: 1;
+}
+.bs-ts {
+  padding-top: 20px;
+  border-top: 1px solid var(--color-ink);
+}
+.bs-ts .n {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.bs-ts .t {
+  margin: 14px 0 0;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.bs-ts .d {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Ringkasan pesanan (kolom kanan) ---- */
+.bs-os {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  color: var(--color-ink);
+}
+.bs-os .eb {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+.bs-os .trip {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.bs-os .th {
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--color-paper-2);
+}
+.bs-os .ph {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--color-ink-2),
+    var(--color-dawn) 55%,
+    var(--color-dawn-soft)
+  );
+}
+.bs-os .tt {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 400;
+}
+.bs-os .tm {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+.bs-os .facts {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-line);
+}
+.bs-os .f {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+  line-height: 20px;
+}
+.bs-ppn {
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-ink-2);
+}
+
+/* ======== Cek Status ======== */
+.cs-page {
+  padding-bottom: 120px;
+}
+.cs-hero {
+  padding: 72px 41px 0;
+  text-align: center;
+}
+.cs-hand {
+  color: var(--color-dawn-deep);
+}
+.cs-hero h1 {
+  margin-top: 12px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-ink-2);
+}
+.cs-hero p {
+  margin: 24px auto 0;
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 28px;
+}
+.cs-card {
+  margin: 56px auto 0;
+  width: 760px;
+  max-width: calc(100% - 32px);
+  background: var(--color-bg);
+  padding: 40px 56px 48px;
+}
+.cs-tabs {
+  display: flex;
+}
+.cs-tabs .tab {
+  flex: 1;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 15px;
+  text-decoration: none;
+  color: var(--color-ink-2);
+  border-bottom: 1px solid var(--color-line);
+}
+.cs-tabs .tab[aria-current='page'] {
+  color: var(--color-ink);
+  border-bottom: 2px solid var(--color-ink);
+}
+.cs-field {
+  margin-top: 32px;
+}
+.cs-card form > .cs-field:first-of-type {
+  margin-top: 36px;
+}
+.cs-card .in {
+  display: block;
+  width: 100%;
+  height: 52px;
+  margin-top: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--color-ink-2);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--color-ink);
+  border-radius: 0;
+}
+.cs-card .in:focus {
+  border-bottom: 2px solid var(--color-ink);
+}
+.cs-card .in.err {
+  border-bottom: 2px solid var(--color-status-full);
+}
+.cs-err {
+  margin: 28px 0 0;
+}
+.cs-submit {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.cs-wa-note {
+  max-width: 300px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.cs-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  height: 56px;
+  padding: 0 6px 0 26px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cs-go .ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+}
+.cs-private {
+  margin-top: 36px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.cs-private .lead {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 32px;
+  color: var(--color-ink);
+}
+.cs-private p + p {
+  margin-top: 12px;
+}
+.cs-link {
+  display: inline-block;
+  margin-top: 24px;
+  border-bottom: 1px solid var(--color-ink);
+  padding-bottom: 2px;
+  color: var(--color-ink);
+  text-decoration: none;
+  font-size: 14px;
+}
+.cs-help {
+  margin: 112px auto 0;
+  width: 1100px;
+  max-width: calc(100% - 32px);
+}
+.cs-help .head {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-ink);
+}
+.cs-help .eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.cs-help h2 {
+  margin-top: 10px;
+  font-size: var(--text-title);
+  line-height: 54px;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-2);
+}
+.cs-help .steps {
+  margin-top: 40px;
+  display: flex;
+  gap: 48px;
+}
+.cs-help .steps > * {
+  flex: 1;
+}
+.cs-box {
+  margin-top: 56px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 32px 40px;
+  background: var(--color-paper-2);
+}
+.cs-box > div {
+  flex: 1;
+}
+.cs-box .t {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 32px;
+  color: var(--color-ink);
+}
+.cs-box p {
+  margin-top: 6px;
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+/* ---- Layar sempit (halaman ini dirancang untuk desktop; ini sekadar tidak rusak) ---- */
+@media (max-width: 1180px) {
+  .bs-body {
+    flex-direction: column;
+    gap: 56px;
+  }
+  .bs-main {
+    width: 100%;
+  }
+  .bs-side {
+    width: 100%;
+  }
+}
+@media (max-width: 900px) {
+  .bs-head,
+  .bs-legal,
+  .bs-top,
+  .bs-body {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .bs-legal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+  .bs-stepper .l {
+    display: none;
+  }
+  .bs-step[data-state='now'] .l {
+    display: inline;
+  }
+  .bs-title h1,
+  .bs-title[data-display='yes'] h1,
+  .cs-hero h1 {
+    font-size: 40px;
+    line-height: 1.05;
+  }
+  .bs-figs,
+  .bs-nexts,
+  .cs-help .steps,
+  .cs-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bs-fig + .bs-fig {
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .bs-reasons .rs {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cs-card {
+    padding: 28px 24px 36px;
+  }
+  .cs-submit {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bs-people {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Cetak: ringkasan reservasi (tombol "Simpan atau cetak") ---- */
+@media print {
+  .bs-head,
+  .bs-top-step,
+  .bs-side,
+  .bs-legal,
+  .bs-actions,
+  .bs-print,
+  .bs-notice {
+    display: none;
+  }
+  .bs-body {
+    display: block;
+    padding: 24px 0;
+  }
+  .bs-main {
+    width: 100%;
+  }
+  .bs-top {
+    padding-top: 0;
+  }
+  .bs-title,
+  .bs-title[data-display='yes'] {
+    margin-top: 0;
+  }
+  .bs-title h1,
+  .bs-title[data-display='yes'] h1 {
+    font-size: 40px;
+    line-height: 1.05;
+  }
+  .bs-page {
+    color: #000;
+  }
+}

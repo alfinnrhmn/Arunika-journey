@@ -28,3 +28,6 @@ deploy/backups/
 
 # Foto situs (hasil konversi aset Stitch): repo publik hanya berisi kode, foto tidak ikut naik.
 /public/foto/
+
+# Berkas unggahan lokal (bukti bayar): tidak pernah masuk repo.
+/uploads/

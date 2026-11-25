@@ -1,0 +1,135 @@
+/* Pengaturan (/dashboard/pengaturan), hanya Owner. Diport dari frame Doop "Dashboard 22: Pengaturan", dibatasi ke
+   pengaturan yang benar-benar ada di server (kuota dan checkout, DP, rekening transfer manual). Dasar dashboard
+   (kartu .d-pn, kolom .d-fd/.d-in, tombol) ada di dashboard.css. */
+
+.s-tabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid var(--color-dash-border);
+}
+.s-tabs a {
+  padding: 10px 0 12px;
+  margin-bottom: -1px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-dash-muted);
+  border-bottom: 2px solid transparent;
+}
+.s-tabs a:hover {
+  color: var(--color-dash-text);
+}
+.s-tabs a[aria-current='page'] {
+  color: var(--color-dash-text);
+  font-weight: 600;
+  border-bottom-color: var(--color-dash-text);
+}
+.s-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+}
+.s-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.s-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.s-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.s-body .d-in {
+  height: 40px;
+}
+.s-body .d-in.s-num {
+  max-width: 240px;
+}
+.s-err {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--color-status-full);
+}
+.d-body .s-summary {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+.s-summary a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.s-example {
+  border-top: 1px solid var(--color-dash-border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.s-acc {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-dash-border);
+}
+.s-acc:last-of-type {
+  border-bottom: 0;
+}
+.s-acc[hidden] {
+  display: none;
+}
+.s-acc .d-fd {
+  min-width: 0;
+}
+.s-acc .rm {
+  align-self: end;
+}
+.s-acc-note {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-dash-muted);
+}
+.s-add {
+  align-self: flex-start;
+}
+.s-add[hidden] {
+  display: none;
+}
+.s-dirty {
+  position: sticky;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--color-dash-surface);
+  border: 1px solid var(--color-dash-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(29, 29, 27, 0.14);
+  font-size: 14px;
+}
+.s-dirty[hidden] {
+  display: none;
+}
+.s-dirty .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-status-pending);
+}
+.s-dirty .sp {
+  flex: 1;
+}
+.s-dirty b {
+  font-weight: 600;
+}

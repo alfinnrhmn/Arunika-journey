@@ -1,0 +1,177 @@
+---
+// Halaman pesanan (setelah pembayaran dimulai): satu URL, tampilan menurut status booking di server.
+// Akses hanya lewat cookie akses per kode (diterbitkan saat pembayaran dimulai atau setelah Cek Status);
+// tanpa cookie yang cocok, pengunjung diarahkan ke Cek Status. Status dan nominal tidak pernah dipercaya
+// dari klien: semuanya dibaca dari domain booking.
+import StatusShell from '../../components/booking/status/StatusShell.astro';
+import PendingView from '../../components/booking/status/PendingView.astro';
+import VerifyingView from '../../components/booking/status/VerifyingView.astro';
+import ConfirmedView from '../../components/booking/status/ConfirmedView.astro';
+import FailedView from '../../components/booking/status/FailedView.astro';
+import NeutralView from '../../components/booking/status/NeutralView.astro';
+import { proofErrorText, type ShellInfo } from '../../components/booking/status/lib';
+import { getDb } from '../../server/db';
+import { getTripDetail } from '../../features/trips/queries';
+import {
+  findBookingByAccess,
+  getBookingSettings,
+  isBookingCode,
+  maybeHousekeep,
+  readAccessToken,
+} from '../../features/booking';
+
+// Halaman ini memuat data pribadi pemesan: jangan diindeks dan jangan disimpan cache bersama.
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+
+maybeHousekeep();
+
+const code = (Astro.params.code ?? '').toUpperCase();
+if (!isBookingCode(code)) return Astro.redirect('/cek-status', 303);
+
+const db = getDb();
+const token = readAccessToken(Astro.cookies, code);
+const view = token ? await findBookingByAccess(db, code, token) : null;
+if (!view) return Astro.redirect(`/cek-status?kode=${encodeURIComponent(code)}`, 303);
+// Draf tidak punya halaman pesanan; seharusnya tidak pernah terjadi, tetapi jangan render setengah jalan.
+if (view.status === 'draft') return Astro.redirect('/cek-status', 303);
+
+const trip = await getTripDetail(db, view.trip.slug);
+const now = new Date();
+const lapsed = !!view.holdExpiresAt && view.holdExpiresAt <= now;
+// Hanya kunci yang dikenal yang dipetakan ke teks tetap; nilai query mentah tidak dipantulkan.
+const params = Astro.url.searchParams;
+const errorText = proofErrorText(params.get('galat'));
+const justSent = params.get('bukti') === 'ok';
+
+const paymentStatus = view.payment?.status;
+type Kind =
+  | 'pending'
+  | 'verifying'
+  | 'confirmed'
+  | 'completed'
+  | 'failed'
+  | 'attention'
+  | 'cancelled'
+  | 'refunded';
+let kind: Kind;
+if (view.status === 'pending_payment') {
+  kind =
+    paymentStatus === 'pending'
+      ? 'pending'
+      : paymentStatus === 'needs_verification'
+        ? 'verifying'
+        : 'attention';
+} else if (view.status === 'confirmed') kind = 'confirmed';
+else if (view.status === 'completed') kind = 'completed';
+else if (view.status === 'expired') kind = 'failed';
+else if (view.status === 'cancelled') kind = 'cancelled';
+else if (view.status === 'refunded') kind = 'refunded';
+else kind = 'attention';
+
+const settings = kind === 'pending' ? await getBookingSettings(db) : null;
+const rejected = paymentStatus === 'rejected';
+
+const shells: Record<Kind, ShellInfo> = {
+  pending: {
+    title: 'Menunggu pembayaran',
+    step: 3,
+    hand: 'Satu langkah lagi',
+    lead: 'Selesaikan pembayaran',
+    em: 'DP',
+    lede: 'Booking Anda sudah tercatat dan kuota dikunci. Transfer DP lalu unggah bukti sebelum batas waktu.',
+    badge: { label: 'Pending Payment', tone: 'pending' },
+  },
+  verifying: {
+    title: 'Pembayaran sedang diverifikasi',
+    step: 3,
+    hand: 'Bukti diterima',
+    lead: 'Kami sedang',
+    em: 'memverifikasi DP Anda',
+    lede: 'Status berubah menjadi Confirmed setelah pembayaran terverifikasi. Kuota Anda tetap aman selama proses ini.',
+    badge: { label: 'Verifikasi', tone: 'pending' },
+  },
+  confirmed: {
+    title: 'Reservasi dikonfirmasi',
+    step: 4,
+    display: true,
+    hand: 'Terima kasih',
+    lead: 'Reservasi Anda',
+    em: 'dikonfirmasi',
+    lede: 'DP sudah kami terima dan diverifikasi. Email konfirmasi dengan detail keberangkatan dikirim ke email pemesan.',
+    badge: { label: 'Confirmed', tone: 'ok' },
+  },
+  completed: {
+    title: 'Perjalanan selesai',
+    step: 4,
+    display: true,
+    hand: 'Sampai jumpa lagi',
+    lead: 'Perjalanan Anda',
+    em: 'telah selesai',
+    lede: 'Terima kasih sudah berjalan bersama Arunika Journey. Berikut ringkasan reservasi Anda.',
+    badge: { label: 'Selesai', tone: 'ok' },
+  },
+  failed: {
+    title: 'Pembayaran belum berhasil',
+    step: 3,
+    hand: 'Belum berhasil',
+    lead: rejected ? 'Bukti pembayaran' : 'Pembayaran',
+    em: rejected ? 'belum dapat diterima' : 'belum berhasil',
+    lede: 'Booking ini tidak dilanjutkan dan kursinya sudah dilepas kembali ke jadwal.',
+    badge: { label: 'Tidak berhasil', tone: 'full' },
+  },
+  attention: {
+    title: 'Pembayaran sedang ditinjau',
+    step: 3,
+    hand: 'Sedang ditinjau',
+    lead: 'Tim kami meninjau',
+    em: 'pembayaran Anda',
+    lede: 'Kami akan menghubungi Anda lewat WhatsApp atau email. Anda tidak perlu membayar ulang.',
+    badge: { label: 'Ditinjau tim', tone: 'pending' },
+  },
+  cancelled: {
+    title: 'Booking dibatalkan',
+    step: null,
+    hand: 'Dibatalkan',
+    lead: 'Booking ini',
+    em: 'telah dibatalkan',
+    lede: 'Kursi untuk booking ini sudah dilepas. Hubungi kami bila ada yang perlu dipastikan.',
+    badge: { label: 'Dibatalkan', tone: 'outline' },
+  },
+  refunded: {
+    title: 'Pembayaran direfund',
+    step: null,
+    hand: 'Refund',
+    lead: 'Pembayaran ini',
+    em: 'sudah direfund',
+    lede: 'Hubungi kami bila Anda ingin memastikan rincian refund.',
+    badge: { label: 'Refund', tone: 'outline' },
+  },
+};
+const shell = shells[kind];
+---
+
+<StatusShell
+  {...shell}
+  view={view}
+  trip={trip}
+  notice={
+    justSent && kind === 'verifying'
+      ? 'Bukti transfer berhasil dikirim. Terima kasih, tim kami akan memeriksanya.'
+      : null
+  }
+>
+  {kind === 'pending' && settings && (
+    <PendingView view={view} accounts={settings.manualAccounts} error={errorText} lapsed={lapsed} />
+  )}
+  {kind === 'verifying' && <VerifyingView view={view} error={errorText} canReplace={!lapsed} />}
+  {(kind === 'confirmed' || kind === 'completed') && <ConfirmedView view={view} />}
+  {kind === 'failed' && <FailedView view={view} rejected={rejected} />}
+  {kind === 'attention' && <NeutralView view={view} kind="needs_attention" />}
+  {kind === 'cancelled' && <NeutralView view={view} kind="cancelled" />}
+  {kind === 'refunded' && <NeutralView view={view} kind="refunded" />}
+</StatusShell>
+
+<script>
+  import '../../scripts/booking-status';
+</script>

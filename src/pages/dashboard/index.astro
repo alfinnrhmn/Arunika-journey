@@ -1,10 +1,50 @@
 ---
+// Ringkasan minimal: satu kartu nyata (pembayaran menunggu verifikasi). KPI lain (reservasi baru, request
+// Private Trip, jadwal hampir penuh) menyusul bersama halamannya. Izin `ringkasan.lihat` dicek di server.
 import Dashboard from '../../layouts/Dashboard.astro';
+import Icon from '../../components/dashboard/Icon.astro';
+import { countAwaitingVerification } from '../../features/payments';
+import { guard } from '../../server/auth/guard';
+import { can } from '../../server/auth/permissions';
+import { getDb } from '../../server/db';
+
+const g = guard(Astro.locals, 'ringkasan.lihat');
+if ('response' in g) return g.response;
+
+const canVerify = can(g.staff.role, 'pembayaran.verifikasi');
+const awaiting = canVerify ? await countAwaitingVerification(getDb()) : 0;
+// Kunci tetap dari redirect aktivasi 2FA; nilai query lain tidak dipantulkan.
+const justEnabled2fa = Astro.url.searchParams.get('2fa') === 'aktif';
+const firstName = g.staff.name.trim().split(/\s+/)[0] ?? g.staff.name;
 ---
 
-<Dashboard title="Ringkasan">
-  <main class="p-8">
-    <h1 class="font-dash text-2xl font-semibold">Dashboard</h1>
-    <p class="text-dash-muted mt-2">Layar dashboard dibangun mengikuti Dashboard 1–42 di Doop.</p>
-  </main>
+<Dashboard title="Ringkasan" crumb={['Ringkasan']} active="ringkasan" awaiting={awaiting}>
+  <div class="d-ph">
+    <div>
+      <h1>Ringkasan</h1>
+      <p>Halo, {firstName}. Berikut yang perlu perhatian Anda hari ini.</p>
+    </div>
+  </div>
+
+  {justEnabled2fa && (
+    <div class="d-flash" data-tone="ok" role="status">
+      <Icon name="check" size={16} />
+      <span>2FA aktif. Akun Anda kini dilindungi kode dari aplikasi autentikator.</span>
+    </div>
+  )}
+
+  <div class="d-stats">
+    {canVerify && (
+      <a class="d-st" data-tone={awaiting > 0 ? 'warn' : 'good'} href="/dashboard/pembayaran">
+        <span class="l">Menunggu verifikasi</span>
+        <span class="v">{awaiting}</span>
+        <span class="n">{awaiting > 0 ? 'Buka antrean pembayaran' : 'Antrean kosong'}</span>
+      </a>
+    )}
+  </div>
+
+  <p class="d-help">
+    Kartu lain (reservasi baru, request Private Trip, jadwal hampir penuh) menyusul bersama halaman
+    masing-masing.
+  </p>
 </Dashboard>

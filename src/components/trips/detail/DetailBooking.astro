@@ -1,88 +1,115 @@
 ---
-// Kartu pemesanan 440px (dirender di server; island interaktif menyusul di langkah booking): harga mulai
-// dari, daftar jadwal sebagai baris mirip radio, jumlah peserta (tampilan 2), pesan kuota, ringkasan
-// harga dari calcPrice, tombol booking. Tanpa jadwal terbuka: keadaan "Belum ada jadwal terbuka".
+// Kartu pemesanan 440px. Dirender di server (tanpa JS tetap benar: tautan menuju langkah 1 dengan jadwal dan
+// jumlah awal); skrip booking-card.ts menambahkan pilihan jadwal, jumlah peserta, dan pratinjau harga memakai
+// `calcPrice` yang sama dengan server. Harga yang disimpan tetap dihitung server saat pembayaran dimulai.
+// Tanpa jadwal terbuka: keadaan "Belum ada jadwal terbuka".
 import HFArrowButton from '../../hf/HFArrowButton.astro';
 import HFBadge from '../../hf/HFBadge.astro';
 import HFIcon from '../../hf/HFIcon.astro';
 import HFPriceSummary from '../../hf/HFPriceSummary.astro';
 import { calcPrice } from '../../../features/pricing/pricing';
-import { seatLabel } from '../../../features/schedules/seats';
+import { FEW_SEATS_THRESHOLD, seatLabel } from '../../../features/schedules/seats';
 import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
 import type { TripDetail } from '../../../features/trips/queries';
 import { whatsappHref } from './words';
 
 interface Props {
   trip: TripDetail;
+  /** Persentase DP dari Pengaturan (bawaan 30). */
+  dpPercent?: number;
+  /** Maksimal peserta per booking dari Pengaturan (bawaan 8). */
+  maxParticipants?: number;
 }
-const { trip } = Astro.props;
+const { trip, dpPercent = 30, maxParticipants = 8 } = Astro.props;
 
-/** Persentase DP awal (30). Nilai sebenarnya dari tabel `settings` (`dp_percent`); kueri pengaturan menyusul. */
-const DP_PERCENT = 30;
-/** Jumlah peserta awal pada kartu (hanya tampilan; pilihan interaktif dibuat di langkah booking). */
+/** Jumlah peserta awal pada kartu. */
 const DEFAULT_PARTICIPANTS = 2;
 
 const selected = trip.schedules.find((s) => s.bookable) ?? null;
+/** Batas jumlah peserta untuk jadwal terpilih: Pengaturan dan sisa kursi, yang lebih kecil. */
+const capFor = (left: number) => Math.max(1, Math.min(maxParticipants, left));
+const participants = selected
+  ? Math.min(DEFAULT_PARTICIPANTS, capFor(selected.seatsLeft))
+  : DEFAULT_PARTICIPANTS;
 const price = selected
   ? calcPrice({
       unitPrice: selected.price,
       childPrice: null,
-      adults: DEFAULT_PARTICIPANTS,
-      dpPercent: DP_PERCENT,
+      adults: participants,
+      dpPercent,
     })
   : null;
 
 const tone = { ok: 'ok', few: 'pending', full: 'full' } as const;
 const duration = formatDuration(trip.durationDays, trip.nights);
 
-let quota: { tone: 'ok' | 'pending' | 'full'; text: string } | null = null;
+// Pesan kuota: sisa sedikit berwarna kuning; selain itu hijau. (Skrip menghitung ulang dengan aturan yang sama.)
+let quota: { tone: 'ok' | 'pending'; text: string } | null = null;
 if (selected) {
   quota =
-    selected.seatsLeft >= DEFAULT_PARTICIPANTS
-      ? { tone: 'ok', text: `Kuota tersedia untuk ${DEFAULT_PARTICIPANTS} peserta` }
-      : { tone: 'pending', text: `Hanya tersisa ${selected.seatsLeft} kursi untuk jadwal ini` };
+    selected.seatsLeft <= FEW_SEATS_THRESHOLD
+      ? { tone: 'pending', text: `Hanya tersisa ${selected.seatsLeft} kursi untuk jadwal ini` }
+      : { tone: 'ok', text: `Kuota tersedia untuk ${participants} peserta` };
 }
 
 const bookHref = selected
-  ? `/booking/${trip.slug}/jadwal?jadwal=${selected.id}&peserta=${DEFAULT_PARTICIPANTS}`
+  ? `/booking/${trip.slug}/jadwal?jadwal=${selected.id}&peserta=${participants}`
   : '';
 const WaTag = whatsappHref ? 'a' : 'span';
 ---
 
-<aside class="td-book" aria-label="Pemesanan">
+<aside
+  class="td-book"
+  aria-label="Pemesanan"
+  data-slug={trip.slug}
+  data-dp={dpPercent}
+  data-max={maxParticipants}
+  data-threshold={FEW_SEATS_THRESHOLD}
+>
   <div class="td-cap">Harga mulai dari</div>
   <div class="td-book-price">
     <span class="td-book-amount">{formatRupiah(trip.basePrice)}</span>
     <span class="td-book-per">/ orang</span>
   </div>
   <div class="td-book-note">
-    Harga per orang. DP {DP_PERCENT}%. Penahanan kursi: [dikonfirmasi klien].
+    Harga per orang. DP {dpPercent}%. Penahanan kursi: [dikonfirmasi klien].
   </div>
 
   {trip.schedules.length > 0 && (
     <>
-      <div class="td-label">Pilih tanggal</div>
-      <div class="td-scheds">
-        {trip.schedules.map((s) => (
-          <div
-            class="td-sched"
-            data-state={
-              s.status === 'full' || !s.bookable
-                ? 'full'
-                : s.id === selected?.id
-                  ? 'selected'
-                  : 'idle'
-            }
-          >
-            <span class="td-radio" aria-hidden="true" />
-            <div class="td-sched-t">
-              <b>{formatDateShort(s.departureDate)}</b>
-              <br />
-              <small>{duration}</small>
+      <div class="td-label" id="td-sched-label">
+        Pilih tanggal
+      </div>
+      <div class="td-scheds" role="radiogroup" aria-labelledby="td-sched-label">
+        {trip.schedules.map((s) => {
+          const state =
+            s.status === 'full' || !s.bookable
+              ? 'full'
+              : s.id === selected?.id
+                ? 'selected'
+                : 'idle';
+          return (
+            <div
+              class="td-sched"
+              data-state={state}
+              data-id={s.id}
+              data-price={s.price}
+              data-left={s.seatsLeft}
+              role="radio"
+              aria-checked={state === 'selected' ? 'true' : 'false'}
+              aria-disabled={state === 'full' ? 'true' : undefined}
+              tabindex={state === 'full' ? undefined : 0}
+            >
+              <span class="td-radio" aria-hidden="true" />
+              <div class="td-sched-t">
+                <b>{formatDateShort(s.departureDate)}</b>
+                <br />
+                <small>{duration}</small>
+              </div>
+              <HFBadge label={seatLabel(s.seatsLeft)} tone={tone[s.status]} />
             </div>
-            <HFBadge label={seatLabel(s.seatsLeft)} tone={tone[s.status]} />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   )}
@@ -90,26 +117,47 @@ const WaTag = whatsappHref ? 'a' : 'span';
   {selected && price && quota ? (
     <>
       <div class="td-qty">
-        <span class="td-qty-label">Jumlah peserta</span>
-        <div class="td-qty-ctl">
-          <span class="td-qty-btn" aria-hidden="true">
+        <span class="td-qty-label" id="td-qty-label">
+          Jumlah peserta
+        </span>
+        <div class="td-qty-ctl" role="group" aria-labelledby="td-qty-label">
+          <button
+            type="button"
+            class="td-qty-btn"
+            data-qty="minus"
+            aria-label="Kurangi peserta"
+            disabled={participants <= 1}
+          >
             <HFIcon name="minus" size={20} />
+          </button>
+          <span class="td-qty-n" data-qty-n aria-live="polite">
+            {participants}
           </span>
-          <span class="td-qty-n">{DEFAULT_PARTICIPANTS}</span>
-          <span class="td-qty-btn" aria-hidden="true">
+          <button
+            type="button"
+            class="td-qty-btn"
+            data-qty="plus"
+            aria-label="Tambah peserta"
+            disabled={participants >= capFor(selected.seatsLeft)}
+          >
             <HFIcon name="plus" size={20} />
-          </span>
+          </button>
         </div>
       </div>
-      <div class="td-quota" data-tone={quota.tone}>
-        <HFIcon name={quota.tone === 'ok' ? 'check' : 'users'} size={20} />
-        {quota.text}
+      <div class="td-quota" data-tone={quota.tone} data-quota>
+        <span class="td-quota-ic" data-ic="ok">
+          <HFIcon name="check" size={20} />
+        </span>
+        <span class="td-quota-ic" data-ic="warn">
+          <HFIcon name="users" size={20} />
+        </span>
+        <span data-quota-text>{quota.text}</span>
       </div>
       <div class="td-ps">
         <HFPriceSummary price={price} />
         <div class="td-vat">Harga sudah termasuk PPN</div>
       </div>
-      <div class="td-full">
+      <div class="td-full" data-book-link>
         <HFArrowButton tone="dark" label="Lanjut booking" href={bookHref} />
       </div>
     </>

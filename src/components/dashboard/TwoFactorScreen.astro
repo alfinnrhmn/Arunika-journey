@@ -1,0 +1,125 @@
+---
+import '../../styles/pages/dashboard-masuk.css';
+import { foto } from '../../lib/photo';
+import Icon from './Icon.astro';
+
+/**
+ * Langkah 2 masuk (kode 2FA), kartu kaca di atas foto seperti layar Masuk (frame Doop "Dashboard 23", variasi B).
+ * Dua mode tanpa JavaScript: kode TOTP 6 digit atau kode cadangan (tautan ke ?jenis=cadangan). Yang dipantulkan
+ * hanya `jenis` dan `lanjut` yang sudah lewat safeNext; kode yang diketik TIDAK PERNAH dipantulkan.
+ */
+interface Props {
+  /** Mode kode: aplikasi autentikator atau kode cadangan. */
+  kind: 'totp' | 'cadangan';
+  /** Tujuan POST (menyertakan jenis dan lanjut). */
+  action: string;
+  /** URL mode lain (beralih tanpa JS). */
+  switchHref: string;
+  /** URL kembali ke langkah sandi. */
+  backHref: string;
+  /** Pesan galat tetap dari server. */
+  error?: string | null;
+  /** Galat yang membuat langkah ini tidak bisa dilanjutkan (tantangan habis): tampilkan tautan ke sandi. */
+  expired?: boolean;
+}
+const { kind, action, switchHref, backHref, error = null, expired = false } = Astro.props;
+const isTotp = kind === 'totp';
+---
+
+<div class="m-hero" data-mode="verifikasi">
+  <img class="m-photo" src={foto('senja-perahu-tenang')} alt="" />
+  <div class="m-shade"></div>
+  <div class="m-brand">
+    <span class="m-word">Arunika</span>
+    <span class="m-tag">Dashboard</span>
+  </div>
+
+  <main class="m-glass">
+    <div>
+      <h1>Verifikasi dua langkah</h1>
+      <p class="m-sub">
+        {isTotp
+          ? 'Masukkan 6 digit kode dari aplikasi autentikator di ponsel Anda untuk melanjutkan.'
+          : 'Masukkan salah satu kode cadangan Anda. Setiap kode cadangan hanya berlaku sekali.'}
+      </p>
+    </div>
+    <form class="m-form" method="post" action={action} data-kind={kind}>
+      {error && (
+        <div class="m-err" role="alert" id="galat-kode">
+          <Icon name="alert" size={16} />
+          <span>{error}</span>
+        </div>
+      )}
+      <div class="m-f">
+        <label for="kode">{isTotp ? 'Kode verifikasi' : 'Kode cadangan'}</label>
+        {isTotp ? (
+          <input
+            class="m-in m-code"
+            id="kode"
+            name="kode"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]*"
+            maxlength="6"
+            minlength="6"
+            placeholder="000000"
+            required
+            autofocus
+            aria-invalid={error && !expired ? 'true' : undefined}
+            aria-describedby={error ? 'galat-kode' : 'bantuan-kode'}
+          />
+        ) : (
+          <input
+            class="m-in"
+            id="kode"
+            name="kode"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="64"
+            minlength="6"
+            placeholder="abcde-fghij"
+            required
+            autofocus
+            aria-invalid={error && !expired ? 'true' : undefined}
+            aria-describedby={error ? 'galat-kode' : 'bantuan-kode'}
+          />
+        )}
+        <p class="m-hint" id="bantuan-kode">
+          {isTotp ? (
+            <>
+              Kode berganti setiap 30 detik.{' '}
+              <a class="m-link" href={switchHref}>
+                Pakai kode cadangan
+              </a>
+            </>
+          ) : (
+            <>
+              Punya aplikasi autentikator?{' '}
+              <a class="m-link" href={switchHref}>
+                Pakai kode dari aplikasi
+              </a>
+            </>
+          )}
+        </p>
+      </div>
+      <button class="d-bt" data-tone="primary" data-size="md" type="submit">
+        Verifikasi dan masuk
+      </button>
+    </form>
+    <p class="m-center">
+      {expired ? (
+        <a class="m-link" href={backHref}>
+          Masukkan sandi lagi
+        </a>
+      ) : (
+        <a class="m-link" href={backHref}>
+          Kembali ke halaman masuk
+        </a>
+      )}
+    </p>
+    <p class="m-note">Khusus tim Arunika Journey</p>
+  </main>
+</div>
