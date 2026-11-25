@@ -50,6 +50,39 @@ const text = (form: FormData, name: string) => {
 const list = (form: FormData, name: string) =>
   form.getAll(name).map((v) => (typeof v === 'string' ? v : ''));
 
+export type SettingsTab = 'booking' | 'pembayaran';
+
+const TAB_FIELDS: Record<SettingsTab, string[]> = {
+  booking: ['dp_percent', 'hold_minutes', 'max_participants', 'draft_hours'],
+  pembayaran: ['bank', 'nomor', 'pemegang'],
+};
+
+/**
+ * Membentuk form lengkap dari kiriman SATU tab: kolom milik tab itu diambil dari kiriman, kolom tab lain diambil
+ * dari nilai tersimpan SAAT INI. Kolom tab lain yang ikut terkirim (tersembunyi, diisi saat halaman dimuat)
+ * sengaja diabaikan: kalau dipakai, menyimpan satu tab dari halaman yang sudah basi (jendela kedua, atau Owner
+ * lain yang baru menyimpan) akan diam-diam mengembalikan perubahan di tab lain.
+ */
+export function formForTab(submitted: FormData, tab: SettingsTab, current: BookingSettings) {
+  const out = new FormData();
+  for (const name of TAB_FIELDS[tab]) {
+    for (const v of submitted.getAll(name)) if (typeof v === 'string') out.append(name, v);
+  }
+  if (tab === 'booking') {
+    for (const a of current.manualAccounts) {
+      out.append('bank', a.bank);
+      out.append('nomor', a.number);
+      out.append('pemegang', a.holder);
+    }
+  } else {
+    out.append('dp_percent', String(current.dpPercent));
+    out.append('hold_minutes', String(current.holdMinutes));
+    out.append('max_participants', String(current.maxParticipants));
+    out.append('draft_hours', String(current.draftHours));
+  }
+  return out;
+}
+
 /** Membaca isian form HTML (semua nilai berupa teks) dan memvalidasinya dengan skema yang sama dengan pembacaan. */
 export function parseBookingSettingsForm(form: FormData): ParsedSettingsForm {
   const banks = list(form, 'bank');

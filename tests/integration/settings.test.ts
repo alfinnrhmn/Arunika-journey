@@ -11,6 +11,7 @@ import {
 } from '../../src/features/booking/settings';
 import {
   MAX_MANUAL_ACCOUNTS,
+  formForTab,
   parseBookingSettingsForm,
   saveBookingSettings,
 } from '../../src/features/settings/save';
@@ -236,10 +237,79 @@ describe('menyimpan Pengaturan', () => {
           inArray(auditLogs.actorId, [a.id, b.id]),
         ),
       )
-      .orderBy(asc(auditLogs.createdAt), asc(auditLogs.id));
+      .orderBy(asc(auditLogs.id));
     expect(logs).toHaveLength(2);
-    expect(logs[0]!.diff?.before).toBe(DEFAULT_BOOKING_SETTINGS.dpPercent);
-    expect(logs[1]!.diff?.before).toBe(logs[0]!.diff?.after);
-    expect((await getBookingSettings(db())).dpPercent).toBe(logs[1]!.diff?.after);
+    // created_at memakai now() = waktu MULAI transaksi, jadi urutan waktu tidak menjamin urutan penulisan di bawah
+    // kunci. Yang dijamin kunci adalah rantainya: satu catatan bermula dari nilai bawaan, yang lain bermula dari
+    // hasil yang pertama, dan nilai akhir adalah hasil yang terakhir.
+    const first = logs.find((l) => l.diff?.before === DEFAULT_BOOKING_SETTINGS.dpPercent);
+    const second = logs.find((l) => l !== first);
+    expect(first, 'ada catatan yang bermula dari nilai bawaan').toBeDefined();
+    expect(second!.diff?.before).toBe(first!.diff?.after);
+    expect((await getBookingSettings(db())).dpPercent).toBe(second!.diff?.after);
+  });
+});
+
+describe('menyimpan satu tab dari halaman yang sudah basi', () => {
+  const stale = () =>
+    form({
+      // halaman dimuat saat DP masih 30 (nilai tersembunyi untuk tab yang tidak aktif ikut terkirim)
+      dp_percent: '30',
+      hold_minutes: '120',
+      max_participants: '8',
+      draft_hours: '24',
+      bank: ['Mandiri'],
+      nomor: ['9876543210'],
+      pemegang: ['Arunika'],
+    });
+
+  it('tab Pembayaran tidak mengembalikan DP yang baru diubah di jendela lain', async () => {
+    const actor = await owner();
+    await saveBookingSettings(db(), { actorId: actor.id, values: valid({ dpPercent: 55 }) });
+
+    const parsed = parseBookingSettingsForm(
+      formForTab(stale(), 'pembayaran', await getBookingSettings(db())),
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const res = await saveBookingSettings(db(), { actorId: actor.id, values: parsed.values });
+
+    expect(res.changed).toEqual(['manual_accounts']); // hanya rekening yang berubah
+    const now = await getBookingSettings(db());
+    expect(now.dpPercent).toBe(55); // perubahan di jendela lain selamat
+    expect(now.manualAccounts).toEqual([
+      { bank: 'Mandiri', number: '9876543210', holder: 'Arunika' },
+    ]);
+  });
+
+  it('tab Booking dan kuota tidak menghapus rekening yang baru disimpan di jendela lain', async () => {
+    const actor = await owner();
+    const accounts = [{ bank: 'BCA', number: '1234567890', holder: 'PT Arunika' }];
+    await saveBookingSettings(db(), {
+      actorId: actor.id,
+      values: valid({ manualAccounts: accounts }),
+    });
+
+    const staleBooking = form({
+      dp_percent: '45',
+      hold_minutes: '120',
+      max_participants: '8',
+      draft_hours: '24',
+    }); // tanpa rekening
+    const parsed = parseBookingSettingsForm(
+      formForTab(staleBooking, 'booking', await getBookingSettings(db())),
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const res = await saveBookingSettings(db(), { actorId: actor.id, values: parsed.values });
+    expect(res.changed).toEqual(['dp_percent']);
+    expect((await getBookingSettings(db())).manualAccounts).toEqual(accounts);
+  });
+
+  it('kiriman tanpa kolom milik tab itu ditolak validasi (bukan diisi diam-diam dari nilai lama)', async () => {
+    const parsed = parseBookingSettingsForm(
+      formForTab(new FormData(), 'booking', await getBookingSettings(db())),
+    );
+    expect(parsed.ok).toBe(false);
   });
 });
