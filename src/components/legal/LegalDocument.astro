@@ -1,0 +1,232 @@
+---
+// Komponen dokumen legal bersama (Syarat dan Ketentuan, Kebijakan Privasi, Pembatalan dan Refund, Legalitas).
+// Datanya bentuk baris `legal_documents` (src/content/legal.ts); nanti dari server.
+//
+// Varian "pasal": daftar isi di samping (sticky) di desktop, kartu 2 kolom di tablet, tombol "Daftar isi" yang
+// bisa dilipat di mobile (<details open>: terbaca tanpa JS); ringkasan, pasal bernomor, dokumen terkait, ajakan.
+// Varian "rail": hero tengah, jejak navigasi, daftar isi mendatar, judul bagian di kolom kiri (Legalitas).
+// Gaya: src/styles/pages/legal.css. Penyorotan bagian aktif di daftar isi: skrip di bawah (penyempurna).
+import type { LegalDocument } from '../../content/legal';
+import { legalDocuments } from '../../content/legal';
+import HFNavRD from '../hf/HFNavRD.astro';
+import HFIcon from '../hf/HFIcon.astro';
+import Inline from './Inline.astro';
+import LegalBlocks from './LegalBlocks.astro';
+import LegalCta from './LegalCta.astro';
+import { stripInline } from './inline';
+
+interface Props {
+  doc: LegalDocument;
+}
+const { doc } = Astro.props;
+const rail = doc.variant === 'rail';
+const num = (n: number) => String(n).padStart(2, '0');
+const toc = doc.sections.map((s, i) => ({
+  id: s.id,
+  no: num(i + 1),
+  title: s.tocTitle ?? stripInline(s.heading),
+}));
+const related = doc.related
+  .map((r) => ({ ...r, doc: legalDocuments.find((d) => d.slug === r.slug) }))
+  .filter((r) => r.doc);
+const meta = [
+  doc.version ? { k: 'Versi', v: doc.version } : null,
+  doc.effectiveDate ? { k: 'Berlaku sejak', v: doc.effectiveDate } : null,
+  doc.updatedAt ? { k: 'Terakhir diperbarui', v: doc.updatedAt } : null,
+].filter((m): m is { k: string; v: string } => m !== null);
+---
+
+<HFNavRD tone="solid" />
+{rail ? (
+  <main class="lg-page lg-rail" data-legal={doc.slug}>
+    <header class="lg-rhero">
+      <h1>
+        <Inline text={doc.heading} />
+      </h1>
+      <p>{doc.lead}</p>
+    </header>
+    {doc.breadcrumb && (
+      <nav class="lg-crumb" aria-label="Jejak navigasi">
+        <ol>
+          {doc.breadcrumb.map((c) => (
+            <li>
+              {c.href ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+    <nav class="lg-rtoc" aria-label="Di halaman ini" data-toc>
+      <span class="eyebrow">Di halaman ini</span>
+      <ul>
+        {toc.map((t) => (
+          <li>
+            <a href={`#${t.id}`}>
+              <b>{t.no}</b>
+              {t.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    {doc.sections.map((s, i) => (
+      <section class="lg-rsec" id={s.id} aria-labelledby={`${s.id}-h`}>
+        <div class="rail">
+          <div class="rail-in">
+            <div class="num" aria-hidden="true">
+              {num(i + 1)}
+            </div>
+            <h2 id={`${s.id}-h`}>
+              <Inline text={s.heading} />
+            </h2>
+            {s.caption && <p class="cap">{s.caption}</p>}
+          </div>
+        </div>
+        <div class="body">
+          <LegalBlocks blocks={s.blocks} scope={s.id} />
+        </div>
+      </section>
+    ))}
+    {doc.cta && <LegalCta {...doc.cta} />}
+  </main>
+) : (
+  <main class="lg-page lg-pasal" data-legal={doc.slug}>
+    <header class="lg-hero">
+      <div class="eyebrow">{doc.eyebrow}</div>
+      <h1>
+        <Inline text={doc.heading} />
+      </h1>
+      <p class="lead">{doc.lead}</p>
+      {meta.length > 0 && (
+        <dl class="lg-meta">
+          {meta.map((m) => (
+            <div>
+              <dt>{m.k}</dt>
+              <dd>{m.v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </header>
+    <div class="lg-wrap">
+      <aside class="lg-toc">
+        <details open class="lg-toc-d" data-toc>
+          <summary>
+            <span>Daftar isi</span>
+            <span class="cnt">
+              {toc.length} pasal
+              <HFIcon name="minus" size={20} />
+            </span>
+          </summary>
+          <nav aria-label="Di dokumen ini">
+            <div class="eyebrow lg-toc-t">Di dokumen ini</div>
+            <ol style={`--rows:${Math.ceil(toc.length / 2)}`}>
+              {toc.map((t) => (
+                <li>
+                  <a href={`#${t.id}`}>
+                    <span class="n">{t.no}</span>
+                    {t.title}
+                    <span class="go" aria-hidden="true">
+                      <HFIcon name="arrow" size={16} />
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </details>
+      </aside>
+      <div class="lg-main">
+        {doc.summary && (
+          <section class="lg-sum" aria-labelledby="lg-sum-h">
+            <div class="eyebrow">{doc.summary.eyebrow}</div>
+            <h2 id="lg-sum-h">
+              <Inline text={doc.summary.heading} />
+            </h2>
+            <ul>
+              {doc.summary.items.map((it, i) => (
+                <li>
+                  <span class="n" aria-hidden="true">
+                    {i + 1}
+                  </span>
+                  <span>
+                    <Inline text={it} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {doc.summary.note && <p>{doc.summary.note}</p>}
+          </section>
+        )}
+        {doc.intro && (
+          <p class="lg-intro">
+            <Inline text={doc.intro} />
+          </p>
+        )}
+        {doc.sections.map((s, i) => (
+          <section class="lg-art" id={s.id} aria-labelledby={`${s.id}-h`}>
+            <div class="no">{s.label ?? `Pasal ${i + 1}`}</div>
+            <h2 id={`${s.id}-h`}>
+              <Inline text={s.heading} />
+            </h2>
+            <LegalBlocks blocks={s.blocks} scope={s.id} />
+          </section>
+        ))}
+        {doc.note && <p class="lg-note lg-note-end">{doc.note}</p>}
+      </div>
+    </div>
+    {related.length > 0 && (
+      <section class="lg-related" aria-labelledby="lg-rel-h">
+        <div class="eyebrow">Dokumen terkait</div>
+        <h2 id="lg-rel-h">
+          Baca juga <i>dokumen lainnya</i>
+        </h2>
+        <ul>
+          {related.map((r) => (
+            <li>
+              <a href={`/legal/${r.slug}`}>
+                <span>
+                  <span class="t">{r.doc?.title}</span>
+                  <span class="e">{r.sub}</span>
+                </span>
+                <HFIcon name="arrow" size={24} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    {doc.cta && <LegalCta {...doc.cta} />}
+  </main>
+)}
+
+<script>
+  // Sorot bagian yang sedang dibaca di daftar isi (aria-current="location"). Penyempurna saja.
+  const root = document.querySelector<HTMLElement>('[data-toc]');
+  if (root && 'IntersectionObserver' in window) {
+    const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+    const byId = new Map(links.map((a) => [a.getAttribute('href')!.slice(1), a]));
+    const targets = [...byId.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    const mark = (id: string) =>
+      links.forEach((a) => {
+        if (byId.get(id) === a) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      });
+    let current = targets[0]?.id ?? '';
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            current = e.target.id;
+            mark(current);
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -70% 0px' },
+    );
+    targets.forEach((t) => io.observe(t));
+    if (current) mark(current);
+  }
+</script>

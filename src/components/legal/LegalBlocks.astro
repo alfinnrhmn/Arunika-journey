@@ -1,0 +1,239 @@
+---
+// Blok isi dokumen legal (butir bernomor, status, tabel, langkah, dll.). Semua teks dari data lewat <Inline>
+// (di-escape, tanpa HTML mentah). Gaya: src/styles/pages/legal.css.
+import type { LegalBlock } from '../../content/legal';
+import Inline from './Inline.astro';
+import HFBadge from '../hf/HFBadge.astro';
+import HFIcon from '../hf/HFIcon.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import FaqAccordion from '../help/FaqAccordion.astro';
+
+interface Props {
+  blocks: LegalBlock[];
+  /** Awalan id unik untuk daftar tanya jawab di dalam bagian ini. */
+  scope: string;
+}
+const { blocks, scope } = Astro.props;
+const lines = (s: string) => s.split('\n');
+---
+
+{blocks.map((b, i) => {
+  switch (b.type) {
+    case 'clause':
+      return (
+        <div class="lg-cl">
+          <span class="c">{b.no}</span>
+          <p>
+            <Inline text={b.text} />
+          </p>
+        </div>
+      );
+    case 'statuses':
+      return (
+        <ul class="lg-st">
+          {b.items.map((it) => (
+            <li>
+              <span class="b">
+                <HFBadge label={it.badge} tone={it.tone} />
+              </span>
+              <p>
+                <Inline text={it.text} />
+              </p>
+            </li>
+          ))}
+        </ul>
+      );
+    case 'rows':
+      return (
+        <dl class="lg-rows">
+          {b.items.map((it) => (
+            <div class="r">
+              <dt class="k">{it.k}</dt>
+              <dd class="v">
+                <Inline text={it.v} />
+              </dd>
+            </div>
+          ))}
+        </dl>
+      );
+    case 'table':
+      return (
+        <div class="lg-tb">
+          <table>
+            {b.caption && <caption class="lg-sr">{b.caption}</caption>}
+            <thead>
+              <tr>
+                {b.head.map((h) => (
+                  <th scope="col">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {b.rows.map((row) => (
+                <tr>
+                  {row.map((cell, ci) => {
+                    const [main, ...rest] = lines(cell);
+                    return (
+                      <td class={b.numeric?.includes(ci) ? 'm' : undefined} data-label={b.head[ci]}>
+                        <Inline text={main ?? ''} />
+                        {rest.length > 0 && (
+                          <small>
+                            <Inline text={rest.join(' ')} />
+                          </small>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    case 'steps':
+      return (
+        <ol class="lg-steps">
+          {b.items.map((it, n) => (
+            <li>
+              <span class="no" aria-hidden="true">
+                {n + 1}
+              </span>
+              <div>
+                <div class="tt">{it.title}</div>
+                <div class="dd">
+                  <Inline text={it.text} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      );
+    case 'note':
+      return (
+        <p class="lg-note">
+          <Inline text={b.text} />
+        </p>
+      );
+    case 'lede':
+      return (
+        <p class="lg-lede">
+          <Inline text={b.text} />
+        </p>
+      );
+    case 'subheading':
+      return (
+        <div class="lg-sub">
+          <h3>{b.heading}</h3>
+          {b.text && (
+            <p>
+              <Inline text={b.text} />
+            </p>
+          )}
+        </div>
+      );
+    case 'details':
+      return (
+        <div class="lg-detail">
+          {b.title && <div class="lab">{b.title}</div>}
+          <dl>
+            {b.items.map((it) => (
+              <div class="r">
+                <dt>{it.k}</dt>
+                <dd>
+                  <Inline text={it.v} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      );
+    case 'files':
+      return (
+        <ul class="lg-files">
+          {b.items.map((it) => (
+            <li>
+              <span class="ico" aria-hidden="true">
+                <HFIcon name={it.icon} size={24} />
+              </span>
+              <div class="tx">
+                <div class="dt">{it.title}</div>
+                <div class="dm">{it.meta}</div>
+              </div>
+              <HFBadge label={it.badge} tone={it.tone} />
+              {it.href && (
+                <a class="lg-btn" href={it.href}>
+                  Lihat dokumen
+                  <HFIcon name="arrow" size={16} />
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      );
+    case 'points':
+      return (
+        <div class="lg-points">
+          {b.items.map((it) => (
+            <div class="pt">
+              <h3>{it.title}</h3>
+              <p>
+                <Inline text={it.text} />
+              </p>
+              {it.link && (
+                <a class="lg-ulink" href={it.link.href}>
+                  {it.link.label}
+                  <HFIcon name="arrow" size={16} />
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    case 'checklist':
+      return (
+        <ul class="lg-check">
+          {b.items.map((it) => (
+            <li>
+              <HFIcon name="check" size={20} />
+              <span>
+                <Inline text={it} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    case 'faq':
+      return <FaqAccordion items={b.items} variant="card" idPrefix={`${scope}-${i}`} />;
+    case 'links':
+      return (
+        <ul class="lg-links">
+          {b.items.map((it) => (
+            <li>
+              <a href={it.href}>
+                <span class="t">{it.text}</span>
+                <span class="a">
+                  Lihat
+                  <HFIcon name="arrow" size={20} />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      );
+    case 'button':
+      return (
+        <div class="lg-btnrow">
+          <HFArrowButton label={b.label} href={b.href} />
+        </div>
+      );
+    case 'callout':
+      return (
+        <div class="lg-callout">
+          <HFIcon name="check" size={24} />
+          <p>
+            <Inline text={b.text} />
+          </p>
+        </div>
+      );
+  }
+})}

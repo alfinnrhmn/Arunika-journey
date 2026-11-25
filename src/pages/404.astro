@@ -1,0 +1,17 @@
+---
+// Halaman tidak ditemukan. Status 404 dan noindex; tanpa data dinamis. Dipakai juga lewat Astro.rewrite('/404').
+import Public from '../layouts/Public.astro';
+import '../styles/pages/errors.css';
+import Error404 from '../components/errors/Error404.astro';
+
+Astro.response.status = 404;
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+---
+
+<Public
+  title="Halaman tidak ditemukan | Arunika Journey"
+  description="Halaman yang Anda cari tidak ditemukan. Lanjutkan dari jadwal Open Trip, Private Trip, atau cek status booking."
+  noindex
+>
+  <Error404 />
+</Public>

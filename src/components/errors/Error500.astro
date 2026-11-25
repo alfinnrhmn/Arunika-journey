@@ -1,0 +1,82 @@
+---
+// Isi halaman 500 (gaya Red Dot). Statis dan tahan banting: tanpa data, tanpa database, tanpa detail galat,
+// jejak tumpukan, atau data pribadi. Hanya teks tetap dan tautan.
+import HFNavRD from '../hf/HFNavRD.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import HFIcon from '../hf/HFIcon.astro';
+import { whatsappHref } from '../trips/detail/words';
+
+const steps = [
+  {
+    title: 'Tunggu beberapa menit',
+    text: 'Lalu muat ulang halaman ini. Sebagian besar gangguan selesai dalam waktu singkat.',
+  },
+  {
+    title: 'Cek status booking nanti',
+    text: 'Pakai kode booking dan email Anda. Status Pending Payment atau Confirmed tetap sama seperti sebelumnya.',
+    href: '/cek-status',
+  },
+  {
+    title: 'Perlu bantuan segera?',
+    text: 'Hubungi kami lewat WhatsApp [nomor: diisi klien] pada jam layanan [diisi klien]. Kami bantu langsung.',
+    href: '/contact',
+  },
+];
+---
+
+<HFNavRD tone="solid" />
+<main class="er-page er-500">
+  <div class="er-intro">
+    <span class="hand">Maaf, ini bukan salah Anda</span>
+    <div class="er-eyebrow">Kesalahan 500 · Gangguan sementara</div>
+    <h1>
+      Sistem kami sedang <i>bermasalah</i>
+    </h1>
+    <p>
+      Ada gangguan di sisi kami, dan halaman ini belum bisa ditampilkan. Anda tidak perlu mengulang
+      apa pun dari awal.
+    </p>
+    <div class="er-safe">
+      <span class="ic" aria-hidden="true">
+        <HFIcon name="shield" size={24} />
+      </span>
+      <div>
+        <h2>Booking yang sudah tercatat tetap aman</h2>
+        <p>
+          Gangguan pada halaman ini tidak menghapus booking, kuota, atau pembayaran yang sudah
+          tercatat. Jika pembayaran sempat terpotong tetapi status booking belum berubah, hubungi
+          kami dengan kode booking Anda.
+        </p>
+      </div>
+    </div>
+    <div class="er-act">
+      <HFArrowButton tone="dark" label="Coba lagi" href="?" />
+      <a class="er-link" href="/">
+        Kembali ke beranda
+      </a>
+      {whatsappHref && (
+        <a class="er-link" href={whatsappHref} rel="noopener">
+          Tanya via WhatsApp
+        </a>
+      )}
+    </div>
+  </div>
+  <aside class="er-steps" aria-labelledby="er-steps-h">
+    <h2 id="er-steps-h" class="er-eyebrow">
+      Yang bisa Anda lakukan
+    </h2>
+    <ol>
+      {steps.map((s, i) => (
+        <li>
+          <span class="n" aria-hidden="true">
+            {i + 1}
+          </span>
+          <div>
+            <div class="t">{s.href ? <a href={s.href}>{s.title}</a> : s.title}</div>
+            <div class="d">{s.text}</div>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </aside>
+</main>

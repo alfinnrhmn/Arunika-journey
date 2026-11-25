@@ -1,0 +1,92 @@
+---
+// Akordeon tanya jawab. Dasarnya <details>/<summary>: terbaca dan bisa dibuka tanpa JavaScript (summary adalah
+// kontrol papan ketik bawaan: Enter/Spasi). Dengan JS: aria-expanded disinkronkan dan, bila `categories`
+// diberikan, chip penyaring topik muncul (tanpa JS chip disembunyikan, semua pertanyaan tetap tampil).
+// variant: "line" (baris bergaris, Pusat Bantuan) | "card" (kartu abu-abu, halaman Legalitas).
+import Inline from '../legal/Inline.astro';
+
+interface Item {
+  q: string;
+  a: string;
+  open?: boolean;
+  category?: string;
+}
+interface Props {
+  items: Item[];
+  variant?: 'line' | 'card';
+  idPrefix?: string;
+  categories?: { id: string; label: string }[];
+}
+const { items, variant = 'line', idPrefix = 'faq', categories } = Astro.props;
+---
+
+<div class="hp-faq" data-faq data-variant={variant}>
+  {categories && (
+    <div
+      class="hp-chips"
+      role="group"
+      aria-label="Saring pertanyaan menurut topik"
+      hidden
+      data-faq-chips
+    >
+      {categories.map((c, i) => (
+        <button
+          type="button"
+          class="hp-chip"
+          data-cat={c.id}
+          aria-pressed={i === 0 ? 'true' : 'false'}
+        >
+          {c.label}
+        </button>
+      ))}
+    </div>
+  )}
+  <p class="hp-sr" role="status" aria-live="polite" data-faq-status></p>
+  <div class="hp-acc-list">
+    {items.map((it, i) => (
+      <details class="hp-acc" id={`${idPrefix}-${i + 1}`} data-cat={it.category} open={it.open}>
+        <summary>
+          <span class="q">{it.q}</span>
+          <span class="pm" aria-hidden="true" />
+        </summary>
+        <div class="b">
+          <p>
+            <Inline text={it.a} />
+          </p>
+        </div>
+      </details>
+    ))}
+  </div>
+</div>
+
+<script>
+  function init(root: HTMLElement): void {
+    const items = Array.from(root.querySelectorAll<HTMLDetailsElement>('details.hp-acc'));
+    const sync = (d: HTMLDetailsElement) =>
+      d.querySelector('summary')?.setAttribute('aria-expanded', d.open ? 'true' : 'false');
+    items.forEach((d) => {
+      sync(d);
+      d.addEventListener('toggle', () => sync(d));
+    });
+
+    const chips = root.querySelector<HTMLElement>('[data-faq-chips]');
+    if (!chips) return;
+    chips.hidden = false;
+    const status = root.querySelector<HTMLElement>('[data-faq-status]');
+    const buttons = Array.from(chips.querySelectorAll<HTMLButtonElement>('button[data-cat]'));
+    buttons.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.cat ?? 'all';
+        buttons.forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+        let shown = 0;
+        items.forEach((d) => {
+          const match = cat === 'all' || d.dataset.cat === cat;
+          d.hidden = !match;
+          if (match) shown += 1;
+        });
+        if (status) status.textContent = `Menampilkan ${shown} pertanyaan`;
+      }),
+    );
+  }
+  document.querySelectorAll<HTMLElement>('[data-faq]').forEach(init);
+</script>

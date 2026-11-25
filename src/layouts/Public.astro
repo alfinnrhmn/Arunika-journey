@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import HFFooterRD from '../components/hf/HFFooterRD.astro';
+import ConsentBanner from '../components/consent/ConsentBanner.astro';
 
 interface Props {
   title: string;
@@ -16,6 +17,11 @@ interface Props {
   ogImage?: string;
   /** Teks alt untuk `ogImage` (disarankan bila ogImage diisi). */
   ogImageAlt?: string;
+  /**
+   * Banner persetujuan cookie + dialog Preferensi Cookie. Bawaan: tampil di semua halaman publik kecuali alur fokus
+   * (hideFooter), supaya bilah aksi lekat booking tidak tertutup. Tautan/tombol `data-open-consent` membuka preferensi.
+   */
+  consent?: boolean;
 }
 const {
   title,
@@ -24,6 +30,7 @@ const {
   noindex = false,
   ogImage,
   ogImageAlt,
+  consent = !hideFooter,
 } = Astro.props;
 const base = Astro.site ?? Astro.url;
 const canonical = new URL(Astro.url.pathname, base).href;
@@ -63,6 +70,7 @@ const themeColor = '#ffffff';
     <a class="hf-skip" href="#konten">
       Lewati ke konten
     </a>
+    {consent && <ConsentBanner />}
     <slot />
     {!hideFooter && <HFFooterRD />}
     <script is:inline>

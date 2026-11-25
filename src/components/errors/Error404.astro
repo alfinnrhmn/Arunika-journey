@@ -1,0 +1,94 @@
+---
+// Isi halaman 404 (gaya Red Dot): teks, empat pintasan, tombol beranda, dan foto dengan angka 404.
+// >= 1280: dua kolom (teks kiri, foto 520px kanan). Tablet: satu kolom, foto lebar di bawah paragraf.
+// Mobile: foto penuh lebar di atas, lalu teks, tombol, dan pintasan bernomor.
+import HFNavRD from '../hf/HFNavRD.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import HFIcon from '../hf/HFIcon.astro';
+import { foto } from '../../lib/photo';
+import { photoSize } from '../trips/photo-size';
+
+// Foto di desain (bukit savana saat senja) belum ada di berkas situs; memakai foto situs yang paling dekat.
+const PHOTO = 'pendaki-punggungan';
+const size = photoSize(PHOTO);
+const shortcuts = [
+  {
+    href: '/trips',
+    title: 'Lihat jadwal Open Trip',
+    text: 'Pilih tanggal, cek harga per orang dan sisa kuota.',
+  },
+  {
+    href: '/private-trip',
+    title: 'Rancang Private Trip',
+    text: 'Susun perjalanan dari nol bersama tim kami lewat Request a Quote.',
+  },
+  {
+    href: '/cek-status',
+    title: 'Cek status booking',
+    text: 'Pakai kode booking atau nomor permintaan dan email Anda.',
+  },
+  {
+    href: '/contact',
+    title: 'Hubungi kami',
+    text: 'Tanya lewat WhatsApp atau formulir, kami bantu cari halamannya.',
+  },
+];
+---
+
+<HFNavRD tone="solid" />
+<main class="er-page er-404">
+  <div class="er-intro">
+    <span class="hand">Ups, salah belokan</span>
+    <div class="er-eyebrow">Kesalahan 404</div>
+    <h1>
+      Halaman ini <i>tidak ditemukan</i>
+    </h1>
+    <p>
+      Tautan yang Anda buka mungkin sudah berpindah, atau alamatnya salah ketik. Tidak apa-apa,
+      perjalanan Anda tetap bisa dilanjutkan dari salah satu jalur di bawah ini.
+    </p>
+  </div>
+  <figure class="er-fig">
+    <img
+      src={foto(PHOTO)}
+      alt="Pendaki berjalan sendirian di punggungan bukit hijau"
+      width={size.width}
+      height={size.height}
+      fetchpriority="high"
+      decoding="async"
+    />
+    <span class="shade" aria-hidden="true"></span>
+    <span class="big" aria-hidden="true">
+      404
+    </span>
+  </figure>
+  <nav class="er-short" aria-label="Pintasan">
+    <div class="er-short-h">
+      <div class="er-eyebrow">Atau pilih pintasan</div>
+      <h2>
+        Mau ke <i>mana</i> selanjutnya?
+      </h2>
+    </div>
+    <ol>
+      {shortcuts.map((s, i) => (
+        <li>
+          <a href={s.href}>
+            <span class="n" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="tx">
+              <span class="t">{s.title}</span>
+              <span class="d">{s.text}</span>
+            </span>
+            <span class="go" aria-hidden="true">
+              <HFIcon name="arrow" size={16} />
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+  <div class="er-act">
+    <HFArrowButton tone="dark" label="Kembali ke beranda" href="/" />
+  </div>
+</main>

@@ -1,0 +1,414 @@
+/* Halaman 404 dan 500 (komponen src/components/errors/**). Diport dari frame Doop "404: Halaman tidak ditemukan"
+   dan "500: Gangguan sementara" (Red Dot style, desktop/tablet/mobile). Kelas er-*. Desktop (>= 1280) mengikuti
+   frame 1440; < 1280 tablet; < 768 mobile. Tanpa ketergantungan pada data apa pun. */
+
+.er-page {
+  display: grid;
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  font-family: var(--font-ui);
+  padding: 72px 41px 130px;
+  column-gap: 96px;
+}
+.er-page a {
+  color: inherit;
+}
+.er-eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.er-page .hand {
+  color: var(--color-dawn-deep);
+}
+.er-intro .er-eyebrow {
+  margin-top: 28px;
+}
+.er-intro h1 {
+  margin-top: 14px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-ink-2);
+}
+.er-intro > p {
+  margin-top: 28px;
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 28px;
+}
+
+/* ---- 404 ---- */
+.er-404 {
+  grid-template-columns: minmax(0, 1fr) 520px;
+  grid-template-areas:
+    'intro fig'
+    'short fig'
+    'act fig';
+  grid-template-rows: auto auto 1fr;
+}
+.er-404 .er-intro {
+  grid-area: intro;
+}
+.er-fig {
+  grid-area: fig;
+  align-self: center;
+  position: relative;
+  height: 760px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-night);
+}
+.er-fig img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+  display: block;
+}
+.er-fig .shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 55%,
+    color-mix(in srgb, var(--color-night) 70%, transparent) 100%
+  );
+}
+.er-fig .big {
+  position: absolute;
+  left: 32px;
+  bottom: 28px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 120px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-paper);
+}
+.er-short {
+  grid-area: short;
+  margin-top: 44px;
+  max-width: 600px;
+}
+.er-short-h {
+  display: none;
+}
+.er-short ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.er-short li {
+  border-top: 1px solid var(--color-line);
+}
+.er-short li:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+.er-short a {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 44px;
+  padding: 22px 0;
+  text-decoration: none;
+}
+.er-short .n {
+  display: none;
+}
+.er-short .tx {
+  flex: 1;
+  min-width: 0;
+}
+.er-short .t {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 34px;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.er-short a:hover .t {
+  color: var(--color-dawn-deep);
+}
+.er-short .d {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.er-short .go {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-line);
+  color: var(--color-ink);
+}
+.er-404 .er-act {
+  grid-area: act;
+  margin-top: 48px;
+  align-self: start;
+}
+
+/* ---- 500 ---- */
+.er-500 {
+  grid-template-columns: minmax(0, 1fr) 560px;
+  align-items: start;
+}
+.er-safe {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  max-width: 600px;
+  margin-top: 44px;
+  padding: 28px 32px;
+  background: var(--color-status-ok-soft);
+}
+.er-safe .ic {
+  margin-top: 2px;
+  color: var(--color-status-ok);
+}
+.er-safe h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 30px;
+  color: var(--color-ink);
+}
+.er-safe p {
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.er-500 .er-act {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
+  margin-top: 48px;
+}
+.er-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--color-ink-2);
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.er-link:hover {
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+}
+.er-steps {
+  margin-top: 20px;
+  padding: 44px 48px 40px;
+  background: var(--color-bg);
+}
+.er-steps ol {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+}
+.er-steps li {
+  display: flex;
+  gap: 20px;
+  padding: 22px 0;
+  border-top: 1px solid var(--color-line);
+}
+.er-steps li:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+.er-steps .n {
+  flex: 0 0 36px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 32px;
+  line-height: 34px;
+  color: var(--color-dawn-deep);
+}
+.er-steps .t {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 30px;
+  color: var(--color-ink);
+}
+.er-steps .t a {
+  text-decoration: none;
+}
+.er-steps .t a:hover {
+  color: var(--color-dawn-deep);
+}
+.er-steps .d {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+/* ================= Tablet (< 1280) ================= */
+@media (max-width: 1279px) {
+  .er-page {
+    padding: 56px 32px 96px;
+  }
+  .er-intro h1 {
+    font-size: 60px;
+  }
+  .er-intro > p {
+    max-width: 620px;
+  }
+  .er-404 {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'intro'
+      'fig'
+      'short'
+      'act';
+    grid-template-rows: none;
+  }
+  .er-fig {
+    align-self: stretch;
+    height: auto;
+    aspect-ratio: 21 / 10;
+    margin-top: 44px;
+  }
+  .er-fig .big {
+    font-size: 100px;
+  }
+  .er-short {
+    max-width: none;
+    margin-top: 40px;
+  }
+  .er-short a {
+    padding: 18px 0;
+  }
+  .er-404 .er-act {
+    margin-top: 40px;
+  }
+  .er-500 {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 48px;
+  }
+  .er-steps {
+    margin-top: 0;
+    padding: 36px 32px;
+  }
+}
+
+/* ================= Mobile (< 768) ================= */
+@media (max-width: 767px) {
+  .er-page {
+    padding: 0 20px 72px;
+  }
+  .er-intro .er-eyebrow {
+    margin-top: 20px;
+  }
+  .er-intro h1 {
+    margin-top: 6px;
+    font-size: 44px;
+    line-height: 0.98;
+  }
+  .er-intro > p {
+    margin-top: 20px;
+    font-size: 17px;
+    line-height: 26px;
+  }
+  .er-404 {
+    grid-template-areas:
+      'fig'
+      'intro'
+      'act'
+      'short';
+  }
+  .er-fig {
+    margin: 0 -20px;
+    aspect-ratio: auto;
+    height: 260px;
+  }
+  .er-fig .big {
+    left: 20px;
+    bottom: 20px;
+    font-size: 88px;
+  }
+  .er-404 .er-intro {
+    padding-top: 28px;
+  }
+  .er-page .hand {
+    font-size: 28px;
+  }
+  .er-404 .er-act {
+    margin-top: 32px;
+  }
+  .er-short {
+    margin-top: 56px;
+  }
+  .er-short-h {
+    display: block;
+    margin-bottom: 20px;
+  }
+  .er-short-h h2 {
+    margin-top: 8px;
+    font-size: 30px;
+    line-height: 34px;
+    color: var(--color-ink-2);
+  }
+  .er-short a {
+    gap: 14px;
+    padding: 16px 0;
+  }
+  .er-short .n {
+    display: block;
+    flex: 0 0 28px;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    color: var(--color-dawn-deep);
+  }
+  .er-short .t {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .er-short .go {
+    width: auto;
+    height: auto;
+    border: 0;
+  }
+  .er-500 {
+    padding-top: 40px;
+    row-gap: 40px;
+  }
+  .er-safe {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 32px;
+    padding: 22px;
+  }
+  .er-500 .er-act {
+    margin-top: 32px;
+  }
+  .er-steps {
+    padding: 28px 20px;
+  }
+  .er-steps li {
+    gap: 16px;
+  }
+  .er-steps .t {
+    font-size: 22px;
+    line-height: 28px;
+  }
+}
+
+/* Judul langkah yang berupa tautan: area sentuh >= 44px tanpa mengubah tata letak. */
+.er-steps .t a {
+  display: inline-block;
+  padding: 11px 0;
+  margin: -11px 0;
+}

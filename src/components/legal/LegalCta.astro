@@ -1,0 +1,83 @@
+---
+// Blok ajakan di ujung dokumen legal dan Pusat Bantuan. Bawaan: kotak gelap (ink) dengan tombol "Hubungi kami"
+// ke /contact. Dengan `photo`: ajakan berlatar foto (Legalitas). Teks dari data, lewat <Inline>.
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import Inline from './Inline.astro';
+import { foto } from '../../lib/photo';
+import { photoSize } from '../trips/photo-size';
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  text: string;
+  button?: { label: string; href: string };
+  aside?: { label: string; href?: string };
+  photo?: string;
+  photoAlt?: string;
+}
+const {
+  eyebrow = 'Ada pertanyaan?',
+  heading,
+  text,
+  button = { label: 'Hubungi kami', href: '/contact' },
+  aside = { label: 'WhatsApp [nomor: diisi klien]' },
+  photo,
+  photoAlt = '',
+} = Astro.props;
+const size = photo ? photoSize(photo) : undefined;
+---
+
+{photo ? (
+  <section class="lg-cta lg-cta-photo" aria-labelledby="lg-cta-h">
+    <img
+      class="bg"
+      src={foto(photo)}
+      alt={photoAlt}
+      width={size?.width ?? 1200}
+      height={size?.height ?? 896}
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="shade" aria-hidden="true" />
+    <div class="in">
+      <h2 id="lg-cta-h">
+        <Inline text={heading} />
+      </h2>
+      <p>
+        <Inline text={text} />
+      </p>
+      <div class="act">
+        <HFArrowButton tone="light" label={button.label} href={button.href} />
+        {aside.href ? (
+          <a class="aside" href={aside.href}>
+            {aside.label}
+          </a>
+        ) : (
+          <span class="aside">{aside.label}</span>
+        )}
+      </div>
+    </div>
+  </section>
+) : (
+  <section class="lg-cta lg-cta-ink" aria-labelledby="lg-cta-h">
+    <div class="tx">
+      <div class="eyebrow">{eyebrow}</div>
+      <h2 id="lg-cta-h">
+        <Inline text={heading} />
+      </h2>
+      <p>
+        <Inline text={text} />
+      </p>
+    </div>
+    <div class="act">
+      <HFArrowButton tone="light" label={button.label} href={button.href} />
+      {aside.href ? (
+        <a class="aside" href={aside.href}>
+          {aside.label}
+        </a>
+      ) : (
+        <span class="aside">{aside.label}</span>
+      )}
+    </div>
+  </section>
+)}

@@ -1,0 +1,130 @@
+---
+// Banner persetujuan cookie (dialog nonmodal) + dialog Preferensi Cookie (modal, <dialog> bawaan: jebakan fokus
+// dan Esc dari peramban). Pilihan disimpan di cookie pihak pertama `arj_consent` (src/scripts/consent.ts) dan
+// terbuka untuk skrip lain lewat `window.arjConsent` (get(), open()) serta event `arj:consent`.
+//
+// Tanpa JavaScript: banner tampil statis di puncak halaman (tidak melayang, tidak memblokir apa pun) berisi
+// keterangan dan tautan ke Kebijakan Privasi; tombol pilihan hanya muncul bila JS aktif. Saat ini situs tidak
+// memuat pelacak apa pun, jadi tanpa persetujuan tidak ada yang aktif.
+//
+// Tautan/tombol mana pun dengan atribut `data-open-consent` membuka dialog Preferensi Cookie.
+import '../../styles/pages/consent.css';
+import { CONSENT_CATEGORIES, CONSENT_COOKIE, CONSENT_MAX_AGE, CONSENT_VERSION } from './config';
+---
+
+<section
+  class="cs-banner"
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="cs-banner-t"
+  aria-describedby="cs-banner-d"
+  data-consent-banner
+>
+  <p class="cs-title" id="cs-banner-t">
+    Kami memakai <i>cookie</i>
+  </p>
+  <p class="cs-text" id="cs-banner-d">
+    Cookie yang perlu menjaga situs dan alur booking tetap berjalan. Analitik GA4 hanya aktif dengan
+    izin Anda. Selengkapnya ada di <a href="/legal/kebijakan-privasi">Kebijakan Privasi</a>.
+  </p>
+  <div class="cs-actions cs-js-only">
+    <button type="button" class="cs-btn cs-btn-dark" data-consent-accept>
+      Terima semua
+    </button>
+    <button type="button" class="cs-btn cs-btn-line" data-consent-reject>
+      Hanya yang perlu
+    </button>
+    <button type="button" class="cs-link" data-open-consent>
+      Atur preferensi
+    </button>
+  </div>
+</section>
+
+<dialog class="cs-dialog" aria-labelledby="cs-dialog-t" data-consent-dialog>
+  <form method="dialog" class="cs-panel" novalidate>
+    <span class="cs-grab" aria-hidden="true"></span>
+    <div class="cs-head">
+      <div>
+        <p class="cs-eyebrow">Preferensi cookie</p>
+        <h2 class="cs-dtitle" id="cs-dialog-t">
+          Atur cookie <i>Anda</i>
+        </h2>
+      </div>
+      <button type="button" class="cs-x" aria-label="Tutup preferensi cookie" data-consent-close>
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </div>
+    <p class="cs-intro">
+      Pilih cookie yang boleh kami pakai. Anda bisa mengubah pilihan ini kapan saja dari tautan di
+      bagian bawah situs.
+    </p>
+    <div class="cs-opts">
+      {CONSENT_CATEGORIES.map((c) => (
+        <div class="cs-opt">
+          <div class="tx">
+            <h3 id={`cs-o-${c.id}`}>{c.title}</h3>
+            <p id={`cs-d-${c.id}`}>{c.description}</p>
+          </div>
+          {c.locked ? (
+            <span class="cs-always">Selalu aktif</span>
+          ) : (
+            <label class="cs-sw">
+              <input
+                type="checkbox"
+                role="switch"
+                name={c.id}
+                aria-labelledby={`cs-o-${c.id}`}
+                aria-describedby={`cs-d-${c.id}`}
+              />
+              <span class="track" aria-hidden="true" />
+            </label>
+          )}
+        </div>
+      ))}
+    </div>
+    <div class="cs-foot">
+      <button type="button" class="cs-btn cs-btn-dark" data-consent-save>
+        Simpan preferensi
+      </button>
+      <p>
+        Detail ada di <a href="/legal/kebijakan-privasi">Kebijakan Privasi</a>.
+      </p>
+    </div>
+  </form>
+</dialog>
+<p class="cs-sr" role="status" aria-live="polite" data-consent-status></p>
+
+<!-- Pemeriksaan awal sinkron (tepat setelah banner): menandai mode JS dan menyembunyikan banner bila pilihan
+     yang masih berlaku sudah ada, supaya tidak berkedip. Logika lengkap ada di src/scripts/consent.ts. -->
+<script
+  is:inline
+  define:vars={{ cookieName: CONSENT_COOKIE, version: CONSENT_VERSION, maxAge: CONSENT_MAX_AGE }}
+>
+  (function () {
+    try {
+      const root = document.documentElement;
+      root.classList.add('arj-js');
+      const m = document.cookie.match(new RegExp('(?:^|; )' + cookieName + '=([^;]*)'));
+      const banner = document.querySelector('[data-consent-banner]');
+      if (!m || !banner) return;
+      const s = JSON.parse(decodeURIComponent(m[1]));
+      if (s && s.v === version && Date.now() - s.t < maxAge * 1000) banner.hidden = true;
+    } catch {
+      // cookie rusak: biarkan banner tampil
+    }
+  })();
+</script>
+<script>
+  import '../../scripts/consent';
+</script>
