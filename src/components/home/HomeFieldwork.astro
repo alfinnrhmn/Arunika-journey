@@ -1,8 +1,8 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 ---
 
-<section class="hp81">
+<section class="hp81 hd">
   <div class="hp82">
     <span class="hand">Langsung di lapangan</span>
     <h3 class="hp40">
@@ -18,7 +18,9 @@ import { foto } from '../../lib/photo';
     <a href="/dokumentasi" class="hp-link hp85">
       <img
         class="cover"
-        src={foto('tangan-relief-candi')}
+        {...fi('tangan-relief-candi')}
+        loading="lazy"
+        decoding="async"
         alt="Tangan menyentuh relief batu candi"
       />
       <span class="hp86">
@@ -30,7 +32,9 @@ import { foto } from '../../lib/photo';
     <a href="/dokumentasi" class="hp-link hp85">
       <img
         class="cover"
-        src={foto('pedagang-warung-kabut')}
+        {...fi('pedagang-warung-kabut')}
+        loading="lazy"
+        decoding="async"
         alt="Pedagang di warung tepi kebun berkabut"
       />
       <span class="hp86">
@@ -40,7 +44,13 @@ import { foto } from '../../lib/photo';
       </span>
     </a>
     <a href="/dokumentasi" class="hp-link hp85">
-      <img class="cover" src={foto('kubis-embun')} alt="Kubis berembun di kebun dataran tinggi" />
+      <img
+        class="cover"
+        {...fi('kubis-embun')}
+        loading="lazy"
+        decoding="async"
+        alt="Kubis berembun di kebun dataran tinggi"
+      />
       <span class="hp86">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
           <path d="M8 5.5v13l11-6.5z"></path>
@@ -50,7 +60,9 @@ import { foto } from '../../lib/photo';
     <a href="/dokumentasi" class="hp-link hp85">
       <img
         class="cover"
-        src={foto('penambang-belerang')}
+        {...fi('penambang-belerang')}
+        loading="lazy"
+        decoding="async"
         alt="Penambang belerang memikul keranjang di lereng"
       />
       <span class="hp86">

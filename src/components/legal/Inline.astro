@@ -1,0 +1,25 @@
+---
+// Menampilkan teks dengan penanda ringan (**tebal**, *miring*, [tautan](/jalur)) sebagai elemen aman.
+import { CONSENT_HASH, parseInline } from './inline';
+
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const nodes = parseInline(text);
+---
+
+{nodes.map((n) => {
+  if (n.kind === 'strong') return <b>{n.text}</b>;
+  if (n.kind === 'em') return <i>{n.text}</i>;
+  if (n.kind === 'link') {
+    return n.href === CONSENT_HASH ? (
+      <a href={n.href} data-open-consent>
+        {n.text}
+      </a>
+    ) : (
+      <a href={n.href}>{n.text}</a>
+    );
+  }
+  return n.text;
+})}

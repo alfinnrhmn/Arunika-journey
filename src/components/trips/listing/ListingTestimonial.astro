@@ -1,5 +1,6 @@
 ---
 import { foto } from '../../../lib/photo';
+import { photoSize } from '../photo-size';
 ---
 
 <section class="tl16">
@@ -51,6 +52,9 @@ import { foto } from '../../../lib/photo';
         class="cover"
         src={foto('traveler-selimut-bromo')}
         alt="Peserta berselimut menatap kabut Bromo"
+        {...photoSize('traveler-selimut-bromo')}
+        loading="lazy"
+        decoding="async"
       />
     </div>
   </div>

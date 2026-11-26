@@ -1,0 +1,392 @@
+---
+import { fi } from './dims';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import HFIcon from '../hf/HFIcon.astro';
+
+// Isi Home untuk layar < 1280 (tablet dan mobile), mengikuti frame Home Mobile/Tablet (Red Dot style):
+// jadwal terdekat, perbandingan Open Trip dan Private Trip, destinasi, nilai layanan, dokumentasi, ulasan.
+// Di >= 1280 seluruh bagian ini disembunyikan (kelas `hc`) dan Home memakai komposisi desktop. Contoh isi
+// (harga, tanggal, nama) sama dengan kartu desktop dan akan diganti data klien.
+
+const trips = [
+  {
+    slug: 'bromo-sunrise-experience',
+    img: 'bromo-sunrise-grup',
+    alt: 'Peserta Bromo Sunrise Experience menatap kaldera',
+    badge: 'Terlaris',
+    where: 'Jawa Timur',
+    title: 'Bromo Sunrise Experience',
+    meta: '2 hari 1 malam. Harga mulai dari Rp 1.250.000 / orang',
+    date: 'Berangkat Sab, 12 Des 2026',
+    seats: 'Sisa 9 kursi',
+    status: 'ok',
+  },
+  {
+    slug: 'dieng-golden-sunrise',
+    img: 'dieng-sunrise-emas',
+    alt: 'Dua pejalan di jalur Dieng saat fajar emas',
+    badge: '',
+    where: 'Jawa Tengah',
+    title: 'Dieng Golden Sunrise',
+    meta: '2 hari 1 malam. Harga mulai dari Rp 1.650.000 / orang',
+    date: 'Berangkat Jum, 18 Des 2026',
+    seats: 'Sisa 6 kursi',
+    status: 'ok',
+  },
+  {
+    slug: 'yogyakarta-heritage-weekend',
+    img: 'jogja-gerbang-bata',
+    alt: 'Perempuan melangkah di gerbang bata kuno',
+    badge: '',
+    where: 'Yogyakarta',
+    title: 'Yogyakarta Heritage Weekend',
+    meta: '3 hari 2 malam. Harga mulai dari Rp 1.450.000 / orang',
+    date: 'Berangkat Sab, 9 Jan 2027',
+    seats: 'Sisa 3 kursi',
+    status: 'few',
+  },
+  {
+    slug: 'karimunjawa-island-escape',
+    img: 'karimunjawa-pantai-perahu',
+    alt: 'Perahu di pantai Karimunjawa',
+    badge: '',
+    where: 'Jawa Tengah',
+    title: 'Karimunjawa Island Escape',
+    meta: '3 hari 2 malam. Harga mulai dari Rp 2.350.000 / orang',
+    date: 'Berangkat Sab, 23 Jan 2027',
+    seats: 'Sisa 8 kursi',
+    status: 'ok',
+  },
+];
+
+const compare = [
+  ['Siapa yang berangkat', 'Bergabung dengan peserta lain', 'Hanya keluarga atau rombongan Anda'],
+  ['Jadwal', 'Tanggal tetap, pilih dari kalender', 'Tanggal dan rute Anda tentukan'],
+  [
+    'Harga',
+    'Mulai dari Rp 1.250.000 / orang, terlihat di awal',
+    'Lewat proposal, tanpa harga otomatis',
+  ],
+  ['Cara memesan', 'Booking dan bayar DP di website', 'Request a Quote, tim kirim proposal'],
+];
+
+const dests = [
+  {
+    n: '01',
+    nama: 'Bromo',
+    ket: 'Fajar di atas lautan pasir',
+    img: 'penanjakan-panorama',
+    alt: 'Panorama kaldera Bromo dari Penanjakan',
+  },
+  {
+    n: '02',
+    nama: 'Karimunjawa',
+    ket: 'Pulau, laut, dan senja',
+    img: 'pulau-udara-perahu',
+    alt: 'Pulau Karimunjawa dari udara',
+  },
+  {
+    n: '03',
+    nama: 'Yogyakarta',
+    ket: 'Warisan budaya yang hidup',
+    img: 'prambanan-senja',
+    alt: 'Candi Prambanan saat senja',
+  },
+  {
+    n: '04',
+    nama: 'Dieng',
+    ket: 'Dataran tinggi berkabut',
+    img: 'dieng-teras-kabut',
+    alt: 'Teras kebun berkabut di dataran tinggi Dieng',
+  },
+];
+
+const nilai = [
+  {
+    ikon: 'users',
+    judul: 'Perjalanan terorganisir',
+    isi: 'Dari titik kumpul sampai pulang, jadwal, pemandu, dan pendamping sudah diatur.',
+  },
+  {
+    ikon: 'file',
+    judul: 'Harga transparan',
+    isi: 'Harga per orang, total, dan DP terlihat sebelum Anda membayar. Tidak ada biaya yang baru muncul di langkah akhir.',
+  },
+  {
+    ikon: 'check',
+    judul: 'Kuota terlihat',
+    isi: 'Sisa kursi tampil di setiap jadwal dan dicek ulang sebelum pembayaran.',
+  },
+  {
+    ikon: 'shield',
+    judul: 'Legalitas dan kebijakan jelas',
+    isi: 'Legalitas usaha: [diisi klien]. Kebijakan batal tertulis sebelum Anda bayar.',
+  },
+] as const;
+
+const dok = [
+  {
+    cls: 'a',
+    img: 'pendaki-bukit-hijau',
+    alt: 'Pendaki menyusuri punggungan bukit savana saat senja',
+    tag: 'Open Trip',
+    cap: 'Bromo · Nov 2026',
+  },
+  {
+    cls: 'b',
+    img: 'dermaga-senja-tiga-orang',
+    alt: 'Siluet tiga orang di dermaga saat senja',
+    tag: 'Private Trip',
+    cap: 'Yogyakarta · Okt 2026',
+  },
+  {
+    cls: 'c',
+    img: 'sandbar-perahu',
+    alt: 'Pantai pasir putih dan perahu dari udara',
+    tag: 'Open Trip',
+    cap: 'Karimunjawa · Okt 2026',
+  },
+];
+
+// Enam ulasan contoh (teks placeholder, diganti ulasan asli peserta yang berangkat).
+const ulasan = [
+  {
+    q: 'Tim Arunika menyusun semuanya dengan sabar. Hotel, jadwal, dan harga jelas dari awal, sehingga kami bisa menikmati perjalanan tanpa rasa was-was.',
+    trip: 'Bromo Sunrise Experience',
+  },
+  {
+    q: 'Semua jelas dari awal: harga, jadwal, dan apa yang termasuk. Tidak ada kejutan di hari keberangkatan. Saya bahkan bisa cek sisa kursi dan membayar DP sendiri.',
+    trip: '[Trip] · [Bulan tahun]',
+  },
+  {
+    q: 'Pemandunya sabar dengan ritme orang tua kami. Kami berhenti di tempat yang tepat, tanpa merasa diburu jadwal.',
+    trip: '[Trip] · [Bulan tahun]',
+  },
+  {
+    q: 'Private Trip kami disusun dari cerita yang kami kirim lewat form. Proposalnya rinci dan terasa dibuat khusus untuk keluarga kami.',
+    trip: '[Trip] · [Bulan tahun]',
+  },
+  {
+    q: 'Fajar di kaldera itu sepadan dengan bangun jam tiga pagi. Rombongan kecil, tidak ada rebutan tempat berdiri.',
+    trip: '[Trip] · [Bulan tahun]',
+  },
+  {
+    q: 'Pembayaran DP lewat website mudah dan status booking bisa dicek kapan saja. Rasanya aman sejak awal.',
+    trip: '[Trip] · [Bulan tahun]',
+  },
+];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<div class="hc hc-wrap">
+  <section class="hc-sec hc-sec--first" aria-labelledby="hc-jadwal">
+    <span class="hand">Segera berangkat</span>
+    <h2 class="hc-h2" id="hc-jadwal">
+      Jadwal <i>terdekat</i>
+    </h2>
+    <p class="hc-lead">
+      Harga per orang, tanggal berangkat, dan sisa kursi terlihat langsung di setiap kartu.
+    </p>
+    <div class="hc-row hc-row--trips">
+      {trips.map((t) => (
+        <a class="hc-tile" href={`/trips/${t.slug}`} data-status={t.status}>
+          <img {...fi(t.img)} loading="lazy" decoding="async" alt="" />
+          <span class="hc-shade" />
+          {t.badge && <span class="hc-badge">{t.badge}</span>}
+          <span class="hc-tile-txt">
+            <span class="hc-where">{t.where}</span>
+            <h3>{t.title}</h3>
+            <span class="hc-meta">{t.meta}</span>
+            <span class="hc-sched">
+              <span>{t.date}</span>
+              <span class="hc-seat">{t.seats}</span>
+            </span>
+          </span>
+        </a>
+      ))}
+    </div>
+    <div class="hc-full hc-more">
+      <HFArrowButton href={'/trips'} label={'Semua jadwal Open Trip'} />
+    </div>
+  </section>
+
+  <section class="hc-sec" aria-labelledby="hc-cara">
+    <span class="hand">Dua cara berangkat</span>
+    <h2 class="hc-h2" id="hc-cara">
+      Open Trip atau <i>Private Trip</i>
+    </h2>
+    <div class="hc-cmp">
+      <div class="hc-cmp-h" aria-hidden="true">
+        <span>Open Trip</span>
+        <span>Private Trip</span>
+      </div>
+      <dl>
+        {compare.map(([label, a, b]) => (
+          <div class="hc-cr">
+            <dt>{label}</dt>
+            <dd>
+              <span>
+                <b class="sr-only">Open Trip: </b>
+                {a}
+              </span>
+              <span>
+                <b class="sr-only">Private Trip: </b>
+                {b}
+              </span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="hc-sec" aria-labelledby="hc-dest">
+    <span class="hand">Ke mana kita pergi</span>
+    <h2 class="hc-h2" id="hc-dest">
+      Pilih <i>destinasi</i>
+    </h2>
+    <div class="hc-row hc-row--dest">
+      {dests.map((d) => (
+        <a class="hc-dt" href="/dokumentasi">
+          <img {...fi(d.img)} loading="lazy" decoding="async" alt={d.alt} />
+          <span class="hc-shade" />
+          <span class="hc-dt-t">
+            <span class="n">{d.n}</span>
+            <span class="h">{d.nama}</span>
+            <span class="s">{d.ket}</span>
+          </span>
+        </a>
+      ))}
+    </div>
+    <div class="hc-full hc-more">
+      <HFArrowButton href={'/dokumentasi'} label={'Destinasi dan dokumentasi'} />
+    </div>
+  </section>
+
+  <section class="hc-sec" aria-labelledby="hc-nilai">
+    <span class="hand">Kenapa Arunika</span>
+    <h2 class="hc-h2" id="hc-nilai">
+      Yang selalu kami <i>jaga</i>
+    </h2>
+    <ul class="hc-fr-list">
+      {nilai.map((n) => (
+        <li class="hc-fr">
+          <span class="hc-fr-i">
+            <HFIcon name={n.ikon} size={'24'} />
+          </span>
+          <div>
+            <h3>{n.judul}</h3>
+            <p>{n.isi}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="hc-sec" aria-labelledby="hc-dok">
+    <span class="hand">Dari perjalanan sebelumnya</span>
+    <h2 class="hc-h2" id="hc-dok">
+      Dokumentasi <i>trip</i>
+    </h2>
+    <div class="hc-gal">
+      {dok.map((g) => (
+        <a class={`hc-gt hc-gt--${g.cls}`} href="/dokumentasi">
+          <img {...fi(g.img)} loading="lazy" decoding="async" alt={g.alt} />
+          <span class="hc-shade" />
+          <span class="hc-gt-tag">{g.tag}</span>
+          <span class="hc-gt-cap">{g.cap}</span>
+        </a>
+      ))}
+    </div>
+    <p class="hc-note">
+      Keterangan memakai pola [Trip] · [Bulan tahun] sampai dokumentasi asli tiba.
+    </p>
+  </section>
+
+  <section
+    class="hc-sec hc-sec--last"
+    aria-labelledby="hc-ulasan"
+    data-rq
+    aria-roledescription="carousel"
+  >
+    <span class="hand">Kata peserta</span>
+    <h2 class="hc-h2" id="hc-ulasan">
+      Ulasan <i>terverifikasi</i>
+    </h2>
+    <div class="hc-rq-stage">
+      {ulasan.map((u, i) => (
+        <figure
+          class={`hc-quote${i === 0 ? ' on' : ''}`}
+          data-rq-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} dari ${ulasan.length}`}
+          aria-hidden={i === 0 ? 'false' : 'true'}
+        >
+          <blockquote>{u.q}</blockquote>
+          <figcaption>
+            <span class="who">
+              <b>[Nama peserta]</b>
+              <span>{u.trip}</span>
+            </span>
+            <span class="src">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3l7.5 3v5.5c0 4.6-3.1 8-7.5 9.5-4.4-1.5-7.5-4.9-7.5-9.5V6z" />
+                <path d="M8.5 12l2.5 2.5 4.5-5" />
+              </svg>
+              Terverifikasi (contoh)
+            </span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+    <div class="hc-rq-nav">
+      <span class="hc-rq-count" data-rq-count aria-live="polite">
+        01 / {pad(ulasan.length)}
+      </span>
+      <span class="hc-rq-btns">
+        <button type="button" class="hc-circ" data-rq-prev aria-label="Ulasan sebelumnya">
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M11 6l-6 6 6 6"></path>
+          </svg>
+        </button>
+        <button type="button" class="hc-circ" data-rq-next aria-label="Ulasan berikutnya">
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </button>
+      </span>
+    </div>
+    <p class="hc-note">Contoh teks. Ulasan asli hanya dari peserta yang berangkat.</p>
+  </section>
+</div>

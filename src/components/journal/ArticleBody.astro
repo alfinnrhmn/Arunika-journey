@@ -1,0 +1,104 @@
+---
+// Badan artikel dari blok data (lead, subjudul, paragraf, kutipan, gambar, dua gambar, tabel). Semua teks
+// di-escape oleh Astro; tidak ada HTML mentah. Subjudul memakai id s1, s2, ... untuk "Di cerita ini".
+import type { Story } from '../../content/journal';
+import { jfoto } from './photo-dims';
+
+interface Props {
+  story: Story;
+}
+const { story } = Astro.props;
+let h = 0;
+---
+
+<div class="jn-art">
+  {story.body.map((b) => {
+    switch (b.type) {
+      case 'lead':
+        return <p class="jn-lead jn-rv">{b.text}</p>;
+      case 'heading': {
+        h += 1;
+        return (
+          <>
+            <h2 id={`s${h}`} class="jn-rv">
+              {b.text}
+            </h2>
+            {b.bestFor && <p class="jn-best jn-rv">Terbaik untuk: {b.bestFor}</p>}
+          </>
+        );
+      }
+      case 'paragraph':
+        return <p class="jn-rv">{b.text}</p>;
+      case 'quote':
+        return <blockquote class="jn-quote jn-rv">{b.text}</blockquote>;
+      case 'image':
+        return (
+          <figure class="jn-fig jn-rv">
+            <div class="jn-ph jn-fig-ph">
+              <div class="jn-px">
+                <div>
+                  <img
+                    class="cover"
+                    {...jfoto(b.foto)}
+                    alt={b.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+            </div>
+            {b.caption && <figcaption class="jn-cap">{b.caption}</figcaption>}
+          </figure>
+        );
+      case 'gallery':
+        return (
+          <div class="jn-duo jn-rv">
+            {b.images.map((im) => (
+              <figure class="jn-ph jn-duo-ph">
+                <div class="jn-px">
+                  <div>
+                    <img
+                      class="cover"
+                      {...jfoto(im.foto)}
+                      alt={im.alt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                </div>
+              </figure>
+            ))}
+          </div>
+        );
+      case 'table': {
+        const label = (b.head[2] ?? '').split(' ')[0];
+        return (
+          <table class="jn-tbl jn-rv" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                {b.head.map((c) => (
+                  <th role="columnheader" scope="col">
+                    {c}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              {b.rows.map((r) => (
+                <tr role="row">
+                  {r.map((c, i) => (
+                    <td role="cell" data-label={i === 2 ? label : undefined}>
+                      {c}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      }
+      default:
+        return null;
+    }
+  })}
+</div>

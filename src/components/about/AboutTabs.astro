@@ -1,0 +1,20 @@
+---
+// Tab anchor ke bagian halaman (hanya desktop, mengikuti frame desktop) dan breadcrumb.
+import { aboutTabs } from '../../content/about';
+---
+
+<div class="ab-tabs">
+  <nav class="ab-tabs-nav" aria-label="Bagian halaman">
+    {aboutTabs.map((t) => (
+      <a href={`#${t.id}`}>{t.label}</a>
+    ))}
+  </nav>
+  <a class="ab-pill" href="/contact">
+    Tanya kami
+  </a>
+</div>
+<nav class="ab-crumb" aria-label="Breadcrumb">
+  <a href="/">Beranda</a>
+  <span aria-hidden="true">/</span>
+  <span aria-current="page">Tentang Kami</span>
+</nav>

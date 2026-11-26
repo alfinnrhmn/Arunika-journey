@@ -1,0 +1,94 @@
+---
+// Kepala detail cerita: jejak halaman, label topik, judul (satu-satunya h1), penulis/tanggal/lama baca, dan foto sampul.
+import type { Story } from '../../content/journal';
+import {
+  authorLabel,
+  dateLabel,
+  eyebrowLabel,
+  getTopic,
+  readLabel,
+  titleParts,
+} from '../../content/journal';
+import { jfoto } from './photo-dims';
+import { listHref } from './journal-url';
+
+interface Props {
+  story: Story;
+}
+const { story } = Astro.props;
+const [pre, em, post] = titleParts(story);
+const topic = getTopic(story.topics[0]);
+---
+
+<nav class="jn-crumbs jn-fade" style="--d: 0.05s" aria-label="Jejak halaman">
+  <a href="/journal">
+    <svg
+      width="18"
+      height="10"
+      viewBox="0 0 18 10"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M17 5H2M6 1L2 5l4 4"></path>
+    </svg>
+    Journal
+  </a>
+  {topic && (
+    <>
+      <span class="jn-crumb-sep" aria-hidden="true">
+        /
+      </span>
+      <a class="jn-crumb-cur" href={listHref({ topik: topic.slug })}>
+        {topic.name}
+      </a>
+    </>
+  )}
+</nav>
+
+<header class="jn-ahead">
+  <div class="jn-fade" style="--d: 0.15s">
+    <span class="jn-eyebrow">{eyebrowLabel(story)}</span>
+    {story.sample && <span class="jn-sample jn-sample-inline">Contoh</span>}
+  </div>
+  <span class="jn-mask">
+    <h1 class="jn-rise" style="--d: 0.2s">
+      {pre}
+      {em && <i>{em}</i>}
+      {post}
+    </h1>
+  </span>
+  <p class="jn-byline jn-fade" style="--d: 0.8s">
+    <span class="jn-by">
+      Ditulis oleh <b>{authorLabel(story)}</b>
+    </span>
+    <span class="jn-sep jn-sep-1" aria-hidden="true"></span>
+    <span>{dateLabel(story.publishedAt)}</span>
+    <span class="jn-sep jn-sep-2" aria-hidden="true"></span>
+    <span>{readLabel(story)}</span>
+  </p>
+</header>
+
+<figure class="jn-cover">
+  <div class="jn-ph jn-cover-ph">
+    <div class="jn-px">
+      <div>
+        <img
+          class="cover"
+          {...jfoto(story.cover.foto)}
+          alt={story.cover.alt}
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+  {story.cover.caption && (
+    <figcaption class="jn-cap jn-fade" style="--d: 1.4s">
+      {story.cover.caption}
+    </figcaption>
+  )}
+</figure>

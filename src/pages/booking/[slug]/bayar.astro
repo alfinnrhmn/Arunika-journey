@@ -5,6 +5,7 @@
 import FlowShell from '../../../components/booking/flow/FlowShell.astro';
 import FlowMissing from '../../../components/booking/flow/FlowMissing.astro';
 import FlowAlert from '../../../components/booking/flow/FlowAlert.astro';
+import FlowBar from '../../../components/booking/flow/FlowBar.astro';
 import FlowButton from '../../../components/booking/flow/FlowButton.astro';
 import FlowPrice from '../../../components/booking/flow/FlowPrice.astro';
 import FlowSh from '../../../components/booking/flow/FlowSh.astro';
@@ -167,6 +168,8 @@ const summary = flow
     step={1}
     {slug}
     hand="Kuota dicek sebelum pembayaran"
+    summaryMode="quota"
+    backHref={`/booking/${slug}/data`}
     {summary}
   >
     <Fragment slot="heading">
@@ -188,6 +191,8 @@ const summary = flow
     step={1}
     {slug}
     hand="Jadwal berubah"
+    summaryMode="replace"
+    backHref={`/booking/${slug}/data`}
     {summary}
   >
     <Fragment slot="heading">
@@ -306,8 +311,14 @@ const summary = flow
 
     <form method="post" action={`/booking/${slug}/bayar`} data-bf-form data-bf-mode="pay">
       <div class="bf-actions">
-        <FlowButton tone="secondary" label="Kembali" href={`/booking/${slug}/data`} />
-        <FlowButton label={`Bayar DP ${formatRupiah(price?.dp ?? 0)}`} arrow data-bf-submit />
+        <FlowButton tone="secondary" label="Kembali" href={`/booking/${slug}/data`} data-bf-back />
+        <FlowBar
+          variant="price-tablet"
+          label={`DP hari ini · Total ${formatRupiah(price?.total ?? 0)}`}
+          value={formatRupiah(price?.dp ?? 0)}
+        >
+          <FlowButton label={`Bayar DP ${formatRupiah(price?.dp ?? 0)}`} arrow data-bf-submit />
+        </FlowBar>
         <span class="side-note">Anda diarahkan ke instruksi pembayaran.</span>
       </div>
     </form>

@@ -1,0 +1,23 @@
+---
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { aboutIntro, aboutStrip } from '../../content/about';
+---
+
+<section class="ab-intro" aria-labelledby="ab-intro-h">
+  <p class="ab-eyebrow ab-eyebrow-ink">{aboutIntro.eyebrow}</p>
+  <h2 class="ab-lead" id="ab-intro-h">
+    {aboutIntro.lead}
+  </h2>
+  <p class="ab-intro-body">{aboutIntro.body}</p>
+  <div class="ab-intro-cta">
+    <HFArrowButton tone="dark" label={aboutIntro.cta.label} href={aboutIntro.cta.href} />
+  </div>
+</section>
+<section class="ab-strip" aria-label="Ajakan bertanya">
+  <p class="ab-strip-t">{aboutStrip.title}</p>
+  <span class="ab-strip-sep" aria-hidden="true"></span>
+  <p class="ab-strip-x">{aboutStrip.text}</p>
+  <a class="ab-pill ab-pill-light" href={aboutStrip.cta.href}>
+    {aboutStrip.cta.label}
+  </a>
+</section>

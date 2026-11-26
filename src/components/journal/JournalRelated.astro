@@ -1,0 +1,37 @@
+---
+// "Baca juga": tiga cerita lain. Desktop tiga kolom (kolom tengah turun), tablet tiga kolom rapat, mobile
+// deretan yang bisa digulir ke samping.
+import type { Story } from '../../content/journal';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import JournalCard from './JournalCard.astro';
+
+interface Props {
+  stories: Story[];
+}
+const { stories } = Astro.props;
+// Pola rasio dari rancangan detail: portrait, tall, portrait.
+const ratios = ['portrait', 'tall', 'portrait'] as const;
+---
+
+{stories.length > 0 && (
+  <section class="jn-related" aria-labelledby="jn-rel-h">
+    <div class="jn-rel-head">
+      <h2 id="jn-rel-h">
+        Baca <i>juga</i>
+      </h2>
+      <span class="jn-rel-all-d">
+        <HFArrowButton tone="outline" label="Semua cerita" href="/journal" />
+      </span>
+    </div>
+    <div class="jn-rel-grid jn-rail">
+      {stories.map((s, i) => (
+        <div class="jn-item" style={`--i:${i}`}>
+          <JournalCard story={s} ratio={ratios[i % 3]} ratioSmall={ratios[i % 3]} />
+        </div>
+      ))}
+    </div>
+    <div class="jn-rel-all-m">
+      <HFArrowButton tone="outline" label="Semua cerita" href="/journal" />
+    </div>
+  </section>
+)}

@@ -1,0 +1,61 @@
+---
+// Daftar Journal: cerita pilihan, filter topik/destinasi (`?topik=`, `?destinasi=`), kisi cerita, dan halaman
+// (`?halaman=`). Penyaringan dan pembagian halaman dikerjakan di server; tidak butuh JavaScript. Isi cerita
+// masih contoh dari src/content/journal.ts dan nanti diganti data CMS.
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/journal.css';
+import HFNavRD from '../../components/hf/HFNavRD.astro';
+import JournalIntro from '../../components/journal/JournalIntro.astro';
+import JournalHero from '../../components/journal/JournalHero.astro';
+import JournalFilters from '../../components/journal/JournalFilters.astro';
+import JournalGrid from '../../components/journal/JournalGrid.astro';
+import JournalPager from '../../components/journal/JournalPager.astro';
+import JournalCta from '../../components/journal/JournalCta.astro';
+import { DEFAULT_CTA, featuredStory, listStories } from '../../content/journal';
+
+const sp = Astro.url.searchParams;
+const rawPage = sp.get('halaman');
+const result = listStories({
+  topik: sp.get('topik'),
+  destinasi: sp.get('destinasi'),
+  halaman: rawPage && /^\d{1,4}$/.test(rawPage) ? Number(rawPage) : 1,
+});
+const featured = featuredStory();
+
+const topikNama = result.topic?.name;
+const title = topikNama ? `${topikNama} | Journal | Arunika Journey` : 'Journal | Arunika Journey';
+const description = topikNama
+  ? `Cerita Journal Arunika Journey bertopik ${topikNama}: catatan dari lapangan, panduan destinasi, dan kisah tamu.`
+  : 'Journal Arunika Journey: catatan dari lapangan, panduan destinasi, cerita tim, dan kisah tamu yang berjalan bersama kami.';
+const summary = [topikNama ?? 'Semua', result.destinasi?.name].filter(Boolean).join(' · ');
+---
+
+<Public title={title} description={description}>
+  <HFNavRD tone="solid" />
+  <main class="jn-main">
+    <JournalIntro />
+    {featured && <JournalHero story={featured} />}
+    <section class="jn-stories" id="cerita" aria-label="Daftar cerita">
+      <JournalFilters result={result} />
+      <div class="jn-results">
+        <div class="jn-bar">
+          <p>
+            Menampilkan <b>{result.total}</b> cerita · Topik: <b>{summary}</b>
+          </p>
+          <p class="jn-sort">
+            <span class="jn-sort-l">Urutkan: </span>
+            <b>Terbaru</b>
+          </p>
+        </div>
+        <h2 class="jn-sr">Daftar cerita</h2>
+        <JournalGrid result={result} />
+      </div>
+    </section>
+    <JournalPager result={result} />
+    <JournalCta title={DEFAULT_CTA.title} em={DEFAULT_CTA.em} body={DEFAULT_CTA.body} />
+  </main>
+</Public>
+
+<script>
+  import '../../scripts/journal-filter';
+</script>

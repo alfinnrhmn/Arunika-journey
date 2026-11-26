@@ -757,6 +757,9 @@
   letter-spacing: -0.03em;
   color: var(--color-paper);
 }
+.hp28.dlong {
+  font-size: 112px;
+}
 .hp29 {
   margin-top: 20px;
   max-width: 460px;
@@ -1302,4 +1305,1156 @@
   font-size: 14px;
   border-bottom: 1px solid var(--color-paper);
   padding-bottom: 3px;
+}
+
+/* ==========================================================================
+   Responsif, tiga rentang. Desktop (>= 1280px): komposisi desktop apa adanya. Tablet (768-1279px): varian kecil
+   dari frame Tablet (Red Dot style): bagian desktop berkelas `hd` disembunyikan, bagian `hc` (HomeCompact dan
+   varian hero) ditampilkan. Mobile (< 768px): bagian desktop yang sama, dirapikan untuk 390px (blok mobile di
+   akhir berkas). Gerak berat (pin, marquee, slideshow, destinasi) hidup di mobile dan desktop; foto pengikut
+   kursor di desktop, ketuk-untuk-buka di layar sentuh: lihat src/lib/motion/ dan src/scripts/home.js.
+   ========================================================================== */
+/* Tiga rentang: < 768 (mobile) dan >= 1280 (desktop) memakai bagian desktop (hd); 768-1279 (tablet) memakai
+   varian kecil (hc). */
+@media (max-width: 767px), (min-width: 1280px) {
+  .hc.hc {
+    display: none;
+  }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hd.hd {
+    display: none;
+  }
+}
+
+/* Foto yang menggantikan baris saat diketuk di layar sentuh (pengganti foto pengikut kursor, src/lib/motion/follow.ts). */
+.stay-thumb {
+  display: none;
+  margin-top: 12px;
+}
+.stay-thumb img {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  background: var(--color-paper-2);
+}
+[data-follow-tap].open .stay-thumb {
+  display: block;
+}
+[data-follow-tap].open {
+  color: var(--color-ink);
+}
+[data-follow-tap][role='button'] {
+  cursor: pointer;
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  /* Hero: satu foto, teks di bawah, tinggi mengikuti isi (header menimpa bagian atas, jadi diberi ruang). */
+  .hp1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: auto;
+    padding: 96px var(--hc-gut) 36px;
+  }
+  .hhero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% 50%;
+  }
+  .hp2 {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-night) 60%, transparent) 0%,
+      color-mix(in srgb, var(--color-night) 18%, transparent) 30%,
+      color-mix(in srgb, var(--color-night) 30%, transparent) 52%,
+      color-mix(in srgb, var(--color-night) 88%, transparent) 100%
+    );
+  }
+  .hp3 {
+    position: relative;
+    z-index: 1;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: none;
+  }
+  .hhero-hand {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    color: var(--color-paper);
+    opacity: 0.92;
+  }
+  .hp4 {
+    margin-top: 12px;
+  }
+  .hhero-p {
+    margin-top: 20px;
+    max-width: 520px;
+    font-size: 16px;
+    opacity: 0.92;
+  }
+  .hhero-cta {
+    display: flex;
+  }
+  /* Tombol pil */
+  .hc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 28px;
+    border-radius: var(--radius-pill);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .hc-btn--ghost {
+    border: 1px solid var(--color-paper);
+    color: var(--color-paper);
+  }
+  /* Bagian isi */
+  .hc-sec {
+    padding: 80px var(--hc-gut) 0;
+  }
+  .hc-wrap .hand {
+    color: var(--color-dawn-deep);
+  }
+  .hc-h2 {
+    margin-top: 10px;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-2);
+  }
+  .hc-lead {
+    max-width: 560px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .hc-note {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .hc-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      transparent 38%,
+      color-mix(in srgb, var(--color-ink) 82%, transparent) 100%
+    );
+  }
+  /* Kartu trip */
+  .hc-tile {
+    position: relative;
+    display: block;
+    aspect-ratio: 504 / 600;
+    overflow: hidden;
+    color: var(--color-paper);
+  }
+  .hc-tile img,
+  .hc-dt img,
+  .hc-gt img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hc-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    background: var(--color-dawn-deep);
+    color: var(--color-paper);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hc-tile-txt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0 28px;
+    text-align: center;
+  }
+  .hc-where {
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 0.02em;
+  }
+  .hc-tile h3 {
+    font-size: 40px;
+    line-height: 42px;
+    letter-spacing: -0.015em;
+    color: var(--color-paper);
+  }
+  .hc-meta {
+    font-size: 16px;
+    line-height: 22px;
+    opacity: 0.95;
+  }
+  .hc-sched {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 10px;
+    margin-top: 6px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+  .hc-seat {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-status-ok-soft);
+    color: var(--color-status-ok);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .hc-tile[data-status='few'] .hc-seat {
+    background: var(--color-status-pending-soft);
+    color: var(--color-status-pending);
+  }
+  .hc-tile[data-status='full'] .hc-seat {
+    background: var(--color-status-full-soft);
+    color: var(--color-status-full);
+  }
+  /* Perbandingan Open Trip / Private Trip */
+  .hc-cmp-h {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--cg);
+    font-family: var(--font-serif);
+    color: var(--color-ink);
+  }
+  .hc-cmp dl {
+    margin: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .hc-cr {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+  .hc-cr dt {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .hc-cr dd {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--cg);
+    margin: 6px 0 0;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  /* Destinasi */
+  .hc-dt {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+    color: var(--color-paper);
+  }
+  .hc-dt .hc-shade,
+  .hc-gt .hc-shade {
+    background: linear-gradient(
+      180deg,
+      transparent 45%,
+      color-mix(in srgb, var(--color-night) 80%, transparent) 100%
+    );
+  }
+  .hc-dt-t {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+  .hc-dt-t > span {
+    display: block;
+  }
+  .hc-dt-t .n {
+    font-size: 12px;
+    opacity: 0.85;
+  }
+  .hc-dt-t .h {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    line-height: 34px;
+    font-weight: 300;
+  }
+  .hc-dt-t .s {
+    font-size: 16px;
+    line-height: 18px;
+    opacity: 0.9;
+  }
+  /* Nilai layanan */
+  .hc-fr-list {
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hc-fr {
+    display: flex;
+    gap: 16px;
+    padding: 22px 0;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+  .hc-fr-i {
+    flex: none;
+    width: 28px;
+    padding-top: 2px;
+    color: var(--color-dawn-deep);
+  }
+  .hc-fr h3 {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 400;
+  }
+  .hc-fr p {
+    margin-top: 6px;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-ink-2);
+  }
+  /* Dokumentasi */
+  .hc-gal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .hc-gt {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    color: var(--color-paper);
+  }
+  .hc-gt-tag {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: var(--radius-pill);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hc-gt-cap {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 16px;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  /* Ulasan */
+  .hc-rq-stage {
+    display: grid;
+    max-width: 640px;
+  }
+  .hc-quote {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    margin: 0;
+    padding: 32px;
+    border-radius: var(--radius-xs);
+    background: var(--color-paper-2);
+    color: var(--color-ink);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s linear 0.4s;
+  }
+  .hc-quote.on {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease;
+  }
+  .hc-quote blockquote {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    line-height: 34px;
+    font-weight: 400;
+  }
+  .hc-quote figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px 16px;
+    font-size: 16px;
+    line-height: 22px;
+    color: var(--color-ink-2);
+  }
+  .hc-quote .who {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hc-quote .who b {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .hc-quote .src {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-status-ok);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .hc-rq-nav {
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hc-rq-btns {
+    display: flex;
+    gap: 12px;
+  }
+  .hc-circ {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--color-ink-2);
+    background: transparent;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .hc-circ:hover {
+    background: var(--color-paper-2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hc-quote,
+    .hc-quote.on {
+      transition: none;
+    }
+  }
+  /* Fokus papan ketik di atas foto: cincin terang (kertas) dengan bayangan gelap di dalamnya agar terbaca di foto terang maupun gelap. */
+  .hc-tile:focus-visible,
+  .hc-dt:focus-visible,
+  .hc-gt:focus-visible {
+    outline: 3px solid var(--color-paper);
+    outline-offset: -8px;
+    box-shadow: inset 0 0 0 9px color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+  .hhero-cta :focus-visible {
+    outline-color: var(--color-paper);
+  }
+}
+
+/* Ajakan penutup (komponen desktop yang sama): tablet dan mobile */
+@media (max-width: 1279px) {
+  .hp102 :focus-visible {
+    outline-color: var(--color-paper);
+  }
+  .hp102 {
+    height: auto;
+    min-height: 560px;
+    margin-top: 80px;
+  }
+  .hp105 {
+    padding: 96px 24px 72px;
+  }
+  .hp106 {
+    font-size: clamp(44px, 13.4vw, 52px);
+  }
+  .hp107 {
+    margin-top: 20px;
+    max-width: 520px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .hp108 {
+    margin-top: 32px;
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hp1,
+  .hc-wrap {
+    --hc-gut: max(32px, calc((100% - 1120px) / 2));
+  }
+  .hp1 {
+    min-height: min(100vh, 560px);
+    min-height: min(100svh, 560px);
+    padding-top: 112px;
+    padding-bottom: 40px;
+  }
+  .hhero-hand {
+    font-size: 28px;
+  }
+  .hp4 {
+    max-width: 620px;
+    font-size: clamp(60px, 5.6vw, 72px);
+    line-height: 1.06;
+  }
+  .hhero-p {
+    line-height: 26px;
+  }
+  .hhero-cta {
+    margin-top: 24px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .hc-btn {
+    align-self: center;
+  }
+  .hc-full .hf-ab.hf-ab {
+    display: inline-flex;
+    justify-content: flex-start;
+    width: auto;
+  }
+
+  .hc-sec,
+  .hc-sec--first {
+    padding-top: 96px;
+  }
+  .hc-wrap .hand {
+    font-size: 28px;
+  }
+  .hc-h2 {
+    font-size: 40px;
+    line-height: 46px;
+  }
+  .hc-lead {
+    margin-top: 16px;
+  }
+  .hc-more {
+    margin-top: 40px;
+  }
+  .hc-note {
+    margin-top: 16px;
+  }
+  .hc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 40px 0 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .hc-tile {
+    flex: none;
+    width: 100%;
+  }
+  .hc-tile:nth-child(4) {
+    display: block;
+  }
+  .hc-dt {
+    flex: none;
+    width: 100%;
+    height: 300px;
+  }
+  .hc-cmp {
+    --cg: 16px;
+    margin-top: 40px;
+  }
+  .hc-cmp-h {
+    padding-bottom: 14px;
+    font-size: 28px;
+    line-height: 36px;
+  }
+  .hc-fr-list {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+  .hc-gal {
+    margin-top: 40px;
+    grid-template-rows: 400px 275px;
+    gap: 24px;
+  }
+  .hc-gt--c {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+  }
+  .hc-gt--a {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .hc-gt--b {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .hc-rq-stage {
+    margin-top: 40px;
+  }
+  .hc-quote {
+    min-height: 300px;
+  }
+  .hc-rq-nav {
+    margin-top: 24px;
+  }
+
+  .hp102 {
+    min-height: 547px;
+    margin-top: 96px;
+  }
+  .hp105 {
+    padding: 112px 32px 72px;
+  }
+  .hp106 {
+    font-size: 60px;
+    line-height: 64px;
+  }
+  .hp107 {
+    line-height: 26px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hc-tile {
+    aspect-ratio: 504 / 520;
+  }
+  .hp4 {
+    max-width: 760px;
+  }
+  .hc-dt {
+    height: 340px;
+  }
+}
+
+/* ==========================================================================
+   Mobile (< 768px): rangkaian bagian DESKTOP terbaru dirapikan untuk 390px. Urutan, teks, foto, dan gerak sama;
+   yang berubah hanya tata letak (kolom bertumpuk, baris geser, tipografi berskala, tanpa posisi absolut
+   berbasis piksel desktop). Varian kecil `hc` tidak tampil di sini (hanya 768-1279).
+   ========================================================================== */
+@media (max-width: 767px) {
+  .hand {
+    font-size: 26px;
+  }
+  /* Baris geser horizontal: kartu, galeri. Gulir hanya di dalam baris, bukan di halaman. */
+  .hp59,
+  .hp84 {
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+  .hp59::-webkit-scrollbar,
+  .hp84::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hero: foto penuh layar, teks di bawah, progres dan penanda gulir di atas tepi bawah */
+  .hp1 {
+    min-height: 560px;
+  }
+  .hp3 {
+    left: 20px;
+    right: 20px;
+    bottom: 148px;
+    max-width: none;
+  }
+  .hp4 {
+    font-size: clamp(46px, 13.4vw, 56px);
+    line-height: 0.98;
+  }
+  .hp5 {
+    margin-top: 18px;
+    max-width: none;
+  }
+  .hp6 {
+    left: 20px;
+    right: 20px;
+    bottom: 32px;
+    width: auto;
+  }
+  .hmouse {
+    bottom: 88px;
+  }
+
+  /* Intro: foto dan teks bertumpuk */
+  .hp12 {
+    padding: 72px 0 0;
+  }
+  .hp13 {
+    padding: 0 20px;
+    gap: 56px;
+  }
+  .fam-item,
+  .fam-rev {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .fam-txt,
+  .fam-rev .fam-txt {
+    padding: 0;
+  }
+  .hp14 {
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+  .hp17 {
+    height: auto;
+    margin: 0 0 0 auto;
+    width: 68%;
+    aspect-ratio: 3 / 4;
+  }
+  .fpx {
+    top: 0;
+    bottom: 0;
+  }
+  .fam-txt h3 {
+    font-size: clamp(34px, 9.4vw, 40px);
+  }
+  .fam-d {
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .hp16 {
+    margin-top: 28px;
+  }
+  .hp18 {
+    margin-top: 72px;
+  }
+  /* Gambar yang membuka sampai penuh layar: tinggi layar terbesar (lvh) agar tidak ada garis putih di bawah
+     saat bar alamat peramban mengecil. */
+  .thumb {
+    height: 100vh;
+    height: 100lvh;
+  }
+
+  /* Destinasi: satu layar, foto kecil di atas, judul dan bilah di bawah */
+  .hp19 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: auto;
+    min-height: 780px;
+    padding: 88px 20px 28px;
+  }
+  .hp21,
+  .hp25 {
+    left: 20px;
+    right: 20px;
+    top: 84px;
+    gap: 8px;
+    align-items: flex-start;
+    justify-content: stretch;
+  }
+  .hp22 {
+    flex: 1 1 0;
+    width: auto;
+    height: clamp(110px, 30vw, 150px);
+    margin-top: 0;
+  }
+  .hp23 {
+    flex: 1.2 1 0;
+    width: auto;
+    height: clamp(150px, 40vw, 190px);
+  }
+  .hp24 {
+    flex: 1 1 0;
+    width: auto;
+    height: clamp(100px, 26vw, 130px);
+    margin-top: clamp(28px, 9vw, 44px);
+  }
+  .hp26 {
+    position: relative;
+    left: auto;
+    bottom: auto;
+  }
+  .hp28 {
+    margin-top: 12px;
+    font-size: clamp(56px, 18vw, 76px);
+  }
+  .hp28.dlong {
+    font-size: clamp(42px, 13.6vw, 58px);
+  }
+  .hp29 {
+    max-width: none;
+  }
+  .hp30 {
+    margin-top: 24px;
+  }
+  .hp31 {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .hp37 {
+    justify-content: flex-end;
+  }
+  .hp32 {
+    gap: 6px;
+  }
+  /* Bilah progres di mobile: hanya nomor, tinggi sentuh 44px */
+  .hp33,
+  .hp35 {
+    padding-bottom: 14px;
+    font-size: 0;
+    letter-spacing: 0;
+  }
+  .hp34,
+  .hp36 {
+    margin-right: 0;
+    font-size: 12px;
+  }
+
+  /* Lewat sini untuk ide */
+  .hp39 {
+    padding: 80px 20px;
+  }
+  .hp40,
+  .hp89 {
+    font-size: clamp(42px, 12.6vw, 56px);
+  }
+  .hp41 {
+    margin-top: 32px;
+    font-size: 16px;
+  }
+  .hp42,
+  .hp43 {
+    padding: 11px 20px;
+    font-size: 16px;
+  }
+  .hp44 {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+    margin-top: 32px;
+    padding: 0;
+  }
+  .hp45 {
+    font-size: clamp(30px, 8.4vw, 36px);
+    line-height: 1.5;
+  }
+  .jit {
+    padding: 4px 0;
+  }
+  .jit.on {
+    transform: translateX(12px);
+  }
+  .jimg {
+    flex: none;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+  .hp46 {
+    font-size: 16px;
+  }
+
+  /* Inti dari perjalananmu: empat foto dan teks berjalan */
+  .hp48 {
+    height: clamp(460px, 132vw, 560px);
+  }
+  .vimg {
+    width: 32%;
+  }
+  .hp49 {
+    left: 4%;
+    top: 8%;
+  }
+  .hp50 {
+    left: 33%;
+    top: 40%;
+  }
+  .hp51 {
+    left: 60%;
+    top: 10%;
+  }
+  .hp51b {
+    left: 64%;
+    top: 52%;
+  }
+  .hp52 {
+    top: 50%;
+    transform: translateY(-50%);
+    overflow: clip;
+    font-size: clamp(84px, 25vw, 108px);
+  }
+  .mq-track {
+    animation-duration: 36s;
+  }
+  .hp53 {
+    padding: 24px 20px 80px;
+  }
+  .hp55 {
+    font-size: 18px;
+    line-height: 28px;
+  }
+  .hp56 {
+    margin-top: 28px;
+  }
+
+  /* Itinerary: kartu dalam baris geser */
+  .hp57 {
+    font-size: clamp(34px, 9.4vw, 40px);
+  }
+  .hp58,
+  .hp70,
+  .hp83,
+  .hp90 {
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .hp59 {
+    display: flex;
+    gap: 12px;
+    margin: 32px -20px 0;
+    padding: 0 20px;
+    overflow-x: auto;
+  }
+  .hp59 > div {
+    flex: 0 0 min(300px, calc(100vw - 72px));
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-margin-inline: 20px;
+  }
+  .hp59 .hf-itin.hf-itin.hf-itin .img.img {
+    height: 300px;
+  }
+  .hp59 .hf-itin.hf-itin.hf-itin .body.body {
+    padding: 20px 20px 24px;
+  }
+  .hp59 .hf-itin.hf-itin.hf-itin h3 {
+    font-size: 26px;
+    line-height: 32px;
+    white-space: normal;
+  }
+  .hp59 .hf-itin.hf-itin.hf-itin .meta.meta {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .hp59 .hf-itin.hf-itin.hf-itin .sched.sched {
+    flex-wrap: wrap;
+  }
+  .hp60 {
+    margin-top: 32px;
+  }
+
+  /* Dalam kata mereka */
+  .hp61 {
+    padding: 0 20px 80px;
+  }
+  .tm {
+    flex-direction: column;
+    height: auto;
+    gap: 16px;
+  }
+  .tm-side {
+    display: contents;
+  }
+  .tm-dark {
+    order: -1;
+    height: auto;
+    gap: 28px;
+    padding: 24px;
+  }
+  .tm-dark h3 {
+    font-size: clamp(38px, 10.4vw, 44px);
+  }
+  .tm-card {
+    flex: none;
+    height: clamp(480px, 138vw, 560px);
+  }
+  .tq {
+    padding: 0 20px 24px;
+  }
+  .tq p {
+    font-size: 21px;
+  }
+  .tn {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+  .tn1 {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  .tm-nav {
+    order: 1;
+  }
+  .hp68 {
+    white-space: normal;
+  }
+
+  /* Tempat cerita bermula */
+  .hp71 {
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 40px;
+  }
+  .hp72 {
+    width: 100%;
+  }
+  .hp74,
+  .hp78,
+  .hp79 {
+    font-size: clamp(28px, 8vw, 34px);
+    line-height: 1.25;
+  }
+  .hp80 {
+    flex: none;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .stay-thumb img {
+    max-width: none;
+  }
+
+  /* Lebih dekat: kartu video dalam baris geser */
+  .hp81 {
+    padding: 0 0 80px;
+  }
+  .hp82 {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .hp84 {
+    margin-top: 32px;
+    gap: 12px;
+    padding: 0 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .hp85 {
+    flex: 0 0 min(260px, 70vw);
+    height: clamp(380px, 108vw, 460px);
+    scroll-snap-align: start;
+    scroll-margin-inline: 20px;
+  }
+  .hp87 {
+    padding: 0 20px 64px;
+  }
+
+  /* Momen di perjalanan kami: dua kolom */
+  .hp89 {
+    max-width: none;
+  }
+  .hp91 {
+    margin-top: 40px;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 88px;
+    gap: 10px;
+  }
+  .hp92 {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+  }
+  .hp95 {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+  .hp96 {
+    grid-column: 2;
+    grid-row: 4 / span 4;
+  }
+  .hp97 {
+    grid-column: 1;
+    grid-row: 5 / span 3;
+  }
+  .hp98 {
+    grid-column: 2;
+    grid-row: 8 / span 3;
+  }
+  .hp99 {
+    grid-column: 1;
+    grid-row: 8 / span 3;
+  }
+  .hp100 {
+    margin-top: 40px;
+  }
+
+  /* Tombol pil di layar 320px: label boleh turun baris dan tidak melebihi kolom */
+  .hp16 .hf-ab.hf-ab,
+  .hp30 .hf-ab.hf-ab,
+  .hp56 .hf-ab.hf-ab,
+  .hp60 .hf-ab.hf-ab,
+  .hp77 .hf-ab.hf-ab,
+  .hp101 .hf-ab.hf-ab,
+  .hp108 .hf-ab.hf-ab {
+    max-width: 100%;
+    height: auto;
+    min-height: 56px;
+    padding-block: 6px;
+    font-size: 16px;
+    white-space: normal;
+  }
+  .hp59 .hf-itin.hf-itin.hf-itin .dt.dt,
+  .hp59 .hf-itin.hf-itin.hf-itin .more.more {
+    font-size: 16px;
+  }
+  /* Area ketuk >= 44px untuk penanda gulir dan tautan teks */
+  .hmouse::after {
+    content: '';
+    position: absolute;
+    inset: -8px -14px;
+  }
+  .hp110 {
+    display: inline-block;
+    padding: 14px 0 6px;
+    font-size: 16px;
+  }
+  .tn2,
+  .hp68 {
+    font-size: 14px;
+  }
+
+  /* Ajakan penutup: menempel langsung ke galeri di atasnya */
+  .hp102 {
+    margin-top: 0;
+  }
 }

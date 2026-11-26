@@ -1,5 +1,8 @@
 ---
-// Sidebar filter (tampilan saja pada tahap ini; belum menyaring data). Akordeon memakai <details>.
+// Panel filter (tampilan saja pada tahap ini; belum menyaring data). Akordeon memakai <details>.
+// Desktop (>=1024): sidebar di samping hasil. Tablet: laci dari kanan; mobile: lembar bawah. Pembuka dan penutup
+// adalah tautan jangkar (#tl-filter / #tl-bar) sehingga panel tetap bisa dibuka dan ditutup tanpa JS lewat :target;
+// skrip di bawah menambahkan peran dialog, jebakan fokus, Esc, dan aria-expanded.
 interface Props {
   count: number;
 }
@@ -26,55 +29,204 @@ const groups = [
 ];
 ---
 
-<aside class="tl5" aria-label="Filter trip">
-  <div class="tl6">
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-      aria-hidden="true"
-    >
-      <path d="M4 6h16M7 12h10M10 18h4"></path>
-    </svg>
-    <span>Filter trip</span>
-    <span class="tl7">{count}</span>
+<aside class="tl5" id="tl-filter" aria-label="Filter trip">
+  <div class="tl-sheet-head">
+    <span class="tl-sheet-handle" aria-hidden="true"></span>
+    <h2 class="tl-sheet-title" id="tl-filter-title">
+      Filter <i>trip</i>
+    </h2>
+    <a class="tl-close" href="#tl-bar" role="button" aria-label="Tutup filter" data-filter-close>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </a>
   </div>
-  <div class="tl8">
-    <div class="tl9">Kategori</div>
-    <div class="tl10">
-      {categories.map((c, i) => (
-        <span class={i === 0 ? 'tl-chip on' : 'tl-chip'}>{c}</span>
-      ))}
+  <div class="tl-sheet-body">
+    <div class="tl6">
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M4 6h16M7 12h10M10 18h4"></path>
+      </svg>
+      <span>Filter trip</span>
+      <span class="tl7">{count}</span>
+    </div>
+    <div class="tl8">
+      <div class="tl9">Kategori</div>
+      <div class="tl10">
+        {categories.map((c, i) => (
+          <span class={i === 0 ? 'tl-chip on' : 'tl-chip'}>{c}</span>
+        ))}
+      </div>
+    </div>
+    {groups.map((g) => (
+      <details class="tl-acc-d">
+        <summary class="tl-acc">
+          <span>{g}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path class="tl-acc-v" d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+        </summary>
+        <p class="tl-acc-note">Penyaringan segera tersedia.</p>
+      </details>
+    ))}
+    <div class="tl11">
+      <a class="tl12" href="/trips">
+        Hapus semua filter
+      </a>
     </div>
   </div>
-  {groups.map((g) => (
-    <details class="tl-acc-d">
-      <summary class="tl-acc">
-        <span>{g}</span>
+  <div class="tl-sheet-foot">
+    <a class="tl-apply" href="#tl-bar" role="button" data-filter-close>
+      <span>Lihat {count} trip</span>
+      <span class="tl-apply-ic">
         <svg
           viewBox="0 0 24 24"
-          width="16"
-          height="16"
+          width="18"
+          height="18"
           fill="none"
           stroke="currentColor"
           stroke-width="1.4"
           stroke-linecap="round"
+          stroke-linejoin="round"
           aria-hidden="true"
         >
-          <path class="tl-acc-v" d="M12 5v14" />
-          <path d="M5 12h14" />
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
         </svg>
-      </summary>
-      <p class="tl-acc-note">Penyaringan segera tersedia.</p>
-    </details>
-  ))}
-  <div class="tl11">
-    <a class="tl12" href="/trips">
+      </span>
+    </a>
+    <a class="tl-reset" href="/trips">
       Hapus semua filter
     </a>
   </div>
 </aside>
+<a class="tl-scrim" href="#tl-bar" tabindex="-1" aria-hidden="true" data-filter-close></a>
+
+<script>
+  // Panel filter tablet/mobile: dialog modal dengan jebakan fokus, Esc, dan pengembalian fokus ke pembuka.
+  const panel = document.getElementById('tl-filter');
+  if (panel) {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const openers = [...document.querySelectorAll<HTMLElement>('[data-filter-open]')];
+    const closers = [...document.querySelectorAll<HTMLElement>('[data-filter-close]')];
+    const closeBtn = panel.querySelector<HTMLElement>('.tl-close');
+    let returnTo: HTMLElement | null = null;
+    let isOpen = false;
+
+    const focusables = () =>
+      [
+        ...panel.querySelectorAll<HTMLElement>(
+          'a[href], button, summary, [tabindex]:not([tabindex="-1"])',
+        ),
+      ].filter((el) => el.getClientRects().length > 0);
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close(true);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !panel!.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !panel!.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    function open() {
+      if (isOpen || !mq.matches) return;
+      isOpen = true;
+      returnTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      panel!.setAttribute('data-open', '');
+      panel!.setAttribute('role', 'dialog');
+      panel!.setAttribute('aria-modal', 'true');
+      panel!.setAttribute('aria-labelledby', 'tl-filter-title');
+      panel!.removeAttribute('aria-label');
+      for (const o of openers) o.setAttribute('aria-expanded', 'true');
+      document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('keydown', onKey);
+      closeBtn?.focus({ preventScroll: true });
+    }
+
+    function close(restoreFocus: boolean) {
+      if (!isOpen) return;
+      isOpen = false;
+      panel!.removeAttribute('data-open');
+      panel!.removeAttribute('role');
+      panel!.removeAttribute('aria-modal');
+      panel!.removeAttribute('aria-labelledby');
+      panel!.setAttribute('aria-label', 'Filter trip');
+      for (const o of openers) o.setAttribute('aria-expanded', 'false');
+      document.documentElement.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+      // Dibuka lewat tautan langsung (#tl-filter): :target masih menahan panel terbuka, jadi pindahkan jangkarnya.
+      if (location.hash === '#tl-filter') location.replace('#tl-bar');
+      if (restoreFocus) (returnTo ?? openers[0])?.focus({ preventScroll: true });
+      returnTo = null;
+    }
+
+    for (const o of openers) {
+      o.addEventListener('click', (e) => {
+        e.preventDefault();
+        open();
+      });
+      o.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+          e.preventDefault();
+          open();
+        }
+      });
+    }
+    for (const c of closers) {
+      c.addEventListener('click', (e) => {
+        e.preventDefault();
+        close(true);
+      });
+      c.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+          e.preventDefault();
+          close(true);
+        }
+      });
+    }
+    // Layar melebar ke desktop saat panel terbuka: tutup tanpa memindahkan fokus.
+    mq.addEventListener('change', (e) => {
+      if (!e.matches) close(false);
+    });
+    if (location.hash === '#tl-filter') open();
+  }
+</script>

@@ -1,0 +1,667 @@
+/* Pusat Bantuan (/help). Diport dari frame Doop "Help & Information / Desktop", "Pusat Bantuan / Tablet" dan
+   "Help dan Informasi / Mobile" (Red Dot style). Kelas hp-*; akordeon (.hp-faq, .hp-acc, .hp-chip) dan blok ajakan
+   (.lg-cta) bersama dokumen legal ada di legal.css, yang ikut diimpor halaman ini. Desktop >= 1280, tablet < 1280,
+   mobile < 768. Kolom pencarian pada desain sengaja tidak ada (belum tersambung ke server). */
+
+.hp-page {
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  font-family: var(--font-ui);
+  padding-bottom: 120px;
+}
+.hp-page a {
+  color: inherit;
+}
+.hp-page .eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.hp-page .hand {
+  color: var(--color-dawn-deep);
+}
+
+/* ---- Hero ---- */
+.hp-hero {
+  padding: 72px 41px 0;
+  text-align: center;
+}
+.hp-hero h1 {
+  margin-top: 12px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-ink-2);
+}
+.hp-hero p {
+  margin: 24px auto 0;
+  max-width: 600px;
+  font-size: 18px;
+  line-height: 28px;
+}
+
+/* ---- Kartu topik (desktop/tablet), chip (mobile) ---- */
+.hp-topics {
+  margin: 64px 41px 0;
+}
+.hp-topics ul {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hp-topics li {
+  flex: 1;
+  display: flex;
+}
+.hp-topics a {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 176px;
+  padding: 26px 24px 24px;
+  background: var(--color-bg);
+  text-decoration: none;
+}
+.hp-topics a:hover .t {
+  color: var(--color-dawn-deep);
+}
+.hp-topics .n {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--color-dawn-deep);
+}
+.hp-topics .t {
+  display: block;
+  margin-top: 28px;
+  min-height: 60px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 25px;
+  line-height: 30px;
+  color: var(--color-ink);
+}
+.hp-topics .d {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Kerangka dua kolom ---- */
+.hp-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 96px;
+  margin: 40px 41px 0;
+}
+.hp-side {
+  flex: 0 0 260px;
+  position: sticky;
+  top: 24px;
+  padding-top: 56px;
+}
+.hp-toc .eyebrow {
+  margin-bottom: 14px;
+}
+.hp-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hp-toc a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.hp-toc a:hover {
+  color: var(--color-ink);
+}
+.hp-toc a[aria-current='location'] {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.hp-toc a .n {
+  width: 22px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--color-dawn-deep);
+}
+.hp-talk {
+  margin-top: 32px;
+  padding: 22px 20px;
+  background: var(--color-bg);
+}
+.hp-talk h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 28px;
+  color: var(--color-ink);
+}
+.hp-talk p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 21px;
+}
+.hp-talk .lg-btn {
+  margin-top: 16px;
+}
+.hp-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- Bagian ---- */
+.hp-sec {
+  padding-top: 88px;
+  scroll-margin-top: 24px;
+}
+.hp-sec:first-child {
+  padding-top: 56px;
+}
+.hp-sec h2 {
+  margin-top: 10px;
+  font-size: 44px;
+  line-height: 50px;
+  letter-spacing: -0.018em;
+  color: var(--color-ink-2);
+}
+.hp-sec .lead {
+  margin-top: 18px;
+  max-width: 640px;
+  font-size: 17px;
+  line-height: 27px;
+}
+.hp-sec .lead a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hp-sec .hp-faq {
+  margin-top: 28px;
+}
+.hp-sec .hp-chips {
+  margin: 0 0 28px;
+}
+.hp-guides {
+  display: flex;
+  align-items: flex-start;
+  gap: 56px;
+  margin-top: 36px;
+}
+.hp-guide {
+  flex: 1;
+  min-width: 0;
+}
+.hp-guide .bd {
+  padding-bottom: 14px;
+}
+.hp-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hp-steps li {
+  display: flex;
+  gap: 18px;
+  padding: 22px 0;
+  border-top: 1px solid var(--color-line);
+}
+.hp-steps li:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+.hp-steps .no {
+  flex: 0 0 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-ink-2);
+  border-radius: 50%;
+  font-size: 14px;
+  color: var(--color-ink);
+}
+.hp-steps .tt {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 28px;
+  color: var(--color-ink);
+}
+.hp-steps .dd {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 23px;
+}
+.hp-guide .go {
+  margin-top: 28px;
+}
+.hp-rows {
+  margin: 32px 0 0;
+}
+.hp-rows .row {
+  display: flex;
+  gap: 32px;
+  padding: 20px 0;
+  border-top: 1px solid var(--color-line);
+}
+.hp-rows .row:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+.hp-rows .k {
+  flex: 0 0 200px;
+  font-size: 13px;
+  line-height: 22px;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-2);
+}
+.hp-rows .v {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-ink);
+}
+.hp-rows small {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--color-ink-2);
+}
+.hp-after {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 28px;
+}
+.hp-after span {
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 21px;
+}
+.hp-tb {
+  margin-top: 32px;
+}
+.hp-tb table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.hp-tb th {
+  padding: 0 16px 14px 0;
+  text-align: left;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.hp-tb th:nth-child(1) {
+  width: 36%;
+}
+.hp-tb th:nth-child(2) {
+  width: 24%;
+}
+.hp-tb td {
+  padding: 20px 16px 20px 0;
+  border-top: 1px solid var(--color-line);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-ink);
+  vertical-align: top;
+}
+.hp-tb td small {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--color-ink-2);
+}
+.hp-tb td.m {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 300;
+}
+.hp-tb tr:last-child td {
+  border-bottom: 1px solid var(--color-line);
+}
+.hp-cards {
+  display: flex;
+  gap: 24px;
+  margin-top: 36px;
+}
+.hp-cards .card {
+  flex: 1;
+  padding: 26px 28px;
+  background: var(--color-bg);
+}
+.hp-cards p {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.hp-fine {
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.hp-fine a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hp-terms {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+}
+.hp-terms li {
+  display: flex;
+  gap: 24px;
+  padding: 22px 0;
+  border-top: 1px solid var(--color-line);
+}
+.hp-terms li:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+.hp-terms .no {
+  flex: 0 0 36px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--color-dawn-deep);
+}
+.hp-terms .tt {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.hp-terms .dd {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.hp-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 28px;
+  margin-top: 20px;
+}
+.hp-tlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.hp-tlink:hover {
+  color: var(--color-dawn-deep);
+}
+.hp-page .lg-cta-ink {
+  margin-top: 112px;
+}
+
+/* ================= Tablet (< 1280) ================= */
+@media (max-width: 1279px) {
+  .hp-page {
+    padding-bottom: 96px;
+  }
+  .hp-hero {
+    padding: 56px 32px 0;
+  }
+  .hp-hero h1 {
+    font-size: 64px;
+  }
+  .hp-topics {
+    margin: 48px 32px 0;
+  }
+  .hp-topics ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .hp-topics li:last-child {
+    grid-column: 1 / -1;
+  }
+  .hp-topics a {
+    min-height: 168px;
+  }
+  .hp-topics li:last-child a {
+    min-height: 128px;
+  }
+  .hp-topics .t {
+    min-height: 0;
+    margin-top: 40px;
+  }
+  .hp-wrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 32px 32px 0;
+  }
+  .hp-side {
+    position: static;
+    flex: none;
+    padding-top: 0;
+  }
+  .hp-toc {
+    display: none;
+  }
+  .hp-talk {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 0;
+    padding: 28px;
+  }
+  .hp-talk .lg-btn {
+    margin-top: 0;
+    flex: none;
+  }
+  .hp-sec,
+  .hp-sec:first-child {
+    padding-top: 72px;
+  }
+  .hp-sec h2 {
+    font-size: 40px;
+    line-height: 46px;
+  }
+  .hp-guides {
+    gap: 32px;
+  }
+  .hp-page .lg-cta-ink {
+    margin: 88px 32px 0;
+  }
+}
+
+/* ================= Mobile (< 768) ================= */
+@media (max-width: 767px) {
+  .hp-page {
+    padding-bottom: 72px;
+  }
+  .hp-hero {
+    padding: 40px 20px 0;
+    text-align: left;
+  }
+  .hp-hero .hand {
+    font-size: 28px;
+  }
+  .hp-hero h1 {
+    margin-top: 10px;
+    font-size: 52px;
+  }
+  .hp-hero p {
+    margin: 20px 0 0;
+    font-size: 17px;
+    line-height: 26px;
+  }
+  .hp-topics {
+    margin: 32px 0 0;
+  }
+  .hp-topics ul {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 20px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .hp-topics ul::-webkit-scrollbar {
+    display: none;
+  }
+  .hp-topics li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .hp-topics li:last-child {
+    grid-column: auto;
+  }
+  .hp-topics li:last-child a {
+    min-height: 44px;
+  }
+  .hp-topics a {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    white-space: nowrap;
+  }
+  .hp-topics a[aria-current='location'] {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .hp-topics a[aria-current='location'] .t,
+  .hp-topics a[aria-current='location'] .n {
+    color: var(--color-paper);
+  }
+  .hp-topics .n {
+    font-size: 14px;
+    color: var(--color-ink-2);
+  }
+  .hp-topics .t {
+    margin: 0;
+    min-height: 0;
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+  }
+  .hp-topics .d {
+    display: none;
+  }
+  .hp-wrap {
+    margin: 8px 20px 0;
+  }
+  .hp-talk {
+    display: none;
+  }
+  .hp-sec,
+  .hp-sec:first-child {
+    padding-top: 56px;
+  }
+  .hp-sec h2 {
+    font-size: 36px;
+    line-height: 40px;
+  }
+  .hp-sec .lead {
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .hp-guides {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 40px;
+  }
+  .hp-steps li {
+    gap: 14px;
+    padding: 18px 0;
+  }
+  .hp-steps .tt {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .hp-rows .row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hp-rows .k {
+    flex: none;
+  }
+  .hp-after {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .hp-tb thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .hp-tb table,
+  .hp-tb tbody,
+  .hp-tb tr,
+  .hp-tb td {
+    display: block;
+    width: 100%;
+  }
+  .hp-tb tr {
+    padding: 16px 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .hp-tb tr:last-child {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .hp-tb td,
+  .hp-tb tr:last-child td {
+    padding: 4px 0;
+    border: 0;
+  }
+  .hp-tb td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-dawn-deep);
+  }
+  .hp-cards {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .hp-cards .card {
+    padding: 22px;
+  }
+  .hp-terms li {
+    gap: 16px;
+  }
+  .hp-page .lg-cta-ink {
+    margin: 64px 20px 0;
+  }
+}

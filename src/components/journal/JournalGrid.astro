@@ -1,0 +1,48 @@
+---
+// Kisi cerita: dua kolom berselang-seling (kolom kanan turun) di desktop dan tablet, satu kolom di mobile
+// (kolom dilebur dengan display: contents, urutan visual memakai `order`). Keadaan kosong: pesan + tautan atur ulang.
+import type { ListResult } from '../../content/journal';
+import { PAGE_SIZE, RATIO_DESKTOP, RATIO_SMALL } from '../../content/journal';
+import JournalCard from './JournalCard.astro';
+
+interface Props {
+  result: ListResult;
+}
+const { result } = Astro.props;
+const { items } = result;
+const offset = (result.page - 1) * PAGE_SIZE;
+const pos = (i: number) => (offset + i) % RATIO_DESKTOP.length;
+const cols = [
+  items.map((s, i) => ({ s, i })).filter((x) => x.i % 2 === 0),
+  items.map((s, i) => ({ s, i })).filter((x) => x.i % 2 === 1),
+];
+const kombinasi = !!result.destinasi;
+---
+
+{items.length === 0 ? (
+  <div class="jn-empty" role="status">
+    <p class="jn-empty-t">
+      {kombinasi ? 'Belum ada cerita untuk kombinasi ini.' : 'Belum ada cerita pada topik ini.'}
+    </p>
+    <p class="jn-empty-s">Coba topik lain atau atur ulang filter.</p>
+    <a class="jn-reset jn-reset-empty" href="/journal#cerita">
+      Atur ulang filter
+    </a>
+  </div>
+) : (
+  <div class="jn-grid" data-single={items.length < 2 ? '' : undefined}>
+    {cols.map((col, c) => (
+      <div class="jn-col" data-col={c}>
+        {col.map(({ s, i }) => (
+          <div
+            class="jn-item"
+            style={`--i:${i}`}
+            data-side={i % 4 === 1 ? 'r' : i % 4 === 3 ? 'l' : undefined}
+          >
+            <JournalCard story={s} ratio={RATIO_DESKTOP[pos(i)]} ratioSmall={RATIO_SMALL[pos(i)]} />
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+)}

@@ -1,0 +1,22 @@
+---
+import Public from '../layouts/Public.astro';
+import '../styles/pages/contact.css';
+import HFNavRD from '../components/hf/HFNavRD.astro';
+import ContactHero from '../components/contact/ContactHero.astro';
+import ContactChannels from '../components/contact/ContactChannels.astro';
+import ContactRoutes from '../components/contact/ContactRoutes.astro';
+import ContactHelp from '../components/contact/ContactHelp.astro';
+---
+
+<Public
+  title="Hubungi Kami | Arunika Journey"
+  description="Hubungi tim Arunika Journey lewat WhatsApp atau email untuk pertanyaan jadwal, kuota, pembayaran, dan Private Trip. Tim kami membalas langsung, bukan bot."
+>
+  <HFNavRD tone="solid" />
+  <main class="ct">
+    <ContactHero />
+    <ContactChannels />
+    <ContactRoutes />
+    <ContactHelp />
+  </main>
+</Public>

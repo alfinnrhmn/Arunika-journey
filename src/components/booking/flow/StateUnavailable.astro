@@ -3,6 +3,7 @@
 // sudah diisi tetap ada di draf server; formulir ini hanya mengganti tanggalnya lewat langkah 1
 // (`updateParty` mempertahankan data pemesan dan nama peserta).
 import FlowAlert from './FlowAlert.astro';
+import FlowBar from './FlowBar.astro';
 import FlowButton from './FlowButton.astro';
 import FlowSchedulePick from './FlowSchedulePick.astro';
 import FlowSh from './FlowSh.astro';
@@ -80,12 +81,14 @@ const WaTag = whatsappHref ? 'a' : 'span';
     <input type="hidden" name="peserta" value={adults} />
     <input type="hidden" name="anak" value={children} />
     <div class="bf-actions">
-      <FlowButton tone="secondary" label="Kembali" href={backHref} />
-      <FlowButton
-        label={`Lanjut dengan ${formatDateShort(first.departureDate)}`}
-        arrow
-        data-bf-submit
-      />
+      <FlowButton tone="secondary" label="Kembali" href={backHref} data-bf-back />
+      <FlowBar variant="cta">
+        <FlowButton
+          label={`Lanjut dengan ${formatDateShort(first.departureDate)}`}
+          arrow
+          data-bf-submit
+        />
+      </FlowBar>
       <span class="side-note">Harga dihitung ulang sesuai jadwal baru.</span>
     </div>
   </form>

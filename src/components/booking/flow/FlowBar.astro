@@ -1,0 +1,41 @@
+---
+// Bilah aksi lekat di dasar layar kecil (desain: hf-sb). Slot berisi tombol utama (submit). Di desktop (>=1280)
+// pembungkus ini transparan (display: contents) sehingga tombol tetap berada di baris aksi seperti semula.
+//   price         harga + tombol (WhatsApp muncul di tablet)
+//   price-tablet  seperti price di tablet; di mobile hanya tombol
+//   cta           hanya tombol, lekat di mobile; di tablet ikut baris aksi biasa
+import HFIcon from '../../hf/HFIcon.astro';
+import { whatsappHref } from '../../trips/detail/words';
+
+interface Props {
+  variant?: 'price' | 'price-tablet' | 'cta';
+  /** Baris kecil di atas angka, mis. "Total · DP Rp 750.000". */
+  label?: string;
+  /** Angka utama, mis. total harga. */
+  value?: string;
+}
+const { variant = 'price', label = '', value = '' } = Astro.props;
+---
+
+<div class="bf-bar" data-bar={variant}>
+  {variant !== 'cta' && (
+    <div class="bf-bar-p" aria-live="polite">
+      <span class="l" data-bf-bar-label>
+        {label}
+      </span>
+      <strong data-bf-bar-total>{value}</strong>
+    </div>
+  )}
+  {whatsappHref && (
+    <a
+      class="bf-bar-wa"
+      href={whatsappHref}
+      target="_blank"
+      rel="noopener"
+      aria-label="Tanya lewat WhatsApp"
+    >
+      <HFIcon name="chat" size={20} />
+    </a>
+  )}
+  <slot />
+</div>

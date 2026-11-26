@@ -1,9 +1,9 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
-<section class="hp47">
+<section class="hp47 hd">
   <div class="hp48">
     <h2 class="sr-only">Inti dari perjalananmu</h2>
     <div class="vimgs">
@@ -11,7 +11,9 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <div class="fpx">
           <img
             class="cover"
-            src={foto('cemara-lodge-kamar')}
+            {...fi('cemara-lodge-kamar')}
+            loading="lazy"
+            decoding="async"
             alt="Kamar kayu hangat menghadap hutan berkabut"
           />
         </div>
@@ -20,21 +22,31 @@ import HFArrowButton from '../hf/HFArrowButton.astro';
         <div class="fpx">
           <img
             class="cover"
-            src={foto('hotel-heritage-teras')}
+            {...fi('hotel-heritage-teras')}
+            loading="lazy"
+            decoding="async"
             alt="Teras hotel heritage berhias tanaman"
           />
         </div>
       </div>
       <div class="hp51 vimg rvm">
         <div class="fpx">
-          <img class="cover" src={foto('sarapan-teras')} alt="Sarapan sederhana di teras kayu" />
+          <img
+            class="cover"
+            {...fi('sarapan-teras')}
+            loading="lazy"
+            decoding="async"
+            alt="Sarapan sederhana di teras kayu"
+          />
         </div>
       </div>
       <div class="hp51b vimg rvm">
         <div class="fpx">
           <img
             class="cover"
-            src={foto('ubud-pendopo-sawah')}
+            {...fi('ubud-pendopo-sawah')}
+            loading="lazy"
+            decoding="async"
             alt="Pendopo di tepi sawah berkabut"
           />
         </div>

@@ -1,0 +1,28 @@
+---
+// "Di cerita ini": daftar subjudul sebagai tautan jangkar. Tidak dirender bila subjudul kurang dari dua.
+import type { Story } from '../../content/journal';
+import { outline } from '../../content/journal';
+
+interface Props {
+  story: Story;
+}
+const items = outline(Astro.props.story);
+---
+
+{items.length > 1 && (
+  <nav class="jn-toc" aria-labelledby="jn-toc-h" data-toc>
+    <h2 class="jn-lab" id="jn-toc-h">
+      Di cerita ini
+    </h2>
+    <ol>
+      {items.map((it) => (
+        <li>
+          <a href={`#${it.id}`}>
+            <span>{it.n}</span>
+            {it.text}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}

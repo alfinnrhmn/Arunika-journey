@@ -49,7 +49,7 @@ if (Astro.request.method === 'POST') {
       .slice(0, max);
   kode = field('kode', 24).toUpperCase();
   email = field('email', 254);
-  digits = field('digits', 12).replace(/D/g, '').slice(0, 4);
+  digits = field('digits', 12).replace(/\D/g, '').slice(0, 4);
 
   if (!limit.allowed) {
     problem = 'limited';

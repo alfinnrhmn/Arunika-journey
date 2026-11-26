@@ -1100,7 +1100,14 @@
   line-height: 24px;
 }
 
-/* ---- Layar sempit (halaman ini dirancang untuk desktop; ini sekadar tidak rusak) ---- */
+/* ---- Elemen khusus layar kecil: tersembunyi di desktop ---- */
+.bs-back,
+.bs-seg,
+.bs-pill-ic {
+  display: none;
+}
+
+/* ---- Di bawah 1181px: isi dan ringkasan ditumpuk ---- */
 @media (max-width: 1180px) {
   .bs-body {
     flex-direction: column;
@@ -1113,57 +1120,601 @@
     width: 100%;
   }
 }
-@media (max-width: 900px) {
-  .bs-head,
-  .bs-legal,
-  .bs-top,
-  .bs-body {
-    padding-left: 24px;
-    padding-right: 24px;
+
+/* ---- Tablet (frame 820): satu kolom, tepi 32px, header ringkas ---- */
+@media (max-width: 1023px) {
+  .bs-head {
+    height: 60px;
+    padding: 0 20px;
   }
-  .bs-legal {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding-top: 16px;
-    padding-bottom: 16px;
-  }
-  .bs-stepper .l {
+  .bs-wm,
+  .bs-help-q {
     display: none;
   }
-  .bs-step[data-state='now'] .l {
-    display: inline;
+  .bs-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 44px;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: none;
   }
-  .bs-title h1,
-  .bs-title[data-display='yes'] h1,
+  .bs-back .t-mob {
+    display: none;
+  }
+  .bs-pill {
+    gap: 8px;
+    height: 44px;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .bs-pill-ic {
+    display: block;
+  }
+
+  .bs-top {
+    padding: 32px 32px 0;
+  }
+  .bs-top-step {
+    max-width: none;
+  }
+  .bs-stepper {
+    gap: 12px;
+  }
+  .bs-sep {
+    min-width: 16px;
+  }
+  .bs-title,
+  .bs-title[data-display='yes'] {
+    margin-top: 40px;
+    max-width: none;
+    gap: 16px;
+  }
+  .bs-title:first-child {
+    margin-top: 0;
+  }
+  .bs-title h1 {
+    font-size: 44px;
+    line-height: 50px;
+  }
+  .bs-title[data-display='yes'] h1 {
+    font-size: 60px;
+    line-height: 1;
+  }
+  .bs-badge,
+  .bs-title[data-display='yes'] .bs-badge {
+    padding-top: 8px;
+  }
+  .bs-notice {
+    margin-top: 24px;
+    max-width: none;
+  }
+  .bs-body {
+    gap: 48px;
+    padding: 36px 32px 64px;
+  }
+  .bs-main {
+    gap: 40px;
+  }
+  .bs-main:has(.bs-codecard) {
+    gap: 48px;
+  }
+  .bs-fig {
+    padding: 24px 28px;
+  }
+  .bs-sh h2 {
+    font-size: 26px;
+    line-height: 34px;
+  }
+  .bs-nexts {
+    gap: 24px;
+  }
+  .bs-file {
+    font-size: 16px;
+  }
+  .bs-copy {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+  }
+  .bs-replace summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    border-bottom: 0;
+    padding-bottom: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .bs-dr .v {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .bs-people li {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .bs-legal {
+    flex-wrap: wrap;
+    gap: 4px 24px;
+    padding: 16px 32px;
+  }
+  .bs-legal .r {
+    flex-wrap: wrap;
+    gap: 0 20px;
+  }
+  .bs-legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* Cek Status: kartu 560px di tengah, kolom bantuan tiga lajur, isian berkotak */
+  .cs-page {
+    padding-bottom: 88px;
+  }
+  .cs-hero {
+    padding: 64px 32px 0;
+  }
   .cs-hero h1 {
-    font-size: 40px;
-    line-height: 1.05;
+    font-size: 64px;
+    line-height: 0.95;
   }
-  .bs-figs,
-  .bs-nexts,
-  .cs-help .steps,
+  .cs-card {
+    width: 560px;
+    max-width: calc(100% - 64px);
+    margin-top: 44px;
+    padding: 32px 32px 36px;
+  }
+  .cs-tabs .tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 0 6px;
+  }
+  .cs-card form > .cs-field:first-of-type {
+    margin-top: 28px;
+  }
+  .cs-field {
+    margin-top: 20px;
+  }
+  .cs-field .q {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .cs-card .in {
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-xs);
+  }
+  .cs-card .in:focus {
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 1px var(--color-ink);
+  }
+  .cs-card .in.err,
+  .cs-card .in.err:focus {
+    border: 1px solid var(--color-status-full);
+    background: var(--color-status-full-soft);
+  }
+  .cs-card .in.err:focus {
+    box-shadow: 0 0 0 1px var(--color-status-full);
+  }
+  .cs-err {
+    margin-top: 24px;
+  }
+  .cs-submit {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .cs-wa-note {
+    max-width: none;
+    text-align: center;
+  }
+  .cs-go {
+    justify-content: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 28px;
+  }
+  .cs-go .ic {
+    width: 18px;
+    height: 18px;
+    border: 0;
+  }
+  .cs-private {
+    margin-top: 28px;
+  }
+  .cs-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 12px;
+    border-bottom: 0;
+    padding-bottom: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .cs-help {
+    margin-top: 72px;
+    width: calc(100% - 64px);
+  }
+  .cs-help h2 {
+    font-size: 40px;
+    line-height: 46px;
+  }
+  .cs-help .steps {
+    margin-top: 32px;
+    gap: 24px;
+  }
   .cs-box {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 48px;
+    padding: 32px;
+  }
+}
+
+/* ---- Mobile (frame 390): tepi 20px, penunjuk langkah berbatang, semua ditumpuk ---- */
+@media (max-width: 767px) {
+  .bs-back .t-tab {
+    display: none;
+  }
+  .bs-back .t-mob {
+    display: inline;
+  }
+
+  .bs-top {
+    padding: 24px 20px 0;
+  }
+  .bs-stepper {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .bs-seg {
+    display: block;
+  }
+  .bs-seg-t {
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .bs-seg-bars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .bs-seg-bars .b {
+    height: 4px;
+    background: var(--color-line);
+  }
+  .bs-seg-bars .b[data-on='yes'] {
+    background: var(--color-ink);
+  }
+  .bs-title,
+  .bs-title[data-display='yes'] {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .bs-title:first-child {
+    margin-top: 0;
+  }
+  .bs-badge,
+  .bs-title[data-display='yes'] .bs-badge {
+    padding-top: 0;
+  }
+  .bs-title h1,
+  .bs-title[data-display='yes'] h1 {
+    margin-top: 8px;
+    font-size: 40px;
+    line-height: 44px;
+    letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+  }
+  .bs-lede,
+  .bs-title[data-display='yes'] .bs-lede {
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .bs-code {
+    font-size: 14px;
+  }
+  .bs-notice {
+    margin-top: 20px;
+    font-size: 15px;
+  }
+  .bs-body {
+    gap: 40px;
+    padding: 28px 20px 48px;
+  }
+  .bs-main {
+    gap: 36px;
+  }
+  .bs-main:has(.bs-codecard) {
+    gap: 40px;
+  }
+
+  .bs-figs {
+    flex-direction: column;
+  }
+  .bs-fig {
+    padding: 20px;
+  }
+  .bs-fig:nth-child(2) {
+    order: -1;
   }
   .bs-fig + .bs-fig {
     border-left: 0;
+    border-top: 0;
+  }
+  .bs-fig:first-child {
     border-top: 1px solid var(--color-line);
+  }
+  .bs-fig .big {
+    font-size: 40px;
+    line-height: 44px;
+    overflow-wrap: anywhere;
+  }
+  .bs-sh {
+    gap: 14px;
+    padding-top: 20px;
+  }
+  .bs-sh h2 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .bs-acct {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+  .bs-acct .num {
+    font-size: 22px;
+    line-height: 28px;
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+  }
+  .bs-acct-empty .num {
+    font-size: 18px;
+    line-height: 26px;
+  }
+  .bs-steps .st {
+    gap: 16px;
+    padding: 16px 0;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .bs-steps .st b {
+    flex-basis: 24px;
+  }
+  .bs-formwrap {
+    margin-top: 20px;
+  }
+  .bs-proof {
+    align-items: stretch;
+  }
+  .bs-proof .q {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  .bs-file {
+    padding: 14px;
+    font-size: 16px;
+  }
+  .bs-file::file-selector-button {
+    height: 44px;
+    margin-right: 12px;
+    font-size: 15px;
+  }
+  .bs-proof .bs-btn {
+    width: 100%;
+  }
+  .bs-hint {
+    font-size: 14px;
+  }
+  .bs-fine {
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .bs-err {
+    font-size: 15px;
+  }
+
+  .bs-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 24px;
+  }
+  .bs-actions .bs-btn {
+    width: 100%;
+  }
+  .bs-fine-inline {
+    text-align: center;
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .bs-callout,
+  .bs-alert {
+    gap: 12px;
+    padding: 20px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .bs-alert .sub {
+    font-size: 15px;
+  }
+  .bs-track {
+    margin-top: 24px;
+    max-width: none;
+  }
+  .bs-tk {
+    gap: 16px;
+  }
+  .bs-tk .ti {
+    font-size: 22px;
+    line-height: 30px;
+  }
+  .bs-tk .ds {
+    font-size: 16px;
+    line-height: 25px;
   }
   .bs-reasons .rs {
     flex-direction: column;
     gap: 2px;
+    font-size: 16px;
+    line-height: 25px;
   }
-  .cs-card {
-    padding: 28px 24px 36px;
+  .bs-reasons .rs b {
+    flex-basis: auto;
   }
-  .cs-submit {
+
+  .bs-codecard {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
+    padding: 20px;
+  }
+  .bs-codecard .code {
+    font-size: 30px;
+    line-height: 36px;
+    overflow-wrap: anywhere;
+  }
+  .bs-print {
+    width: 100%;
+  }
+  .bs-dr {
+    gap: 16px;
+    font-size: 15px;
   }
   .bs-people {
     grid-template-columns: 1fr;
+    font-size: 15px;
+  }
+  .bs-nexts {
+    flex-direction: column;
+    gap: 28px;
+  }
+  .bs-ts .d {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .bs-os .th {
+    width: 72px;
+    height: 72px;
+  }
+  .bs-os .tt {
+    font-size: 22px;
+    line-height: 28px;
+  }
+  .bs-legal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 16px 20px;
+  }
+  .bs-legal .r {
+    gap: 0 16px;
+  }
+
+  /* Cek Status */
+  .cs-page {
+    padding-bottom: 64px;
+  }
+  .cs-hero {
+    padding: 44px 20px 0;
+  }
+  .cs-hero h1 {
+    font-size: 44px;
+    line-height: 44px;
+  }
+  .cs-hero p {
+    margin-top: 18px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .cs-card {
+    width: calc(100% - 40px);
+    max-width: none;
+    margin-top: 32px;
+    padding: 8px 20px 28px;
+  }
+  .cs-tabs .tab {
+    min-height: 52px;
+  }
+  .cs-private {
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .cs-private .lead {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .cs-help {
+    margin-top: 64px;
+    width: calc(100% - 40px);
+  }
+  .cs-help .head {
+    padding-bottom: 16px;
+  }
+  .cs-help h2 {
+    font-size: 36px;
+    line-height: 40px;
+  }
+  .cs-help .steps {
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 28px;
+  }
+  .cs-box {
+    align-items: stretch;
+    margin-top: 40px;
+    padding: 24px 20px;
+  }
+  .cs-box .t {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .cs-box p {
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .cs-page .cs-box .hf-ab {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 

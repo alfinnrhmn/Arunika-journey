@@ -1,0 +1,24 @@
+---
+// Hero Tentang Kami: foto penuh dengan gradasi, header publik transparan di atasnya, judul di kiri bawah.
+import HFNavRD from '../hf/HFNavRD.astro';
+import { aboutHero } from '../../content/about';
+import { bp } from './photo';
+---
+
+<section class="ab-hero">
+  <img
+    class="ab-hero-img"
+    {...bp(aboutHero.foto)}
+    fetchpriority="high"
+    decoding="async"
+    alt={aboutHero.alt}
+  />
+  <div class="ab-hero-shade" aria-hidden="true"></div>
+  <HFNavRD tone="overlay" />
+  <div class="ab-hero-tx">
+    <p class="ab-eyebrow-light">{aboutHero.eyebrow}</p>
+    <h1>
+      {aboutHero.titleA} <i>{aboutHero.titleI}</i>
+    </h1>
+  </div>
+</section>

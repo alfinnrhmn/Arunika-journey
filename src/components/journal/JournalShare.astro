@@ -1,0 +1,25 @@
+---
+// Bagikan: hanya "Salin tautan". Tombol ini bekerja tanpa pihak ketiga dan baru tampil setelah skrip
+// (src/scripts/journal-article.ts) memastikan Clipboard tersedia; tanpa JavaScript blok ini tidak muncul.
+---
+
+<aside class="jn-share" aria-label="Bagikan cerita" hidden data-share>
+  <h2 class="jn-lab">Bagikan</h2>
+  <button type="button" class="jn-share-btn" data-copy>
+    <span data-copy-label>Salin tautan</span>
+    <svg
+      width="16"
+      height="10"
+      viewBox="0 0 18 10"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1 5h15M12 1l4 4-4 4"></path>
+    </svg>
+  </button>
+  <p class="jn-sr" role="status" data-copy-status></p>
+</aside>

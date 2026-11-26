@@ -1,0 +1,40 @@
+---
+// Bantuan cepat: di rancangan hanya pertanyaan; tiap baris menaut ke Pusat Bantuan (tanpa jawaban karangan).
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { contactHelp as h } from '../../content/about';
+---
+
+<section class="ct-help" aria-labelledby="ct-help-h">
+  <div class="ct-help-l">
+    <p class="ct-eyebrow">{h.eyebrow}</p>
+    <h2 class="ct-h2" id="ct-help-h">
+      {h.titleA} <i>{h.titleI}</i>
+    </h2>
+    <p class="ct-help-x">{h.text}</p>
+    <div class="ct-help-cta">
+      <HFArrowButton tone="outline" label={h.cta.label} href={h.cta.href} />
+    </div>
+  </div>
+  <ul class="ct-faq">
+    {h.questions.map((q) => (
+      <li>
+        <a href={h.cta.href}>
+          <span>{q}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>

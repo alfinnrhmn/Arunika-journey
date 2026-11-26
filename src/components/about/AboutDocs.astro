@@ -1,0 +1,26 @@
+---
+import { aboutDocs as d } from '../../content/about';
+import { bp } from './photo';
+---
+
+<section class="ab-docs" id={d.id} aria-labelledby="ab-docs-h">
+  <div class="ab-docs-head">
+    <div>
+      <span class="hand">{d.hand}</span>
+      <h2 class="ab-h2" id="ab-docs-h">
+        {d.titleA} <i>{d.titleI}</i>
+      </h2>
+    </div>
+    <p class="ab-docs-note">{d.note}</p>
+  </div>
+  <ul class="ab-docs-list" tabindex="0" aria-label="Dokumentasi trip (contoh tata letak)">
+    {d.items.map((it) => (
+      <li class="ab-doc">
+        <div class="ab-doc-ph">
+          <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+        </div>
+        <p class="ab-doc-cap">{d.caption}</p>
+      </li>
+    ))}
+  </ul>
+</section>

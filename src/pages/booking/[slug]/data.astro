@@ -5,6 +5,7 @@
 import FlowShell from '../../../components/booking/flow/FlowShell.astro';
 import FlowMissing from '../../../components/booking/flow/FlowMissing.astro';
 import FlowAlert from '../../../components/booking/flow/FlowAlert.astro';
+import FlowBar from '../../../components/booking/flow/FlowBar.astro';
 import FlowButton from '../../../components/booking/flow/FlowButton.astro';
 import FlowField from '../../../components/booking/flow/FlowField.astro';
 import FlowSh from '../../../components/booking/flow/FlowSh.astro';
@@ -32,7 +33,7 @@ import {
   saveDetails,
 } from '../../../features/booking';
 import { getDb } from '../../../server/db';
-import { formatDateShort, formatDuration } from '../../../lib/format';
+import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/format';
 
 maybeHousekeep();
 
@@ -172,6 +173,8 @@ const err = (key: string) => issues[key];
     step={1}
     {slug}
     hand="Kuota dicek sebelum pembayaran"
+    summaryMode="quota"
+    backHref={`/booking/${slug}/jadwal`}
     {summary}
   >
     <Fragment slot="heading">
@@ -193,6 +196,8 @@ const err = (key: string) => issues[key];
     step={1}
     {slug}
     hand="Jadwal berubah"
+    summaryMode="replace"
+    backHref={`/booking/${slug}/jadwal`}
     {summary}
   >
     <Fragment slot="heading">
@@ -391,8 +396,19 @@ const err = (key: string) => issues[key];
 
       <div>
         <div class="bf-actions">
-          <FlowButton tone="secondary" label="Kembali" href={`/booking/${slug}/jadwal`} />
-          <FlowButton label="Lanjut ke pembayaran" arrow />
+          <FlowButton
+            tone="secondary"
+            label="Kembali"
+            href={`/booking/${slug}/jadwal`}
+            data-bf-back
+          />
+          <FlowBar
+            variant="price"
+            label={price ? `Total · DP ${formatRupiah(price.dp)}` : ''}
+            value={price ? formatRupiah(price.total) : ''}
+          >
+            <FlowButton label="Lanjut ke pembayaran" arrow />
+          </FlowBar>
           <span class="side-note">Kuota dicek ulang sebelum pembayaran.</span>
         </div>
       </div>

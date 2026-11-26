@@ -1,0 +1,56 @@
+---
+// "Trip terkait": Open Trip nyata dari database (harga, tanggal, dan kuota dihitung server), bukan teks tetap.
+import type { TripCard } from '../../features/trips/queries';
+import { formatDateShort, formatDuration, formatRupiah } from '../../lib/format';
+import { seatLabel } from '../../features/schedules/seats';
+import { mediaUrl } from '../../lib/photo';
+import { photoSize } from '../trips/photo-size';
+import HFItinCard from '../hf/HFItinCard.astro';
+
+interface Props {
+  trips: TripCard[];
+}
+const { trips } = Astro.props;
+---
+
+{trips.length > 0 && (
+  <section class="jn-trips" aria-labelledby="jn-trips-h">
+    <h2 class="jn-lab" id="jn-trips-h">
+      Trip terkait
+    </h2>
+    <div class="jn-trips-list jn-rail">
+      {trips.map((t) => (
+        <div class="jn-trip">
+          <HFItinCard
+            showbadge={t.badge ? 'yes' : 'no'}
+            badge={t.badge ?? undefined}
+            status={t.next?.status ?? 'ok'}
+            where={t.where ?? ''}
+            title={t.title}
+            meta={`${formatDuration(t.durationDays, t.nights)}. Harga mulai dari ${formatRupiah(t.basePrice)} / orang`}
+            date={
+              t.next
+                ? `Berangkat ${formatDateShort(t.next.departureDate)}`
+                : 'Belum ada jadwal terbuka'
+            }
+            seats={t.next ? seatLabel(t.next.seatsLeft) : ''}
+            href={`/trips/${t.slug}`}
+          >
+            <Fragment slot="image">
+              {t.photo && (
+                <img
+                  class="cover"
+                  src={mediaUrl(t.photo)}
+                  alt={t.title}
+                  {...photoSize(t.photo)}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </Fragment>
+          </HFItinCard>
+        </div>
+      ))}
+    </div>
+  </section>
+)}

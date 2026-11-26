@@ -1,0 +1,277 @@
+---
+// Pusat Bantuan (/help): FAQ, panduan booking, informasi pembayaran, ringkasan refund, ringkasan S&K.
+// Isi dari src/content/help.ts (nanti dari server). Tanpa kolom pencarian: belum ada pencarian di sisi server,
+// jadi kontrolnya tidak ditampilkan. Halaman boleh diindeks.
+import Public from '../layouts/Public.astro';
+import '../styles/pages/legal.css';
+import '../styles/pages/help.css';
+import HFNavRD from '../components/hf/HFNavRD.astro';
+import HFArrowButton from '../components/hf/HFArrowButton.astro';
+import HFBadge from '../components/hf/HFBadge.astro';
+import HFIcon from '../components/hf/HFIcon.astro';
+import FaqAccordion from '../components/help/FaqAccordion.astro';
+import LegalCta from '../components/legal/LegalCta.astro';
+import Inline from '../components/legal/Inline.astro';
+import {
+  faqCategories,
+  faqs,
+  guides,
+  helpTopics,
+  paymentRows,
+  refundCards,
+  refundNote,
+  refundTable,
+  terms,
+  termsLead,
+} from '../content/help';
+
+const num = (n: number) => String(n).padStart(2, '0');
+---
+
+<Public
+  title="Pusat Bantuan | Arunika Journey"
+  description="Panduan memesan, cara membayar, aturan pembatalan, dan jawaban dari pertanyaan yang paling sering diterima Arunika Journey."
+>
+  <HFNavRD tone="solid" />
+  <main class="hp-page">
+    <header class="hp-hero">
+      <span class="hand">Pusat bantuan</span>
+      <h1>
+        Bantuan dan <i>informasi</i>
+      </h1>
+      <p>
+        Panduan memesan, cara membayar, aturan pembatalan, dan jawaban dari pertanyaan yang paling
+        sering kami terima.
+      </p>
+    </header>
+
+    <nav class="hp-topics" aria-label="Topik bantuan" data-help-nav>
+      <ul>
+        {helpTopics.map((t, i) => (
+          <li>
+            <a href={`#${t.id}`}>
+              <span class="n">{num(i + 1)}</span>
+              <span class="t">{t.title}</span>
+              <span class="d">{t.desc}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="hp-wrap">
+      <aside class="hp-side">
+        <nav class="hp-toc" aria-label="Di halaman ini" data-help-nav>
+          <div class="eyebrow">Di halaman ini</div>
+          <ol>
+            {helpTopics.map((t, i) => (
+              <li>
+                <a href={`#${t.id}`}>
+                  <span class="n">{num(i + 1)}</span>
+                  {t.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <div class="hp-talk">
+          <div class="tx">
+            <h2>Butuh bicara dengan tim?</h2>
+            <p>Kami balas langsung lewat WhatsApp [nomor: diisi klien].</p>
+          </div>
+          <a class="lg-btn" href="/contact">
+            Hubungi kami
+            <HFIcon name="arrow" size={16} />
+          </a>
+        </div>
+      </aside>
+
+      <div class="hp-main">
+        <section class="hp-sec" id="faq" aria-labelledby="faq-h">
+          <div class="eyebrow">01 · FAQ</div>
+          <h2 id="faq-h">
+            Pertanyaan yang <i>sering datang</i>
+          </h2>
+          <p class="lead">
+            Pilih topik untuk menyaring pertanyaan. Tidak ketemu jawabannya?{' '}
+            <a href="/contact">Tulis kepada kami</a>.
+          </p>
+          <FaqAccordion items={faqs} categories={faqCategories} variant="line" idPrefix="faq" />
+        </section>
+
+        <section class="hp-sec" id="panduan" aria-labelledby="panduan-h">
+          <div class="eyebrow">02 · Panduan booking</div>
+          <h2 id="panduan-h">
+            Dua cara untuk <i>berangkat</i>
+          </h2>
+          <p class="lead">
+            Open Trip untuk jadwal yang sudah tersedia, Private Trip untuk perjalanan yang dirancang
+            khusus.
+          </p>
+          <div class="hp-guides">
+            {guides.map((g) => (
+              <div class="hp-guide">
+                <div class="bd">
+                  <HFBadge label={g.badge} tone={g.tone} />
+                </div>
+                <ol class="hp-steps">
+                  {g.steps.map((s, i) => (
+                    <li>
+                      <span class="no" aria-hidden="true">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <div class="tt">{s.title}</div>
+                        <div class="dd">{s.text}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <div class="go">
+                  <HFArrowButton label={g.cta.label} href={g.cta.href} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="hp-sec" id="pembayaran" aria-labelledby="pembayaran-h">
+          <div class="eyebrow">03 · Informasi pembayaran</div>
+          <h2 id="pembayaran-h">
+            Bagaimana <i>pembayaran</i> bekerja
+          </h2>
+          <p class="lead">
+            Anda membayar DP lebih dulu untuk mengunci kursi, lalu melunasi sisanya sebelum
+            berangkat. Semua angka di bawah adalah contoh dan akan ditentukan klien.
+          </p>
+          <dl class="hp-rows">
+            {paymentRows.map((r) => (
+              <div class="row">
+                <dt class="k">{r.k}</dt>
+                <dd class="v">
+                  {r.v}
+                  <small>{r.note}</small>
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <div class="hp-after">
+            <HFArrowButton label="Cek status pembayaran" href="/cek-status" />
+            <span>Pembayaran belum berhasil? Tim kami bantu cek lewat WhatsApp.</span>
+          </div>
+        </section>
+
+        <section class="hp-sec" id="refund" aria-labelledby="refund-h">
+          <div class="eyebrow">04 · Pembatalan dan refund</div>
+          <h2 id="refund-h">
+            Jika rencana <i>berubah</i>
+          </h2>
+          <p class="lead">
+            Kami ingin aturannya jelas sejak awal. Persentase dan batas waktu di bawah masih contoh
+            dan ditentukan klien.
+          </p>
+          <div class="hp-tb">
+            <table>
+              <thead>
+                <tr>
+                  {refundTable.head.map((h) => (
+                    <th scope="col">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {refundTable.rows.map((r) => (
+                  <tr>
+                    <td data-label={refundTable.head[0]}>
+                      {r.when}
+                      {r.sub && <small>{r.sub}</small>}
+                    </td>
+                    <td class="m" data-label={refundTable.head[1]}>
+                      {r.pct}
+                    </td>
+                    <td data-label={refundTable.head[2]}>{r.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div class="hp-cards">
+            {refundCards.map((c) => (
+              <div class="card">
+                <div class="eyebrow">{c.title}</div>
+                <p>{c.text}</p>
+              </div>
+            ))}
+          </div>
+          <p class="hp-fine">
+            {refundNote} Aturan lengkap ada di{' '}
+            <a href="/legal/pembatalan-refund">Pembatalan dan Refund</a>.
+          </p>
+        </section>
+
+        <section class="hp-sec" id="syarat" aria-labelledby="syarat-h">
+          <div class="eyebrow">05 · Syarat dan ketentuan</div>
+          <h2 id="syarat-h">
+            Ringkasan <i>aturan layanan</i>
+          </h2>
+          <p class="lead">{termsLead}</p>
+          <ol class="hp-terms">
+            {terms.map((t, i) => (
+              <li>
+                <span class="no" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div>
+                  <div class="tt">{t.title}</div>
+                  <div class="dd">
+                    <Inline text={t.text} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div class="hp-links">
+            <a class="hp-tlink" href="/legal/syarat-ketentuan">
+              Baca syarat dan ketentuan lengkap
+            </a>
+            <a class="hp-tlink" href="/legal/kebijakan-privasi">
+              Kebijakan privasi
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <LegalCta
+      eyebrow="Masih ada pertanyaan?"
+      heading="Kami senang *membantu* Anda"
+      text="Tulis kepada kami atau chat lewat WhatsApp. Anda berbicara dengan tim yang merancang perjalanannya."
+    />
+  </main>
+</Public>
+
+<script>
+  // Sorot topik yang sedang dibaca (aria-current="location") pada daftar topik dan "Di halaman ini". Penyempurna.
+  const navs = Array.from(document.querySelectorAll<HTMLElement>('[data-help-nav]'));
+  if (navs.length && 'IntersectionObserver' in window) {
+    const ids = Array.from(navs[0].querySelectorAll<HTMLAnchorElement>('a[href^="#"]')).map((a) =>
+      a.getAttribute('href')!.slice(1),
+    );
+    const targets = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    const mark = (id: string) =>
+      navs.forEach((nav) =>
+        nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+          if (a.getAttribute('href') === `#${id}`) a.setAttribute('aria-current', 'location');
+          else a.removeAttribute('aria-current');
+        }),
+      );
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && mark(e.target.id)),
+      { rootMargin: '-15% 0px -70% 0px' },
+    );
+    targets.forEach((t) => io.observe(t));
+    if (ids[0]) mark(ids[0]);
+  }
+</script>

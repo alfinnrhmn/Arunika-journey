@@ -1,10 +1,16 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFArrowButton from '../hf/HFArrowButton.astro';
 ---
 
 <section class="hp102">
-  <img class="cover hp103" src={foto('jip-4x4-bromo')} alt="Jip 4×4 melintasi lautan pasir Bromo" />
+  <img
+    class="cover hp103"
+    {...fi('jip-4x4-bromo')}
+    loading="lazy"
+    decoding="async"
+    alt="Jip 4×4 melintasi lautan pasir Bromo"
+  />
   <div class="hp104"></div>
   <div class="hp105">
     <h2 class="hp106">

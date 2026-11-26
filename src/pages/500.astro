@@ -1,0 +1,19 @@
+---
+// Galat server. Statis dan tahan banting: tidak membaca database atau sesi, tidak menampilkan detail galat
+// atau jejak tumpukan. Status 500, noindex, tidak di-cache.
+import Public from '../layouts/Public.astro';
+import '../styles/pages/errors.css';
+import Error500 from '../components/errors/Error500.astro';
+
+Astro.response.status = 500;
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<Public
+  title="Gangguan sementara | Arunika Journey"
+  description="Sistem kami sedang mengalami gangguan. Booking yang sudah tercatat tetap aman."
+  noindex
+>
+  <Error500 />
+</Public>

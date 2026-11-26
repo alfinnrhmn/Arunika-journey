@@ -1,0 +1,54 @@
+---
+/**
+ * Bilah filter jenis trip dan format. Setiap chip adalah tautan ke /dokumentasi?jenis=...&format=... (disaring
+ * di server, jadi berfungsi tanpa JavaScript). Menekan chip yang aktif melepas filternya. Kotak pencarian di
+ * rancangan sengaja tidak dipasang (tidak ada dukungan pencarian di server).
+ */
+import { docsFilters as f } from '../../content/documentation';
+
+interface Props {
+  jenis: string | null;
+  format: string | null;
+  /** Jumlah dokumentasi yang tampil setelah disaring. */
+  shown: number;
+}
+const { jenis, format, shown } = Astro.props;
+
+const href = (j: string | null, fm: string | null) => {
+  const q = new URLSearchParams();
+  if (j) q.set('jenis', j);
+  if (fm) q.set('format', fm);
+  const s = q.toString();
+  return `/dokumentasi${s ? `?${s}` : ''}#koleksi`;
+};
+---
+
+<div class="dc-bar" id="koleksi">
+  <nav class="dc-chips" aria-label="Saring dokumentasi">
+    <a class="dc-fc" href={href(null, null)} aria-current={!jenis && !format ? 'true' : undefined}>
+      Semua
+    </a>
+    {f.type.map((t) => (
+      <a
+        class="dc-fc"
+        href={href(jenis === t.value ? null : t.value, format)}
+        aria-current={jenis === t.value ? 'true' : undefined}
+      >
+        {t.label}
+      </a>
+    ))}
+    <span class="dc-sep" aria-hidden="true"></span>
+    {f.format.map((t) => (
+      <a
+        class="dc-fc"
+        href={href(jenis, format === t.value ? null : t.value)}
+        aria-current={format === t.value ? 'true' : undefined}
+      >
+        {t.label}
+      </a>
+    ))}
+  </nav>
+  <p class="dc-count" role="status">
+    Menampilkan <b>{shown}</b> dari {f.total} dokumentasi
+  </p>
+</div>

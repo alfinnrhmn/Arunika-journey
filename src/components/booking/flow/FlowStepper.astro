@@ -1,6 +1,7 @@
 ---
 // Penunjuk langkah (desain: hf-st). Langkah yang sudah lewat menaut kembali ke halamannya; langkah
 // "Konfirmasi" adalah halaman pesanan sesudah pembayaran dimulai, jadi tidak pernah menjadi tautan.
+// Di mobile (desain: hf-pb) daftar langkah diganti teks "Langkah n dari 4 · nama" dengan empat segmen.
 interface Props {
   current: 1 | 2 | 3 | 4;
   slug: string;
@@ -12,6 +13,7 @@ const steps = [
   { n: 3, label: 'Pembayaran DP', href: `/booking/${slug}/bayar` },
   { n: 4, label: 'Konfirmasi', href: '' },
 ];
+const now = steps[current - 1]!;
 ---
 
 <nav class="bf-st" data-current={current} aria-label="Langkah pemesanan">
@@ -31,4 +33,15 @@ const steps = [
       );
     })}
   </ol>
+  <div class="bf-pb">
+    <div class="t">
+      Langkah {current} dari 4 · {now.label}
+    </div>
+    <div class="s" aria-hidden="true">
+      <i />
+      <i />
+      <i />
+      <i />
+    </div>
+  </div>
 </nav>

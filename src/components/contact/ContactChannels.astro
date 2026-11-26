@@ -1,0 +1,40 @@
+---
+// Kanal kontak + kartu "Formulir segera tersedia" (formulir belum tersambung ke server; lihat ContactForm.astro).
+import HFIcon from '../hf/HFIcon.astro';
+import { contactChannels as c, contactFormSoon as s } from '../../content/about';
+---
+
+<section class="ct-main" id="jalur" aria-labelledby="ct-jalur-h">
+  <div class="ct-channels">
+    <p class="ct-eyebrow">{c.eyebrow}</p>
+    <h2 class="ct-h2" id="ct-jalur-h">
+      {c.titleA} <i>{c.titleI}</i>
+    </h2>
+    <ul class="ct-list">
+      {c.items.map((it) => (
+        <li class="ct-ch">
+          <span class="ct-ico" aria-hidden="true">
+            <HFIcon name={it.icon} size={20} />
+          </span>
+          <div>
+            <p class="ct-k">{it.key}</p>
+            <p class="ct-v">
+              {it.key === 'Email' ? <a href={`mailto:${it.value}`}>{it.value}</a> : it.value}
+            </p>
+            <p class="ct-s">{it.text}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <div class="ct-panel" id="pesan">
+    <p class="ct-eyebrow">{s.eyebrow}</p>
+    <h2 class="ct-h2 ct-h2-s">
+      {s.titleA} <i>{s.titleI}</i>
+    </h2>
+    <p class="ct-soon" role="status">
+      <span class="ct-soon-d">{s.note}</span>
+      <span class="ct-soon-m">{s.noteMobile}</span>
+    </p>
+  </div>
+</section>

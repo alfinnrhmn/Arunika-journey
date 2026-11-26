@@ -5,6 +5,7 @@ import HFNavRD from '../../hf/HFNavRD.astro';
 import { mediaUrl } from '../../../lib/photo';
 import { formatDuration, formatRupiah } from '../../../lib/format';
 import type { TripDetail } from '../../../features/trips/queries';
+import { photoSize } from '../photo-size';
 
 interface Props {
   trip: TripDetail;
@@ -14,7 +15,14 @@ const { trip } = Astro.props;
 
 <section class="td-hero">
   {trip.coverPhoto && (
-    <img class="cover td-hero-img" src={mediaUrl(trip.coverPhoto)} alt={trip.title} />
+    <img
+      class="cover td-hero-img"
+      src={mediaUrl(trip.coverPhoto)}
+      alt={trip.title}
+      {...photoSize(trip.coverPhoto)}
+      fetchpriority="high"
+      decoding="async"
+    />
   )}
   <div class="td-hero-shade"></div>
   <HFNavRD tone="overlay" cta="Pilih tanggal" ctaHref="/trips" ctaTone="light" />
@@ -32,13 +40,19 @@ const { trip } = Astro.props;
     >
       <path d="M19 12H5M11 6l-6 6 6 6"></path>
     </svg>
-    Kembali ke Open Trip
+    <span>
+      <span class="td-back-pre">Kembali ke </span>Open Trip
+    </span>
   </a>
   <div class="td-hero-copy">
+    <div class="td-hero-chips">
+      <span>Open Trip</span>
+      {trip.where && <span>{trip.where}</span>}
+    </div>
     <div class="td-hero-price">Harga mulai dari {formatRupiah(trip.basePrice)} / orang</div>
     <h1>{trip.title}</h1>
     <div class="td-hero-meta">
-      {trip.where && <span>{trip.where}</span>}
+      {trip.where && <span class="td-meta-where">{trip.where}</span>}
       <span>{formatDuration(trip.durationDays, trip.nights)}</span>
       {trip.maxParticipants && <span>Maks {trip.maxParticipants} peserta</span>}
       {trip.difficulty && <span>Tingkat: {trip.difficulty}</span>}

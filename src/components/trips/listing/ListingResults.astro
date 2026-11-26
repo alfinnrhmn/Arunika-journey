@@ -4,15 +4,47 @@ import { formatDateShort, formatDuration, formatRupiah } from '../../../lib/form
 import { seatLabel } from '../../../features/schedules/seats';
 import type { TripCard } from '../../../features/trips/queries';
 import HFTripTile from '../../hf/HFTripTile.astro';
+import { photoSize } from '../photo-size';
 import ListingSidebar from './ListingSidebar.astro';
 
 interface Props {
   items: TripCard[];
+  /** Jumlah seluruh Open Trip yang dibuka (untuk baris "Menampilkan N dari M trip" di tablet dan mobile). */
+  total?: number;
 }
-const { items } = Astro.props;
+const { items, total = items.length } = Astro.props;
 ---
 
-<section class="tl4">
+<section class="tl4" id="tl-hasil">
+  <div class="tl-bar" id="tl-bar">
+    <a
+      class="tl-filter-btn"
+      href="#tl-filter"
+      role="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      aria-controls="tl-filter"
+      data-filter-open
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M4 6h16M7 12h10M10 18h4"></path>
+      </svg>
+      <span>Filter</span>
+    </a>
+    <p class="tl-count">
+      Menampilkan <b>{items.length}</b>
+      {` dari ${total} trip, urut tanggal terdekat`}
+    </p>
+  </div>
   <ListingSidebar count={items.length} />
   <div class="tl13">
     {items.length === 0 && (
@@ -40,7 +72,10 @@ const { items } = Astro.props;
               class="cover"
               src={mediaUrl(card.photo)}
               alt={card.title}
-              loading={i < 4 ? 'eager' : 'lazy'}
+              {...photoSize(card.photo)}
+              loading={i === 0 ? undefined : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+              decoding="async"
             />
           )}
         </Fragment>

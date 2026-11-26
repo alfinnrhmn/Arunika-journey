@@ -1,0 +1,93 @@
+---
+// Detail cerita Journal: /journal/<slug>. Slug yang tidak ada mengembalikan status 404 dengan halaman "tidak
+// ditemukan" bergaya aplikasi (pola yang sama dengan /trips/<slug>). Isi cerita masih contoh dari
+// src/content/journal.ts dan nanti diganti data CMS.
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/journal.css';
+import HFNavRD from '../../components/hf/HFNavRD.astro';
+import HFArrowButton from '../../components/hf/HFArrowButton.astro';
+import ArticleHead from '../../components/journal/ArticleHead.astro';
+import ArticleBody from '../../components/journal/ArticleBody.astro';
+import JournalToc from '../../components/journal/JournalToc.astro';
+import JournalMeta from '../../components/journal/JournalMeta.astro';
+import JournalShare from '../../components/journal/JournalShare.astro';
+import JournalTrips from '../../components/journal/JournalTrips.astro';
+import JournalNext from '../../components/journal/JournalNext.astro';
+import JournalRelated from '../../components/journal/JournalRelated.astro';
+import JournalCta from '../../components/journal/JournalCta.astro';
+import { DEFAULT_CTA, getStory, nextStory, relatedStories } from '../../content/journal';
+import { getDb } from '../../server/db';
+import { listOpenTrips } from '../../features/trips/queries';
+
+const { slug } = Astro.params;
+const story = getStory(slug);
+if (!story) Astro.response.status = 404;
+
+// Trip terkait: Open Trip nyata dari database. Bila database tidak terjangkau, bagian ini disembunyikan
+// (artikel tetap tampil).
+let trips: Awaited<ReturnType<typeof listOpenTrips>>['items'] = [];
+if (story?.tripSlugs?.length) {
+  try {
+    const { items } = await listOpenTrips(getDb(), { limit: 100 });
+    trips = story.tripSlugs
+      .map((s) => items.find((t) => t.slug === s))
+      .filter((t): t is (typeof items)[number] => !!t);
+  } catch {
+    trips = [];
+  }
+}
+
+const next = story ? nextStory(story) : undefined;
+const related = story ? relatedStories(story) : [];
+const cta = story?.cta ?? DEFAULT_CTA;
+
+const title = story
+  ? `${story.title} | Journal | Arunika Journey`
+  : 'Cerita tidak ditemukan | Arunika Journey';
+const description = story
+  ? story.excerpt
+  : 'Cerita Journal yang Anda cari tidak ditemukan atau belum terbit.';
+const ogImage = story ? `/foto/${story.cover.foto}.webp` : undefined;
+---
+
+<Public title={title} description={description} ogImage={ogImage} ogImageAlt={story?.cover.alt}>
+  {story ? (
+    <>
+      <HFNavRD tone="solid" />
+      <main class="jn-main jn-detail">
+        {story.sample && (
+          <p class="jn-notice" role="note">
+            <b>Contoh.</b> Cerita ini isi sementara dari rancangan; tim Arunika akan menggantinya
+            dengan cerita sebenarnya.
+          </p>
+        )}
+        <ArticleHead story={story} />
+        <div class="jn-body">
+          <JournalToc story={story} />
+          <article class="jn-article" aria-label={story.title}>
+            <ArticleBody story={story} />
+          </article>
+          <JournalTrips trips={trips} />
+          <JournalMeta story={story} />
+          <JournalShare />
+        </div>
+        {next && <JournalNext story={next} />}
+        <JournalRelated stories={related} />
+        <JournalCta title={cta.title} em={cta.em} body={cta.body} />
+      </main>
+    </>
+  ) : (
+    <>
+      <HFNavRD tone="solid" />
+      <main class="jn-main jn-missing">
+        <h1>Cerita tidak ditemukan</h1>
+        <p>Cerita yang Anda cari tidak ada atau belum terbit. Lihat cerita Journal lainnya.</p>
+        <HFArrowButton tone="dark" label="Semua cerita" href="/journal" />
+      </main>
+    </>
+  )}
+</Public>
+
+<script>
+  import '../../scripts/journal-article';
+</script>

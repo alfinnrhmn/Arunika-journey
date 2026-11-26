@@ -1,0 +1,35 @@
+---
+import HFIcon from '../hf/HFIcon.astro';
+import { aboutTestimonials as t } from '../../content/about';
+---
+
+<section class="ab-testi" id={t.id} aria-labelledby="ab-testi-h">
+  <h2 class="ab-eyebrow-light ab-testi-h" id="ab-testi-h">
+    {t.eyebrow}
+  </h2>
+  <ul class="ab-testi-list">
+    {t.items.map((it) => (
+      <li>
+        <figure>
+          <span class="ab-q" aria-hidden="true">
+            “
+          </span>
+          <blockquote>{it.text}</blockquote>
+          <figcaption>{it.by}</figcaption>
+        </figure>
+      </li>
+    ))}
+  </ul>
+  <div class="ab-testi-foot">
+    <div class="ab-stars" aria-hidden="true">
+      {[0, 1, 2, 3, 4].map(() => (
+        <HFIcon name="star" size={20} />
+      ))}
+    </div>
+    <p>
+      {t.rating}
+      <br />
+      {t.note}
+    </p>
+  </div>
+</section>

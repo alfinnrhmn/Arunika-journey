@@ -1,0 +1,15 @@
+---
+// Dokumen legal pada /legal/<slug>: syarat-ketentuan, kebijakan-privasi, pembatalan-refund, legalitas.
+// Isi dari src/content/legal.ts (nanti dari server). Slug tak dikenal: tampilkan halaman 404 (status 404).
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/legal.css';
+import LegalDocument from '../../components/legal/LegalDocument.astro';
+import { getLegalDocument } from '../../content/legal';
+
+const doc = getLegalDocument(Astro.params.slug ?? '');
+if (!doc) return Astro.rewrite('/404');
+---
+
+<Public title={`${doc.title} | Arunika Journey`} description={doc.description}>
+  <LegalDocument doc={doc} />
+</Public>

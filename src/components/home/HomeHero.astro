@@ -1,44 +1,94 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFNavRD from '../hf/HFNavRD.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+
+// Dua varian dalam satu <section>: `hd` di mobile (< 768) dan desktop (>= 1280): slideshow, progres, penanda
+// gulir; `hc` hanya di tablet 768-1279 (foto tunggal, teks dan dua tombol seperti frame tablet). Header dipakai bersama.
+// Foto atas layar pertama tiap varian memakai <picture>: di ukuran layar yang tidak memakainya, <source media>
+// menggantinya dengan GIF 1x1, jadi peramban tidak mengunduh dua foto hero sekaligus.
+const kosong = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 ---
 
 <section class="hp1">
-  <div class="hs" id="hs">
+  <div class="hs hd" id="hs">
     <div class="hslide on">
-      <img src={foto('prambanan-fajar')} alt="Candi Prambanan menjulang dari kabut saat fajar" />
-    </div>
-    <div class="hslide">
-      <img src={foto('penanjakan-sunrise-grup')} alt="Rombongan menyaksikan fajar di Penanjakan" />
+      <picture>
+        <source media="(min-width: 768px) and (max-width: 1279px)" srcset={kosong} />
+        <img
+          {...fi('prambanan-fajar')}
+          fetchpriority="high"
+          decoding="async"
+          alt="Candi Prambanan menjulang dari kabut saat fajar"
+        />
+      </picture>
     </div>
     <div class="hslide">
       <img
-        src={foto('sikunir-lautan-awan')}
+        {...fi('penanjakan-sunrise-grup')}
+        loading="lazy"
+        decoding="async"
+        alt="Rombongan menyaksikan fajar di Penanjakan"
+      />
+    </div>
+    <div class="hslide">
+      <img
+        {...fi('sikunir-lautan-awan')}
+        loading="lazy"
+        decoding="async"
         alt="Lautan awan dari puncak bukit di Dieng saat fajar"
       />
     </div>
     <div class="hslide">
-      <img src={foto('karimunjawa-pantai-perahu')} alt="Perahu kayu di pantai pasir putih" />
+      <img
+        {...fi('karimunjawa-pantai-perahu')}
+        loading="lazy"
+        decoding="async"
+        alt="Perahu kayu di pantai pasir putih"
+      />
     </div>
   </div>
+  <picture>
+    <source media="(max-width: 767px), (min-width: 1280px)" srcset={kosong} />
+    <img
+      class="hhero-bg hc"
+      {...fi('bromo-lautan-kabut')}
+      fetchpriority="high"
+      decoding="async"
+      alt="Kaldera Bromo menyembul dari lautan kabut saat fajar"
+    />
+  </picture>
   <div class="hp2"></div>
   <HFNavRD />
   <div class="hp3">
+    <span class="hand hhero-hand hc">Open Trip dan Private Trip</span>
     <h1 class="hp4">
-      Travel <i>beyond</i>
-      <br />
+      Travel <i>beyond</i> <br class="hd" />
       the itinerary
     </h1>
-    <p class="hp5">
+    <p class="hp5 hd">
       Perjalanan terorganisir, harga transparan, kuota terlihat. Open Trip dan Private Trip ke
       Bromo, Dieng, Yogyakarta, dan Karimunjawa.
     </p>
+    <p class="hp5 hhero-p hc">
+      Perjalanan terorganisir dengan harga per orang yang jelas, kuota yang terlihat, dan tim yang
+      menemani dari titik kumpul sampai pulang.
+    </p>
+    <div class="hhero-cta hc">
+      <div class="hc-full">
+        <HFArrowButton href={'/trips'} label={'Lihat Open Trip'} tone={'light'} />
+      </div>
+      <a class="hc-btn hc-btn--ghost" href="/private-trip/request">
+        Rancang Private Trip
+      </a>
+    </div>
   </div>
-  <div class="hp6">
+  <div class="hp6 hd">
     <div class="hp7">
       <span id="hlabel">Yogyakarta</span>
       <span id="hnum" class="hp8">
-        01 / 04
+        {' '}
+        01 / 04{' '}
       </span>
     </div>
     <div id="hbar" class="hp9">
@@ -57,7 +107,7 @@ import HFNavRD from '../hf/HFNavRD.astro';
     </div>
   </div>
   <!-- Penanda gulir: ikon mouse di tengah, di antara deskripsi (kiri) dan nama destinasi (kanan). -->
-  <a href="#fam" class="hmouse" aria-label="Gulir ke bawah">
+  <a href="#fam" class="hmouse hd" aria-label="Gulir ke bawah">
     <span class="hmouse-w"></span>
   </a>
 </section>

@@ -76,6 +76,7 @@ const shells: Record<Kind, ShellInfo> = {
   pending: {
     title: 'Menunggu pembayaran',
     step: 3,
+    stepNote: 'Menunggu pembayaran',
     hand: 'Satu langkah lagi',
     lead: 'Selesaikan pembayaran',
     em: 'DP',
@@ -85,6 +86,7 @@ const shells: Record<Kind, ShellInfo> = {
   verifying: {
     title: 'Pembayaran sedang diverifikasi',
     step: 3,
+    stepNote: 'Verifikasi pembayaran',
     hand: 'Bukti diterima',
     lead: 'Kami sedang',
     em: 'memverifikasi DP Anda',
@@ -94,6 +96,7 @@ const shells: Record<Kind, ShellInfo> = {
   confirmed: {
     title: 'Reservasi dikonfirmasi',
     step: 4,
+    stepNote: 'Konfirmasi',
     display: true,
     hand: 'Terima kasih',
     lead: 'Reservasi Anda',
@@ -104,6 +107,7 @@ const shells: Record<Kind, ShellInfo> = {
   completed: {
     title: 'Perjalanan selesai',
     step: 4,
+    stepNote: 'Konfirmasi',
     display: true,
     hand: 'Sampai jumpa lagi',
     lead: 'Perjalanan Anda',
@@ -114,6 +118,7 @@ const shells: Record<Kind, ShellInfo> = {
   failed: {
     title: 'Pembayaran belum berhasil',
     step: 3,
+    stepNote: 'Pembayaran DP',
     hand: 'Belum berhasil',
     lead: rejected ? 'Bukti pembayaran' : 'Pembayaran',
     em: rejected ? 'belum dapat diterima' : 'belum berhasil',
@@ -123,6 +128,7 @@ const shells: Record<Kind, ShellInfo> = {
   attention: {
     title: 'Pembayaran sedang ditinjau',
     step: 3,
+    stepNote: 'Pembayaran DP',
     hand: 'Sedang ditinjau',
     lead: 'Tim kami meninjau',
     em: 'pembayaran Anda',

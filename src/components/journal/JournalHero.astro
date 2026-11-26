@@ -1,0 +1,54 @@
+---
+// Cerita pilihan di bawah judul: foto lebar, gradasi gelap, judul besar, ringkasan, dan tombol baca.
+import type { Story } from '../../content/journal';
+import { readLabel, titleParts } from '../../content/journal';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { jfoto } from './photo-dims';
+
+interface Props {
+  story: Story;
+}
+const { story } = Astro.props;
+const href = `/journal/${story.slug}`;
+const [pre, em, post] = titleParts(story);
+---
+
+<section class="jn-hero" aria-labelledby="jn-hero-h">
+  <div class="jn-hero-clip">
+    <div class="jn-hero-px">
+      <div class="jn-hero-zoom">
+        <img
+          class="cover"
+          {...jfoto(story.cover.foto)}
+          alt={story.cover.alt}
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    </div>
+    <div class="jn-hero-shade"></div>
+  </div>
+  <div class="jn-hero-txt">
+    <div class="jn-fade" style="--d: 1.1s">
+      <span class="jn-eyebrow" data-tone="light">
+        Cerita pilihan · {readLabel(story)}
+      </span>
+      {story.sample && <span class="jn-sample jn-sample-hero">Contoh</span>}
+    </div>
+    <span class="jn-mask">
+      <h2 id="jn-hero-h" class="jn-rise" style="--d: 1.2s">
+        <a href={href}>
+          {pre}
+          {em && <i>{em}</i>}
+          {post}
+        </a>
+      </h2>
+    </span>
+    <p class="jn-fade" style="--d: 1.7s">
+      {story.excerpt}
+    </p>
+    <div class="jn-fade" style="--d: 1.9s">
+      <HFArrowButton tone="light" label="Baca cerita" href={href} />
+    </div>
+  </div>
+</section>

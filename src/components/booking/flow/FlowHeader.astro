@@ -1,17 +1,30 @@
 ---
 // Header alur booking (desain: hf-ckh): wordmark di kiri, bantuan WhatsApp di kanan. Sengaja tanpa menu
-// utama agar pengunjung fokus menyelesaikan pemesanan.
+// utama agar pengunjung fokus menyelesaikan pemesanan. Di tablet dan mobile (desain "hf-hb"): tombol kembali,
+// judul "Booking" (di tablet "Booking Open Trip"), dan tautan WhatsApp; wordmark dan teks bantuan disembunyikan.
 import HFIcon from '../../hf/HFIcon.astro';
 import { whatsappHref } from '../../trips/detail/words';
 
+interface Props {
+  /** Tujuan tombol kembali (langkah sebelumnya) pada layar kecil. */
+  backHref?: string;
+}
+const { backHref = '/trips' } = Astro.props;
 const Wa = whatsappHref ? 'a' : 'span';
 ---
 
 <header class="bf-head">
+  <a class="back" href={backHref} aria-label="Kembali ke langkah sebelumnya">
+    <HFIcon name="arrow" size={24} />
+  </a>
   <a class="wm" href="/" aria-label="Arunika Journey, beranda">
     <span class="a">Arunika</span>
     <span class="j">Journey</span>
   </a>
+  <span class="ttl">
+    <span class="lg">Booking Open Trip</span>
+    <span class="sm">Booking</span>
+  </span>
   <div class="help">
     <span>Butuh bantuan?</span>
     <Wa

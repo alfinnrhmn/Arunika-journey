@@ -1,15 +1,17 @@
 ---
-import { foto } from '../../lib/photo';
+import { fi } from './dims';
 import HFIcon from '../hf/HFIcon.astro';
 ---
 
-<section id="tm" class="hp61">
+<section id="tm" class="hp61 hd">
   <div class="tm">
     <a href="/dokumentasi" class="tm-card hp-link">
       <div class="tslide on">
         <img
           class="cover"
-          src={foto('senja-perahu-tenang')}
+          {...fi('senja-perahu-tenang')}
+          loading="lazy"
+          decoding="async"
           alt="Perahu kayu di laut tenang saat senja"
         />
         <div class="hp62"></div>
@@ -27,7 +29,9 @@ import HFIcon from '../hf/HFIcon.astro';
       <div class="tslide">
         <img
           class="cover"
-          src={foto('perempuan-geladak-perahu')}
+          {...fi('perempuan-geladak-perahu')}
+          loading="lazy"
+          decoding="async"
           alt="Peserta duduk di geladak perahu menatap laut"
         />
         <div class="hp62"></div>
@@ -45,7 +49,9 @@ import HFIcon from '../hf/HFIcon.astro';
       <div class="tslide">
         <img
           class="cover"
-          src={foto('jembatan-kayu-mangrove')}
+          {...fi('jembatan-kayu-mangrove')}
+          loading="lazy"
+          decoding="async"
           alt="Jembatan kayu tua menuju laut saat senja"
         />
         <div class="hp62"></div>
@@ -63,7 +69,9 @@ import HFIcon from '../hf/HFIcon.astro';
       <div class="tslide">
         <img
           class="cover"
-          src={foto('wonosobo-keluarga-teh')}
+          {...fi('wonosobo-keluarga-teh')}
+          loading="lazy"
+          decoding="async"
           alt="Keluarga berjalan di kebun teh"
         />
         <div class="hp62"></div>
@@ -81,7 +89,9 @@ import HFIcon from '../hf/HFIcon.astro';
       <div class="tslide">
         <img
           class="cover"
-          src={foto('bintang-laut')}
+          {...fi('bintang-laut')}
+          loading="lazy"
+          decoding="async"
           alt="Bintang laut di perairan dangkal berpasir putih"
         />
         <div class="hp62"></div>
@@ -107,13 +117,31 @@ import HFIcon from '../hf/HFIcon.astro';
         <div class="hp63">
           <div class="hp64">
             <span class="tav">
-              <img class="cover" src={foto('grup-tertawa-bromo')} alt="Peserta 1" />
+              <img
+                class="cover"
+                {...fi('grup-tertawa-bromo')}
+                loading="lazy"
+                decoding="async"
+                alt="Peserta 1"
+              />
             </span>
             <span class="tav hp65">
-              <img class="cover" src={foto('potret-perempuan-tenun')} alt="Peserta 2" />
+              <img
+                class="cover"
+                {...fi('potret-perempuan-tenun')}
+                loading="lazy"
+                decoding="async"
+                alt="Peserta 2"
+              />
             </span>
             <span class="tav hp65">
-              <img class="cover" src={foto('anak-muda-jogja')} alt="Peserta 3" />
+              <img
+                class="cover"
+                {...fi('anak-muda-jogja')}
+                loading="lazy"
+                decoding="async"
+                alt="Peserta 3"
+              />
             </span>
             <span class="tav hp66">
               <HFIcon name={'plus'} />
@@ -132,7 +160,7 @@ import HFIcon from '../hf/HFIcon.astro';
         </div>
       </div>
       <div class="tm-nav">
-        <span id="tprev" class="tb">
+        <span id="tprev" class="tb" role="button" tabindex="0" aria-label="Testimoni sebelumnya">
           <svg
             viewBox="0 0 24 24"
             width="18"
@@ -146,7 +174,13 @@ import HFIcon from '../hf/HFIcon.astro';
             <path d="M19 12H5M11 6l-6 6 6 6"></path>
           </svg>
         </span>
-        <span id="tnext" class="tb tb-f">
+        <span
+          id="tnext"
+          class="tb tb-f"
+          role="button"
+          tabindex="0"
+          aria-label="Testimoni berikutnya"
+        >
           <svg
             viewBox="0 0 24 24"
             width="18"

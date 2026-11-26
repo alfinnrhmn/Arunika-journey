@@ -95,6 +95,7 @@ export interface TripSummary {
 export interface ShellInfo {
   title: string;
   step: 3 | 4 | null;
+  stepNote?: string;
   display?: boolean;
   hand: string;
   lead: string;

@@ -1,6 +1,7 @@
 ---
 import HFArrowButton from '../../hf/HFArrowButton.astro';
 import { foto } from '../../../lib/photo';
+import { photoSize } from '../photo-size';
 import { whatsappHref } from './words';
 
 const WaTag = whatsappHref ? 'a' : 'span';
@@ -28,6 +29,9 @@ const WaTag = whatsappHref ? 'a' : 'span';
       class="cover"
       src={foto('grup-tertawa-bromo')}
       alt="Rombongan tertawa dengan latar Bromo"
+      {...photoSize('grup-tertawa-bromo')}
+      loading="lazy"
+      decoding="async"
     />
   </div>
 </section>

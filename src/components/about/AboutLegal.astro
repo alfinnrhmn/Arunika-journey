@@ -1,0 +1,27 @@
+---
+import HFIcon from '../hf/HFIcon.astro';
+import HFArrowButton from '../hf/HFArrowButton.astro';
+import { aboutLegal as l } from '../../content/about';
+---
+
+<section class="ab-legal" id="legalitas" aria-labelledby="ab-legal-h">
+  <div class="ab-head">
+    <p class="ab-eyebrow">{l.eyebrow}</p>
+    <h2 class="ab-h2" id="ab-legal-h">
+      {l.titleA} <i>{l.titleI}</i>
+      {` ${l.titleB}`}
+    </h2>
+  </div>
+  <ul class="ab-cols4">
+    {l.items.map((it) => (
+      <li class="ab-col">
+        <HFIcon name={it.icon} size={24} />
+        <h3 class="ab-h3">{it.title}</h3>
+        <p class="ab-p">{it.text}</p>
+      </li>
+    ))}
+  </ul>
+  <div class="ab-legal-cta">
+    <HFArrowButton tone="outline" label={l.cta.label} href={l.cta.href} />
+  </div>
+</section>
