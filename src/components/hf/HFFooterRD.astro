@@ -367,4 +367,13 @@ const year = new Date().getFullYear();
       gap: 0 16px;
     }
   }
+
+  /* Layar sangat sempit (<= 359): empat lingkaran izin tidak muat satu baris (4 x 72 + jarak > 280px);
+     disusun 2 x 2 supaya tidak meluapkan halaman. */
+  @media (max-width: 359px) {
+    .hf-rdf .badges {
+      display: grid;
+      grid-template-columns: repeat(2, 72px);
+    }
+  }
 </style>

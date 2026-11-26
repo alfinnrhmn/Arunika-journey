@@ -324,35 +324,40 @@ html.cs-lock {
     border-width: 0 0 1px;
     border-radius: 0;
   }
+  /* Lembar bawah ringkas: tidak lebih dari sekitar sepertiga layar agar hero tetap terlihat. Dua tombol
+     berdampingan, tautan preferensi di bawahnya; semua target sentuh >= 44px. */
   html.arj-js .cs-banner {
     left: 0;
     right: 0;
     bottom: 0;
     width: auto;
-    padding: 24px 20px max(20px, env(safe-area-inset-bottom));
+    padding: 16px 20px max(8px, env(safe-area-inset-bottom));
     border-radius: 20px 20px 0 0;
     max-height: 85dvh;
     overflow-y: auto;
   }
   .cs-title {
-    font-size: 26px;
-    line-height: 32px;
+    font-size: 22px;
+    line-height: 28px;
   }
   .cs-title i {
     font-style: italic;
   }
   .cs-text {
-    margin-top: 10px;
-    font-size: 15px;
-    line-height: 22px;
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 20px;
   }
   .cs-actions {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    margin-top: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
   }
   .cs-actions .cs-btn {
     width: 100%;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 14px;
   }
   .cs-link {
     justify-self: center;

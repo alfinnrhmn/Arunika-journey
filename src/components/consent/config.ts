@@ -27,9 +27,9 @@ export const CONSENT_CATEGORIES: ConsentCategory[] = [
   },
   {
     id: 'analytics',
-    title: 'Analitik GA4',
+    title: 'Analitik',
     description:
-      'Membantu kami memahami halaman mana yang dipakai. Aktif hanya dengan izin Anda dan mati secara default.',
+      'Membantu kami memahami halaman mana yang dipakai. Saat ini belum ada pelacak analitik yang dipasang; bila nanti dipasang, ia hanya aktif dengan izin Anda dan mati secara default.',
   },
   {
     id: 'booking',
