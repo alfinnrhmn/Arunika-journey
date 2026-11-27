@@ -15,7 +15,12 @@ export function initParallax(selector = '[data-parallax]', media = '(min-width: 
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (!els.length) return;
 
-  const state = els.map((el) => ({ el, y: 0, visible: false }));
+  // Jarak geser maksimum (pecahan tinggi kotak) boleh diatur lewat nilai atribut, mis. data-parallax="0.06";
+  // kosong = 0.09 seperti Home. CSS wajib meluaskan elemen dengan angka yang sama (top/bottom: -6%).
+  const state = els.map((el) => {
+    const n = Number.parseFloat(el.dataset.parallax ?? '');
+    return { el, y: 0, visible: false, amount: Number.isFinite(n) && n > 0 && n < 0.3 ? n : 0.09 };
+  });
   let raf = 0;
 
   const active = () => wide.matches && !calm.matches;
@@ -31,7 +36,7 @@ export function initParallax(selector = '[data-parallax]', media = '(min-width: 
         -1,
         Math.min(1, (b.top + b.height / 2 - vh / 2) / (vh / 2 + b.height / 2)),
       );
-      const target = -p * 0.09 * b.height;
+      const target = -p * s.amount * b.height;
       s.y += (target - s.y) * 0.09;
       s.el.style.setProperty('--py', `${s.y.toFixed(2)}px`);
     }

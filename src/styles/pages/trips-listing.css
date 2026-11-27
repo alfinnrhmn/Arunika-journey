@@ -234,6 +234,9 @@
   align-items: center;
   gap: 96px;
   padding: 0 41px 146px;
+  /* Teks dan foto satu kelompok rapat yang ikut ke tengah di layar lebar (frame 1440), bukan menempel kiri. */
+  max-width: 1440px;
+  margin-inline: auto;
 }
 .tl27 {
   flex: 1;
@@ -275,8 +278,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: -9%;
-  bottom: -9%;
+  top: -6%;
+  bottom: -6%;
   transform: translate3d(0, var(--py, 0px), 0);
   will-change: transform;
 }
