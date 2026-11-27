@@ -17,7 +17,9 @@ import { bp } from '../../about/photo';
     <ul class="ptl-ex-grid">
       {e.items.map((it) => (
         <li class:list={['ptl-tile', it.tabletOnly && 'ptl-tile-tab']}>
-          <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          <div class="ptl-px" data-parallax>
+            <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          </div>
           <div class="ptl-tile-shade" aria-hidden="true"></div>
           {it.badge && <span class="ptl-tile-badge">{it.badge}</span>}
           <div class="ptl-tile-tx">

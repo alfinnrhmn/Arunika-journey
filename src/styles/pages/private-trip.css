@@ -229,6 +229,21 @@
   height: 540px;
 }
 
+/* Parallax foto (src/lib/motion/parallax.ts): di bawah 1280px mengisi kotak apa adanya; di desktop meluas 9% dan
+   bergeser mengikuti gulir seperti .fpx di Home. */
+.ptl-px {
+  position: absolute;
+  inset: 0;
+}
+@media (min-width: 1280px) {
+  .ptl-px {
+    top: -9%;
+    bottom: -9%;
+    transform: translate3d(0, var(--py, 0px), 0);
+    will-change: transform;
+  }
+}
+
 /* ---------- Langkah ---------- */
 .ptl-steps {
   padding: 0 var(--spacing-margin) var(--spacing-section);
@@ -491,6 +506,7 @@
   gap: 20px;
 }
 .ptl-stay-ph {
+  position: relative;
   height: 420px;
   overflow: hidden;
 }
@@ -602,6 +618,7 @@
   font-weight: 600;
 }
 .ptl-testi-ph {
+  position: relative;
   order: 2;
   min-height: 0;
   overflow: hidden;
@@ -1520,6 +1537,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ptl-px {
+    transform: none;
+  }
   .ptl-qa summary svg {
     transition: none;
   }

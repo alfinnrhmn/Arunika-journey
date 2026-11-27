@@ -40,3 +40,9 @@ import { foto } from '../../lib/photo';
     <PtSticky />
   </main>
 </Public>
+
+<script>
+  // Foto isi bergeser turun mengikuti gulir seperti foto di Home (desktop >= 1280px, mati bila "kurangi gerakan").
+  import { initParallax } from '../../lib/motion/parallax';
+  initParallax('[data-parallax]', '(min-width: 1280px)');
+</script>

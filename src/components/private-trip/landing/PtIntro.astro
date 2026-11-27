@@ -21,10 +21,26 @@ import { bp } from '../../about/photo';
   </div>
   <div class="ptl-intro-ph">
     <div class="ptl-intro-a">
-      <img class="cover" {...bp(t.fotoA.foto)} loading="lazy" decoding="async" alt={t.fotoA.alt} />
+      <div class="ptl-px" data-parallax>
+        <img
+          class="cover"
+          {...bp(t.fotoA.foto)}
+          loading="lazy"
+          decoding="async"
+          alt={t.fotoA.alt}
+        />
+      </div>
     </div>
     <div class="ptl-intro-b">
-      <img class="cover" {...bp(t.fotoB.foto)} loading="lazy" decoding="async" alt={t.fotoB.alt} />
+      <div class="ptl-px" data-parallax>
+        <img
+          class="cover"
+          {...bp(t.fotoB.foto)}
+          loading="lazy"
+          decoding="async"
+          alt={t.fotoB.alt}
+        />
+      </div>
     </div>
   </div>
 </section>

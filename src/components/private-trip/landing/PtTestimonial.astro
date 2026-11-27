@@ -18,7 +18,9 @@ import { bp } from '../../about/photo';
       </figcaption>
     </div>
     <div class="ptl-testi-ph">
-      <img class="cover" {...bp(t.foto)} loading="lazy" decoding="async" alt={t.alt} />
+      <div class="ptl-px" data-parallax>
+        <img class="cover" {...bp(t.foto)} loading="lazy" decoding="async" alt={t.alt} />
+      </div>
     </div>
   </figure>
 </section>

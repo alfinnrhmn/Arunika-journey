@@ -19,7 +19,9 @@ import { bp } from '../../about/photo';
       {s.items.map((it) => (
         <li class="ptl-stay-it">
           <div class="ptl-stay-ph">
-            <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+            <div class="ptl-px" data-parallax>
+              <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+            </div>
           </div>
           <p class="ptl-stay-k">{it.k}</p>
           <h3>{it.title}</h3>
