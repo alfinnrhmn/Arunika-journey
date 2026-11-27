@@ -1,0 +1,139 @@
+---
+// Proposal kedaluwarsa: harga lama dicoret dan tidak berlaku, isi lama diredupkan, tidak ada tindakan
+// setuju. "Minta proposal baru" belum tersambung ke backend, jadi diganti kontak WhatsApp (ContactBlock).
+import HFBadge from '../../hf/HFBadge.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import DetailRow from '../../booking/status/DetailRow.astro';
+import TextStep from '../../booking/status/TextStep.astro';
+import ContactBlock from './ContactBlock.astro';
+import { formatDateShort, formatRupiah } from '../../../lib/format';
+import type { ProposalView } from '../../../content/private-proposal';
+import { dateText, durationText, peopleText, rangeText } from './lib';
+
+interface Props {
+  view: ProposalView;
+}
+const { view } = Astro.props;
+const { request, proposal, content } = view;
+const destination = request.destination ?? '[diisi klien]';
+---
+
+<section class="pp-hero" data-kind="expired">
+  <div class="pp-eb-row">
+    <span class="pp-eb" data-tone="ink">
+      Nomor permintaan {request.code}
+    </span>
+    <HFBadge tone="full" label="Kedaluwarsa" />
+  </div>
+  <span class="hand pp-hand">Masa berlaku telah lewat</span>
+  <h1>
+    Proposal {destination} ini sudah <i>kedaluwarsa</i>
+  </h1>
+  <p class="pp-lede">
+    Proposal berlaku hingga {dateText(proposal.validUntil)} dan kini sudah lewat. Harga dan
+    ketersediaan di bawah tidak berlaku lagi. Kami bisa menyusun proposal baru dari permintaan yang
+    sama.
+  </p>
+</section>
+
+<div class="pp-body" data-kind="expired">
+  <div class="pp-callout" data-tone="full">
+    <HFIcon name="clock" size={20} />
+    <p>
+      <b>Harga tidak berlaku.</b> {proposal.sentAt && <>Dikirim {dateText(proposal.sentAt)}, </>}
+      berlaku hingga {dateText(proposal.validUntil)}. Persetujuan tidak tersedia untuk proposal yang
+      sudah lewat masa berlaku.
+    </p>
+  </div>
+
+  <aside class="pp-side" aria-labelledby="pp-harga">
+    <div class="pp-side-h">
+      <span class="pp-lab" id="pp-harga">
+        Harga proposal lama
+      </span>
+      <HFBadge tone="full" label="Tidak berlaku" />
+    </div>
+    <div class="pp-big" data-struck="yes">
+      {formatRupiah(proposal.priceTotal)}
+    </div>
+    <p class="pp-sub">
+      untuk {peopleText(request.participants)}, sudah termasuk PPN. Harga baru dihitung ulang di
+      proposal berikutnya.
+    </p>
+    <div class="pp-rows">
+      <DetailRow label="Berlaku hingga" value={dateText(proposal.validUntil)} />
+      <DetailRow label="Status" value="Kedaluwarsa" />
+    </div>
+    <div class="pp-act">
+      <ContactBlock
+        lead="Untuk meminta proposal baru, sampaikan ke tim kami. Anda tidak perlu mengisi formulir ulang."
+        waLabel="Minta proposal baru"
+      />
+    </div>
+    <p class="pp-shield" data-card="paper">
+      <HFIcon name="shield" size={16} />
+      <span>
+        <b>Tidak ada pembayaran yang tertagih</b> dari proposal ini. Meminta proposal baru tidak
+        mengikat.
+      </span>
+    </p>
+  </aside>
+
+  <div class="pp-main">
+    <section class="pp-dim" aria-labelledby="pp-isi">
+      <div class="pp-sh">
+        <span>01</span>
+        <h2 id="pp-isi">Ringkasan isi proposal</h2>
+      </div>
+      <dl class="pp-stats" data-inline="yes" aria-label="Ringkasan perjalanan">
+        <div class="pp-stat">
+          <dt>Destinasi</dt>
+          <dd>{destination}</dd>
+          <dd class="n">{content.destinationNote}</dd>
+        </div>
+        <div class="pp-stat">
+          <dt>Durasi</dt>
+          <dd>{durationText(request)}</dd>
+          <dd class="n">{content.paceNote}</dd>
+        </div>
+        <div class="pp-stat">
+          <dt>Peserta</dt>
+          <dd>{peopleText(request.participants)}</dd>
+        </div>
+      </dl>
+      <div class="pp-rows">
+        <DetailRow
+          label="Tanggal pada proposal"
+          value={rangeText(request.startDate, request.endDate)}
+        />
+        {content.itinerary.map((d) => (
+          <DetailRow label={`Hari ${d.dayNo}`} value={`${d.title} · ${formatDateShort(d.date)}`} />
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="pp-lanjut">
+      <div class="pp-sh">
+        <span>02</span>
+        <h2 id="pp-lanjut">Apa yang terjadi selanjutnya</h2>
+      </div>
+      <div class="pp-steps">
+        <TextStep
+          num="01"
+          title="Minta proposal baru"
+          desc="Sampaikan lewat WhatsApp; permintaan Anda diteruskan ke admin."
+        />
+        <TextStep
+          num="02"
+          title="Kami cek ulang"
+          desc="Harga, tanggal, dan ketersediaan diperbarui. Estimasi: [estimasi dari klien]."
+        />
+        <TextStep
+          num="03"
+          title="Proposal baru dikirim"
+          desc="Anda meninjau dan menyetujui. Belum ada pembayaran sebelum itu."
+        />
+      </div>
+    </section>
+  </div>
+</div>

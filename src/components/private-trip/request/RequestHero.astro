@@ -1,0 +1,65 @@
+---
+// Hero Request a Quote. Desktop (>= 1280px): foto penuh dengan header situs transparan dan judul di tengah bawah
+// (tinggi 520 untuk langkah 1, 420 untuk langkah 2). Tablet dan mobile: foto dan header situs disembunyikan;
+// yang tampil bilah kemajuan, tulisan tangan, dan judul (judul langkah 2 di layar kecil adalah "Siapa yang kami
+// hubungi", di desktop "Data Anda"). Bagian berpenanda `data-for` hanya tampil untuk langkah yang sedang aktif
+// (`data-step` pada .pr-page); tanpa JavaScript yang aktif tetap langkah 1.
+import HFNavRD from '../../hf/HFNavRD.astro';
+import { bp } from '../../about/photo';
+import { step1, step2 } from '../../../content/private-request';
+
+const foto = bp('pulau-udara-perahu');
+---
+
+<section class="pr-hero">
+  <img
+    class="pr-hero-img"
+    {...foto}
+    fetchpriority="high"
+    decoding="async"
+    alt="Pantai dan perahu nelayan dilihat dari udara"
+  />
+  <div class="pr-hero-shade" aria-hidden="true"></div>
+  <HFNavRD tone="overlay" />
+  <div class="pr-progress" data-for="1">
+    <p class="t">{step1.progress}</p>
+    <div class="s" aria-hidden="true">
+      <i class="on"></i>
+      <i></i>
+    </div>
+  </div>
+  <div class="pr-progress" data-for="2">
+    <p class="t">{step2.progress}</p>
+    <div class="s" aria-hidden="true">
+      <i class="on"></i>
+      <i class="on"></i>
+    </div>
+  </div>
+  <div class="pr-hero-tx">
+    <p class="pr-eyebrow pr-dsk" data-for="1">
+      {step1.eyebrow}
+    </p>
+    <p class="pr-eyebrow pr-dsk" data-for="2">
+      {step2.eyebrow}
+    </p>
+    <span class="hand pr-hand pr-mob" data-for="1">
+      {step1.hand}
+    </span>
+    <span class="hand pr-hand pr-mob" data-for="2">
+      {step2.hand}
+    </span>
+    <h1 id="pr-h1">
+      <span data-for="1">
+        {step1.titleA} <i>{step1.titleI}</i> {step1.titleB}
+      </span>
+      <span data-for="2">
+        <span class="pr-dsk">
+          {step2.titleA} <i>{step2.titleI}</i>
+        </span>
+        <span class="pr-mob">
+          {step2.heading.a} <i>{step2.heading.i}</i>
+        </span>
+      </span>
+    </h1>
+  </div>
+</section>

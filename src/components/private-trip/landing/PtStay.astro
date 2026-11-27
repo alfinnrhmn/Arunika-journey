@@ -1,0 +1,32 @@
+---
+// Kategori akomodasi: desktop 3 kolom, tablet dan mobile baris geser (dapat difokus).
+import { ptStay as s } from '../../../content/private-trip';
+import { bp } from '../../about/photo';
+---
+
+<section class="ptl-stay" aria-labelledby="ptl-stay-h">
+  <div class="ptl-stay-head">
+    <div>
+      <span class="hand">{s.hand}</span>
+      <h2 class="ptl-h2" id="ptl-stay-h">
+        {s.titleA} <i>{s.titleI}</i>
+      </h2>
+    </div>
+    <p class="ptl-stay-note">{s.text}</p>
+  </div>
+  <div class="ptl-scroll ptl-stay-scroll" tabindex="0" role="region" aria-label={s.scrollLabel}>
+    <ul class="ptl-stay-grid">
+      {s.items.map((it) => (
+        <li class="ptl-stay-it">
+          <div class="ptl-stay-ph">
+            <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          </div>
+          <p class="ptl-stay-k">{it.k}</p>
+          <h3>{it.title}</h3>
+          <p class="ptl-stay-x">{it.text}</p>
+          <p class="ptl-stay-f">{it.fit}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

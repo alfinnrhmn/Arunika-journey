@@ -1,0 +1,327 @@
+---
+// Langkah 1 "Perjalanan Anda" (frame Request a Quote Langkah 1: desktop, tablet, mobile; varian Red Dot style).
+// Satu <section>: kotak isian + kolom samping (hanya desktop). Tanpa JavaScript semua kontrol asli tetap bisa
+// diisi (kolom teks tujuan, select durasi, angka peserta); dengan JavaScript tujuan memakai chip, peserta memakai
+// tombol +/-, dan validasi berjalan per bidang (request.client.ts, aturan di validate.ts).
+// Data TIDAK dikirim ke mana pun dan tidak disimpan; tombol Lanjut hanya pindah ke langkah 2 di halaman ini.
+import HFIcon from '../../hf/HFIcon.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import {
+  budgets,
+  durations,
+  partyLimits,
+  step1 as c,
+  storyMax,
+  suggestedDestinations,
+  unsureDestination,
+} from '../../../content/private-request';
+import RequestField from './RequestField.astro';
+import RequestNext from './RequestNext.astro';
+
+interface Props {
+  /** Tanggal hari ini (yyyy-mm-dd, WIB): batas awal kolom tanggal. */
+  min: string;
+}
+const { min } = Astro.props;
+const chips = [...suggestedDestinations, unsureDestination];
+---
+
+<section class="pr-step" id="langkah-1" data-pr-step="1" aria-labelledby="pr-h-1">
+  <div class="pr-box">
+    <ol class="pr-tabs" aria-label="Langkah pengisian">
+      <li aria-current="step">
+        <span class="pr-tab on">{c.tab}</span>
+      </li>
+      <li>
+        <span class="pr-tab off">2. Data Anda</span>
+      </li>
+    </ol>
+    <h2 class="pr-h2" id="pr-h-1" tabindex="-1">
+      {c.heading.a} <i>{c.heading.i}</i>
+    </h2>
+    <p class="pr-lead">{c.lead}</p>
+    <p class="pr-fill">
+      <HFIcon name="clock" size={16} />
+      <span>{c.fillTime}</span>
+    </p>
+
+    <form class="pr-form" id="pr-form-1" novalidate autocomplete="off" onsubmit="return false">
+      <RequestField
+        id="pr-tujuan"
+        field="tujuan"
+        label={c.destination.q}
+        optional
+        hint={c.destination.hint}
+        first
+      >
+        <div class="pr-search">
+          <span class="pin pr-mob" aria-hidden="true">
+            <HFIcon name="pin" size={20} />
+          </span>
+          <svg
+            class="mag pr-dsk"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="6.5"></circle>
+            <path d="M16 16l4.5 4.5"></path>
+          </svg>
+          <input
+            class="sin"
+            id="pr-tujuan"
+            name="tujuan"
+            type="text"
+            autocomplete="off"
+            maxlength="80"
+            placeholder={c.destination.placeholder}
+            aria-describedby="pr-tujuan-hint"
+          />
+          <button class="pr-add" type="button" data-pr-add data-pr-js hidden>
+            {c.destination.add}
+          </button>
+        </div>
+        <div
+          class="pr-chips"
+          role="group"
+          aria-label="Saran destinasi"
+          data-pr-chips
+          data-pr-js
+          hidden
+        >
+          {chips.map((n) => (
+            <button
+              class="pr-chip"
+              type="button"
+              aria-pressed="false"
+              data-name={n}
+              data-unsure={n === unsureDestination ? '' : undefined}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </RequestField>
+
+      <RequestField
+        id="pr-tanggal"
+        field="tanggal"
+        label={c.date.q}
+        sub={c.date.sub}
+        hint={c.date.hint}
+      >
+        <input
+          class="pr-in pr-date"
+          id="pr-tanggal"
+          name="tanggal"
+          type="date"
+          min={min}
+          required
+          aria-describedby="pr-tanggal-hint"
+        />
+        <label class="pr-chk">
+          <input type="checkbox" name="fleksibel" id="pr-fleksibel" checked />
+          <span>{c.date.flexible}</span>
+        </label>
+      </RequestField>
+
+      <RequestField id="pr-durasi" field="durasi" label={c.duration.q} group>
+        <select
+          class="pr-in pr-select pr-dsk"
+          id="pr-durasi"
+          name="durasi"
+          required
+          aria-label={c.duration.q}
+        >
+          <option value="">{c.duration.placeholder}</option>
+          {durations.map((d) => (
+            <option value={d.value}>{d.label}</option>
+          ))}
+        </select>
+        <div class="pr-chips pr-mob" role="radiogroup" aria-label={c.duration.q} data-pr-dur>
+          {durations.map((d) => (
+            <label class="pr-chip">
+              <input type="radio" name="durasi-chip" value={d.value} />
+              <span>{d.label}</span>
+            </label>
+          ))}
+        </div>
+      </RequestField>
+
+      <RequestField id="pr-peserta" field="peserta" label={c.party.q} hint={c.party.hint} group>
+        <div class="pr-cnts">
+          <div class="pr-cnt" data-pr-count="dewasa">
+            <label for="pr-dewasa">
+              {c.party.adult.label}
+              <small>{c.party.adult.sub}</small>
+            </label>
+            <div class="ctl">
+              <button
+                type="button"
+                class="cb"
+                data-pr-step="-1"
+                data-pr-js
+                hidden
+                aria-label="Kurangi dewasa"
+              >
+                <HFIcon name="minus" size={20} />
+              </button>
+              <input
+                class="cv"
+                id="pr-dewasa"
+                name="dewasa"
+                type="number"
+                inputmode="numeric"
+                min={partyLimits.adultMin}
+                max={partyLimits.adultMax}
+                value="2"
+              />
+              <button
+                type="button"
+                class="cb"
+                data-pr-step="1"
+                data-pr-js
+                hidden
+                aria-label="Tambah dewasa"
+              >
+                <HFIcon name="plus" size={20} />
+              </button>
+            </div>
+          </div>
+          <div class="pr-cnt" data-pr-count="anak">
+            <label for="pr-anak">
+              {c.party.child.label}
+              <small>{c.party.child.sub}</small>
+            </label>
+            <div class="ctl">
+              <button
+                type="button"
+                class="cb"
+                data-pr-step="-1"
+                data-pr-js
+                hidden
+                aria-label="Kurangi anak"
+              >
+                <HFIcon name="minus" size={20} />
+              </button>
+              <input
+                class="cv"
+                id="pr-anak"
+                name="anak"
+                type="number"
+                inputmode="numeric"
+                min={partyLimits.childMin}
+                max={partyLimits.childMax}
+                value="0"
+              />
+              <button
+                type="button"
+                class="cb"
+                data-pr-step="1"
+                data-pr-js
+                hidden
+                aria-label="Tambah anak"
+              >
+                <HFIcon name="plus" size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </RequestField>
+
+      <RequestField
+        id="pr-anggaran"
+        field="anggaran"
+        label={c.budget.q}
+        optional
+        hint={c.budget.hint}
+      >
+        <select
+          class="pr-in pr-select"
+          id="pr-anggaran"
+          name="anggaran"
+          aria-describedby="pr-anggaran-hint"
+        >
+          <option value="">{c.budget.placeholder}</option>
+          {budgets.map((b) => (
+            <option value={b.value}>{b.label}</option>
+          ))}
+        </select>
+      </RequestField>
+
+      <RequestField id="pr-cerita" field="cerita" label={c.story.q} optional hint={c.story.hint}>
+        <textarea
+          class="pr-in pr-ta"
+          id="pr-cerita"
+          name="cerita"
+          rows="4"
+          maxlength={storyMax + 200}
+          placeholder={c.story.placeholder}
+          aria-describedby="pr-cerita-hint"
+        ></textarea>
+      </RequestField>
+
+      <div class="pr-info" role="note">
+        <HFIcon name="shield" size={20} />
+        <p>
+          <b>{c.priceInfo.title}</b> {c.priceInfo.text}
+        </p>
+      </div>
+
+      <div class="pr-actions">
+        <p class="pr-note">{c.note}</p>
+        <RequestNext label={c.next} short={c.nextShort} />
+      </div>
+    </form>
+  </div>
+
+  <aside class="pr-aside" aria-label="Bantuan dan persiapan">
+    <div class="pr-dark">
+      <h3>
+        {c.help.title} <i>{c.help.titleI}</i>
+      </h3>
+      <p>{c.help.text}</p>
+      {whatsappHref ? (
+        <a class="pr-wa" href={whatsappHref} target="_blank" rel="noopener">
+          {c.help.waLabel}
+        </a>
+      ) : (
+        <div class="pr-wa">{c.help.wa}</div>
+      )}
+      <a class="pr-ulink" href="/contact">
+        {c.help.contact}
+      </a>
+    </div>
+    <div class="pr-card">
+      <h3 class="pr-card-t">{c.prepare.title}</h3>
+      <ul class="pr-list">
+        {c.prepare.items.map((t) => (
+          <li>
+            <span class="ok">
+              <HFIcon name="check" size={16} />
+            </span>
+            <span>{t}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="pr-time">
+        <HFIcon name="clock" size={16} />
+        {c.prepare.time}
+      </p>
+    </div>
+    <div class="pr-card pr-trust">
+      {c.trust.map((t, i) => (
+        <p>
+          <HFIcon name={i === 0 ? 'users' : 'shield'} size={16} />
+          {t}
+        </p>
+      ))}
+    </div>
+  </aside>
+</section>

@@ -1,0 +1,37 @@
+---
+// Proposal untuk permintaan yang tidak dilanjutkan atau sudah menjadi booking. Tidak ada frame desain untuk
+// keadaan ini; teksnya sementara dan netral (tidak ada harga, tidak ada tindakan).
+import HFBadge from '../../hf/HFBadge.astro';
+import ContactBlock from './ContactBlock.astro';
+import type { ProposalView } from '../../../content/private-proposal';
+import { REQUEST_BADGE } from './lib';
+
+interface Props {
+  view: ProposalView;
+}
+const { view } = Astro.props;
+const { request } = view;
+const badge = REQUEST_BADGE[request.status];
+const converted = request.status === 'converted';
+---
+
+<section class="pp-hero" data-kind="closed">
+  <div class="pp-eb-row">
+    <span class="pp-eb" data-tone="ink">
+      Nomor permintaan {request.code}
+    </span>
+    <HFBadge tone={badge.tone} label={badge.label} />
+  </div>
+  <h1>
+    Proposal ini sudah <i>tidak aktif</i>
+  </h1>
+  <p class="pp-lede">
+    {converted
+      ? 'Permintaan ini sudah menjadi booking. Pantau statusnya lewat kode booking di halaman Cek Status.'
+      : 'Permintaan ini tidak dilanjutkan, jadi harga dan isi proposal tidak lagi ditampilkan.'}
+    Bila ada pertanyaan, hubungi tim kami.
+  </p>
+  <div class="pp-after">
+    <ContactBlock lead="" print={false} />
+  </div>
+</section>

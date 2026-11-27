@@ -1,0 +1,1316 @@
+/* Proposal Review (/private-trip/proposal/...) dan hasil permintaan Private Trip di Cek Status.
+   Diport dari frame Doop "Proposal Review: Menunggu persetujuan", "Proposal: Disetujui / Kedaluwarsa /
+   Minta revisi" dan "Cek Status: Permintaan Private Trip (proposal siap)" (Red Dot style). Semua kelas
+   berawalan pp-; baris label-nilai dan linimasa memakai bs-dr dan bs-tk dari booking-status.css. Warna dan
+   ukuran lewat token. Tablet dan mobile diturunkan dari frame desktop dan mobile yang ada. */
+
+.pp-page {
+  --pp-pad: 64px;
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+}
+.pp-page h1,
+.pp-page h2,
+.pp-page h3 {
+  font-family: var(--font-serif);
+}
+
+/* Penanda pratinjau (hanya tampil untuk data contoh di mode dev). */
+.pp-sample {
+  margin: 0;
+  padding: 10px var(--pp-pad);
+  background: var(--color-status-pending-soft);
+  color: var(--color-status-pending);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+/* ---- Label kecil, lencana, tombol ---- */
+.pp-lab,
+.pp-eb {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+.pp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 28px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+}
+.pp-btn[data-tone='secondary'] {
+  background: transparent;
+  color: var(--color-ink);
+}
+.pp-btn[hidden] {
+  display: none;
+}
+
+/* ---- Hero ---- */
+.pp-hero {
+  padding: 64px var(--pp-pad) 0;
+}
+.pp-hero-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 64px;
+}
+.pp-hero-l {
+  max-width: 900px;
+}
+.pp-eb-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+.pp-hand {
+  margin-top: 28px;
+  margin-bottom: 6px;
+  color: var(--color-dawn-deep);
+}
+.pp-hero h1 {
+  margin-top: 8px;
+  max-width: 960px;
+  font-size: 68px;
+  line-height: 72px;
+  letter-spacing: -0.025em;
+  color: var(--color-ink-2);
+  overflow-wrap: break-word;
+}
+.pp-hero-r {
+  flex-shrink: 0;
+  margin: 0;
+  padding-bottom: 10px;
+  text-align: right;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-ink-2);
+}
+.pp-hero-r b {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.pp-lede {
+  margin: 20px 0 0;
+  max-width: 680px;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--color-ink-2);
+}
+.pp-hero[data-kind='approved'] .pp-hero-top {
+  max-width: 960px;
+  align-items: flex-start;
+  gap: 32px;
+}
+.pp-hero[data-kind='approved'] .pp-hand {
+  margin: 0;
+}
+.pp-hero[data-kind='approved'] h1 {
+  margin-top: 12px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+}
+.pp-hero[data-kind='approved'] .pp-lede {
+  max-width: 640px;
+}
+.pp-hero-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-hero[data-kind='expired'] .pp-lede {
+  max-width: 680px;
+}
+.pp-hero[data-kind='closed'] {
+  padding-bottom: 96px;
+}
+.pp-hero[data-kind='closed'] h1 {
+  margin-top: 28px;
+}
+
+/* ---- Tata letak isi: grid dua kolom (isi 776px, kartu harga di kanan) ---- */
+.pp-body {
+  display: grid;
+  grid-template-columns: minmax(0, 776px) minmax(360px, 1fr);
+  grid-template-areas: 'stats stats' 'main side';
+  align-items: start;
+  column-gap: 72px;
+  row-gap: 80px;
+  padding: 48px var(--pp-pad) 112px;
+}
+.pp-body[data-kind='approved'] {
+  grid-template-areas: 'main side' 'after side';
+  row-gap: 64px;
+  padding-top: 56px;
+}
+.pp-body[data-kind='expired'] {
+  grid-template-areas: 'note side' 'main side';
+  row-gap: 56px;
+  padding-top: 56px;
+}
+.pp-body > .pp-stats {
+  grid-area: stats;
+}
+.pp-body > .pp-main {
+  grid-area: main;
+  min-width: 0;
+}
+.pp-body > .pp-side {
+  grid-area: side;
+}
+.pp-body > .pp-after {
+  grid-area: after;
+}
+.pp-body > .pp-callout {
+  grid-area: note;
+}
+.pp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+.pp-body[data-kind='approved'] .pp-main {
+  gap: 64px;
+}
+.pp-body[data-kind='expired'] .pp-main {
+  gap: 56px;
+}
+
+/* ---- Empat angka ringkas ---- */
+.pp-stats {
+  display: flex;
+  gap: 40px;
+  margin: 0;
+}
+.pp-stats[data-inline='yes'] {
+  margin-top: 28px;
+}
+.pp-stat {
+  flex: 1;
+  min-width: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-ink);
+}
+.pp-stat dt {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+.pp-stat dd {
+  margin: 12px 0 0;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 400;
+  overflow-wrap: break-word;
+}
+.pp-stat dd.n {
+  margin-top: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Judul bagian ---- */
+.pp-sh {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-ink);
+}
+.pp-sh span {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.pp-sh h2 {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+
+/* ---- Itinerary ---- */
+.pp-days {
+  margin-top: 16px;
+  border-bottom: 1px solid var(--color-ink);
+}
+.pp-day {
+  display: flex;
+  gap: 32px;
+  padding: 32px 0;
+  border-top: 1px solid var(--color-ink);
+}
+.pp-day .rl {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 132px;
+  gap: 6px;
+}
+.pp-day .n {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.pp-day .dt {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+.pp-day .bd {
+  flex: 1;
+  min-width: 0;
+}
+.pp-day h3 {
+  margin: 0 0 16px;
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.pp-times {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pp-times li {
+  display: flex;
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--color-line);
+}
+.pp-times .tm {
+  flex: 0 0 56px;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+  font-variant-numeric: tabular-nums;
+}
+.pp-times .tx {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pp-times .a {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.pp-times .d {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Termasuk dan tidak ---- */
+.pp-incl {
+  display: flex;
+  gap: 48px;
+  margin-top: 32px;
+}
+.pp-incl > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pp-incl h3 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+.pp-li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pp-li li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--color-ink);
+}
+.pp-li svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--color-status-ok);
+}
+.pp-li[data-kind='cross'] li {
+  color: var(--color-ink-2);
+}
+.pp-li[data-kind='cross'] svg {
+  color: var(--color-status-full);
+}
+
+/* ---- Akomodasi ---- */
+.pp-stays {
+  display: flex;
+  gap: 32px;
+  margin-top: 32px;
+}
+.pp-stay {
+  flex: 1;
+  min-width: 0;
+}
+.pp-stay .im {
+  display: flex;
+  align-items: flex-end;
+  height: 240px;
+  padding: 16px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    var(--color-ink-2),
+    var(--color-dawn) 55%,
+    var(--color-dawn-soft)
+  );
+  color: var(--color-ink);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+.pp-stay .k {
+  display: block;
+  margin-top: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.pp-stay h3 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.pp-stay .x {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.pp-stay .f {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-line);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+/* ---- Rincian harga, syarat, linimasa ---- */
+.pp-rows .bs-dr .l,
+.pp-rows .bs-dr .v {
+  min-width: 0;
+}
+.pp-rows .bs-dr .l {
+  flex-shrink: 1;
+}
+.pp-rows .bs-dr .v {
+  overflow-wrap: anywhere;
+}
+.pp-prices .bs-dr .v,
+.pp-side .bs-dr .v {
+  white-space: nowrap;
+}
+.pp-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 24px;
+}
+.pp-total span {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.pp-total b {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 40px;
+  line-height: 46px;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+.pp-fine {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-acc {
+  margin-top: 16px;
+  border-bottom: 1px solid var(--color-line);
+}
+.pp-acc details {
+  border-top: 1px solid var(--color-line);
+}
+.pp-acc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 44px;
+  padding: 22px 0;
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.pp-acc summary::-webkit-details-marker {
+  display: none;
+}
+.pp-acc summary::after {
+  content: '';
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-ink-2);
+  background:
+    linear-gradient(currentColor, currentColor) center / 14px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 14px no-repeat;
+}
+.pp-acc details[open] summary::after {
+  background-size:
+    14px 1.5px,
+    0 0;
+}
+.pp-acc .bd {
+  max-width: 760px;
+  padding: 0 48px 24px 0;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.pp-track {
+  margin-top: 32px;
+  max-width: 640px;
+}
+
+/* ---- Langkah berikutnya (disetujui dan kedaluwarsa) ---- */
+.pp-steps {
+  display: flex;
+  gap: 40px;
+  margin-top: 32px;
+}
+.pp-steps > * {
+  flex: 1;
+  min-width: 0;
+}
+.pp-after {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-line);
+}
+.pp-after .pp-contact {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pp-fine-inline {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Kartu harga (kolom kanan, lekat saat gulir) ---- */
+.pp-side {
+  position: sticky;
+  top: 24px;
+  min-width: 0;
+  padding: 32px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xs);
+}
+.pp-side-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pp-big {
+  margin-top: 12px;
+  font-family: var(--font-serif);
+  font-size: clamp(36px, 3.4vw, 48px);
+  line-height: 1.12;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+.pp-big[data-struck='yes'] {
+  font-size: clamp(34px, 3vw, 44px);
+  color: var(--color-ink-2);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.pp-sub {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-ppn {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-side .pp-rows {
+  margin-top: 24px;
+  border-top: 1px solid var(--color-line);
+}
+.pp-dpr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 -12px;
+  padding: 14px 12px;
+  background: var(--color-dawn-soft);
+  border-bottom: 1px solid var(--color-line);
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--color-ink);
+}
+.pp-dpr span {
+  font-weight: 600;
+}
+.pp-dpr b {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pp-act {
+  margin-top: 24px;
+}
+.pp-act-t {
+  margin: 0 0 8px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.pp-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+.pp-contact .lead,
+.pp-contact .ph {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-ink-2);
+}
+.pp-contact .ph b {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.pp-page .pp-side .pp-contact .hf-ab {
+  width: 100%;
+  justify-content: space-between;
+}
+.pp-shield {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 24px 0 0;
+  padding: 16px;
+  background: var(--color-paper);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-shield[data-card='yes'] {
+  margin-top: 20px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-line);
+}
+.pp-shield > :first-child {
+  flex-shrink: 0;
+  padding-top: 1px;
+  color: var(--color-ink);
+}
+.pp-shield b {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.pp-ps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 24px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xs);
+}
+.pp-ps .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-ps .row span:last-child {
+  color: var(--color-ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pp-ps .total {
+  padding-top: 12px;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-ink);
+  font-size: 16px;
+  font-weight: 600;
+}
+.pp-ps .total strong {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pp-ps .dp {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: var(--radius-xs);
+  background: var(--color-dawn-soft);
+}
+.pp-ps .dp .row {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.pp-ps .dp strong {
+  font-size: 18px;
+  line-height: 24px;
+  white-space: nowrap;
+}
+.pp-ps .dp p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--color-ink-2);
+}
+
+/* ---- Kotak pemberitahuan ---- */
+.pp-callout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-radius: var(--radius-xs);
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink);
+}
+.pp-callout p {
+  margin: 0;
+}
+.pp-callout > :first-child {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.pp-callout[data-tone='full'] {
+  background: var(--color-status-full-soft);
+}
+.pp-callout[data-tone='full'] > :first-child,
+.pp-callout[data-tone='full'] b {
+  color: var(--color-status-full);
+}
+.pp-callout[data-tone='pending'] {
+  background: var(--color-status-pending-soft);
+}
+.pp-callout[data-tone='pending'] > :first-child {
+  color: var(--color-status-pending);
+}
+.pp-callout b {
+  font-weight: 600;
+}
+.pp-hero > .pp-callout {
+  margin-top: 32px;
+  max-width: 900px;
+}
+.pp-quote {
+  margin: 14px 0 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--color-line-strong);
+}
+.pp-quote p {
+  margin-top: 4px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  color: var(--color-ink-2);
+}
+.pp-dim {
+  opacity: 0.7;
+}
+
+/* ---- Hasil permintaan di Cek Status ---- */
+.pp-rs {
+  margin: 96px auto 0;
+  width: 1100px;
+  max-width: calc(100% - 32px);
+}
+.pp-rs .pp-sample {
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  border-radius: var(--radius-xs);
+}
+.pp-rs-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-ink);
+}
+.pp-rs-head .pp-eb {
+  color: var(--color-dawn-deep);
+}
+.pp-rs-head h2 {
+  margin-top: 10px;
+  font-size: 40px;
+  line-height: 46px;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-2);
+}
+.pp-rs-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 80px;
+  margin-top: 8px;
+}
+.pp-rs-l {
+  flex: 0 0 440px;
+  min-width: 0;
+}
+.pp-rs-r {
+  flex: 1;
+  min-width: 0;
+  padding-top: 24px;
+}
+.pp-rs-l .pp-rs-go {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+.pp-rs-note {
+  margin: 32px 0 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pp-rs-r .bs-track {
+  margin-top: 0;
+}
+.pp-page .pp-rs-l .hf-ab,
+.pp-rs-l .hf-ab {
+  max-width: 100%;
+}
+
+/* ---- Tablet dan mobile ---- */
+@media (max-width: 1180px) {
+  .pp-body,
+  .pp-body[data-kind='approved'],
+  .pp-body[data-kind='expired'] {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  .pp-side {
+    position: static;
+  }
+  .pp-rs-body {
+    gap: 48px;
+  }
+  .pp-rs-l {
+    flex-basis: 380px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .pp-page {
+    --pp-pad: 32px;
+  }
+  .pp-hero {
+    padding-top: 40px;
+  }
+  .pp-hero-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .pp-hero-r {
+    padding: 0;
+    text-align: left;
+  }
+  .pp-hand {
+    margin-top: 20px;
+  }
+  .pp-hero h1 {
+    font-size: 48px;
+    line-height: 52px;
+  }
+  .pp-hero[data-kind='review'] .pp-hand {
+    display: none;
+  }
+  .pp-hero[data-kind='review'] h1 {
+    color: var(--color-ink);
+  }
+  .pp-hero[data-kind='approved'] h1 {
+    font-size: 60px;
+    line-height: 1;
+  }
+  .pp-hero-meta {
+    align-items: flex-start;
+    padding-top: 0;
+  }
+  .pp-hero[data-kind='approved'] .pp-hero-top {
+    flex-direction: column;
+    gap: 0;
+  }
+  .pp-hero[data-kind='approved'] .pp-hero-l {
+    display: contents;
+  }
+  .pp-hero[data-kind='approved'] .pp-hand {
+    order: 1;
+    align-self: flex-start;
+  }
+  .pp-hero[data-kind='approved'] .pp-hero-meta {
+    order: 2;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 0;
+  }
+  .pp-hero[data-kind='approved'] h1 {
+    order: 3;
+    margin-top: 16px;
+  }
+  .pp-hero[data-kind='approved'] .pp-lede {
+    order: 4;
+  }
+  .pp-body {
+    gap: 40px;
+    padding: 32px var(--pp-pad) 64px;
+  }
+  .pp-main,
+  .pp-body[data-kind='approved'] .pp-main,
+  .pp-body[data-kind='expired'] .pp-main {
+    gap: 56px;
+  }
+  .pp-side {
+    padding: 28px 32px;
+  }
+  .pp-body[data-kind='review'] .pp-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 40px;
+    align-items: start;
+  }
+  .pp-body[data-kind='review'] .pp-side-b .pp-act {
+    margin-top: 0;
+  }
+  .pp-stats,
+  .pp-stats[data-inline='yes'] {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .pp-stats[data-inline='yes'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pp-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border-top: 0;
+    border-radius: var(--radius-xs);
+    background: var(--color-paper-2);
+  }
+  .pp-stat dt {
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.12em;
+  }
+  .pp-stat dd {
+    margin: 0;
+    font-size: 19px;
+    line-height: 24px;
+  }
+  .pp-stat dd.n {
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .pp-sh h2 {
+    font-size: 28px;
+  }
+  .pp-day {
+    gap: 24px;
+    padding: 28px 0;
+  }
+  .pp-day h3,
+  .pp-stay h3 {
+    font-size: 28px;
+    line-height: 34px;
+  }
+  .pp-incl {
+    gap: 32px;
+  }
+  .pp-stays {
+    gap: 24px;
+  }
+  .pp-stay .im {
+    height: 200px;
+  }
+  .pp-steps {
+    gap: 24px;
+  }
+  .pp-big {
+    font-size: 48px;
+  }
+  .pp-rs {
+    margin-top: 72px;
+    width: calc(100% - 64px);
+  }
+  .pp-rs-head h2 {
+    font-size: 36px;
+    line-height: 42px;
+  }
+  .pp-rs-body {
+    flex-direction: column;
+    gap: 32px;
+  }
+  .pp-rs-l {
+    flex-basis: auto;
+    width: 100%;
+  }
+  .pp-rs-r {
+    width: 100%;
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .pp-page {
+    --pp-pad: 20px;
+  }
+  .pp-sample {
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .pp-hero {
+    padding-top: 32px;
+  }
+  .pp-hand {
+    margin-top: 16px;
+  }
+  .pp-hero h1 {
+    font-size: 40px;
+    line-height: 44px;
+    letter-spacing: -0.02em;
+  }
+  .pp-hero[data-kind='approved'] h1 {
+    font-size: 44px;
+    line-height: 46px;
+  }
+  .pp-lede {
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .pp-hero-r {
+    font-size: 15px;
+    line-height: 24px;
+  }
+  .pp-hero > .pp-callout,
+  .pp-callout {
+    padding: 18px 16px;
+    gap: 12px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .pp-body {
+    gap: 40px;
+    padding: 28px var(--pp-pad) 48px;
+  }
+  .pp-main,
+  .pp-body[data-kind='approved'] .pp-main,
+  .pp-body[data-kind='expired'] .pp-main {
+    gap: 48px;
+  }
+  .pp-side {
+    padding: 24px 20px;
+  }
+  .pp-body[data-kind='review'] .pp-side {
+    display: block;
+  }
+  .pp-side-b {
+    margin-top: 24px;
+  }
+  .pp-big,
+  .pp-big[data-struck='yes'] {
+    font-size: clamp(32px, 10vw, 46px);
+  }
+  .pp-sub,
+  .pp-ppn,
+  .pp-fine {
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .pp-stats,
+  .pp-stats[data-inline='yes'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .pp-stat {
+    padding: 14px;
+  }
+  .pp-stat dd {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  .pp-sh {
+    gap: 14px;
+    padding-top: 20px;
+  }
+  .pp-sh h2 {
+    font-size: 26px;
+    line-height: 32px;
+  }
+  .pp-day {
+    flex-direction: column;
+    gap: 8px;
+    padding: 24px 0;
+  }
+  .pp-day .rl {
+    flex: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 12px;
+    align-items: baseline;
+  }
+  .pp-day h3 {
+    margin-bottom: 8px;
+    font-size: 26px;
+    line-height: 32px;
+  }
+  .pp-times li {
+    gap: 14px;
+  }
+  .pp-times .tm {
+    flex-basis: 48px;
+  }
+  .pp-times .a,
+  .pp-times .d {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .pp-incl,
+  .pp-stays,
+  .pp-steps {
+    flex-direction: column;
+    gap: 32px;
+  }
+  .pp-li li {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .pp-stay .im {
+    height: 180px;
+  }
+  .pp-stay .x {
+    font-size: 16px;
+  }
+  .pp-total {
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding-top: 18px;
+  }
+  .pp-total b {
+    font-size: 30px;
+    line-height: 36px;
+  }
+  .pp-acc summary {
+    min-height: 52px;
+    padding: 14px 0;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+  }
+  .pp-acc .bd {
+    padding: 0 28px 20px 0;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .pp-after {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding-top: 24px;
+  }
+  .pp-after .pp-contact {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pp-page .pp-after .hf-ab,
+  .pp-page .pp-side .hf-ab {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .pp-btn {
+    width: 100%;
+  }
+  .pp-fine-inline {
+    font-size: 14px;
+    line-height: 21px;
+    text-align: center;
+  }
+  .pp-contact .lead,
+  .pp-contact .ph {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .pp-rs {
+    width: calc(100% - 40px);
+    margin-top: 56px;
+  }
+  .pp-rs-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .pp-rs-head h2 {
+    font-size: 32px;
+    line-height: 36px;
+  }
+  .pp-rs-note {
+    font-size: 14px;
+    line-height: 21px;
+  }
+}
+
+/* ---- Cetak: tinjauan proposal (tombol "Simpan atau cetak") ---- */
+@media print {
+  body:has(.pp-page) .hf-rdn,
+  body:has(.pp-page) .hf-rdf,
+  body:has(.pp-page) .hf-skip,
+  body:has(.pp-page) .cs-banner,
+  body:has(.pp-page) .pp-sample,
+  body:has(.pp-page) .pp-act,
+  body:has(.pp-page) .pp-after {
+    display: none;
+  }
+  .pp-page {
+    color: #000;
+  }
+  .pp-body,
+  .pp-body[data-kind] {
+    display: block;
+    padding: 24px var(--pp-pad);
+  }
+  .pp-main {
+    gap: 40px;
+  }
+  .pp-side {
+    position: static;
+    margin-bottom: 32px;
+    break-inside: avoid;
+  }
+  .pp-stats {
+    margin-bottom: 40px;
+  }
+  .pp-day,
+  .pp-times li,
+  .pp-stay {
+    break-inside: avoid;
+  }
+}
+
+/* Disetujui: kolom kanan tanpa kartu pembungkus (label, ringkasan harga, catatan). */
+.pp-body[data-kind='approved'] .pp-side {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+.pp-body[data-kind='approved'] .pp-ps {
+  margin-top: 24px;
+}
+@media (max-width: 1180px) {
+  .pp-body[data-kind='approved'] .pp-side {
+    padding: 0;
+  }
+}

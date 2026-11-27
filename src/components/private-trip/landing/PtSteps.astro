@@ -1,0 +1,23 @@
+---
+import { ptSteps as s } from '../../../content/private-trip';
+---
+
+<section class="ptl-steps" id={s.id} aria-labelledby="ptl-steps-h">
+  <div class="ptl-head">
+    <p class="ptl-eyebrow">{s.eyebrow}</p>
+    <h2 class="ptl-h2" id="ptl-steps-h">
+      {s.titleA} <i>{s.titleI}</i>
+    </h2>
+  </div>
+  <ol class="ptl-steps-list">
+    {s.items.map((it) => (
+      <li class="ptl-step">
+        <span class="ptl-step-n" aria-hidden="true">
+          {it.n}
+        </span>
+        <h3>{it.title}</h3>
+        <p>{it.text}</p>
+      </li>
+    ))}
+  </ol>
+</section>

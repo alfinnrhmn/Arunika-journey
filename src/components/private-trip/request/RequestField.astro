@@ -1,0 +1,44 @@
+---
+// Pembungkus satu isian: label (atau legenda untuk kelompok), kontrol (slot), petunjuk, dan tempat galat.
+// Kontrol di slot wajib ber-id dan menaut `aria-describedby="<id>-hint"` (bila ada petunjuk). Saat galat, skrip
+// (request.client.ts) menyembunyikan petunjuk, menampilkan `<id>-err`, memasang `aria-invalid`, dan mengalihkan
+// `aria-describedby` ke galat. `group` memakai <fieldset> + <legend> untuk kontrol majemuk (durasi, peserta).
+interface Props {
+  id: string;
+  label: string;
+  /** Nama bidang untuk skrip (data-pr-field). */
+  field: string;
+  hint?: string;
+  optional?: boolean;
+  group?: boolean;
+  /** Label kedua yang hanya tampil di layar kecil (mis. "Tanggal berangkat"). */
+  sub?: string;
+  first?: boolean;
+}
+const { id, label, field, hint, optional = false, group = false, sub, first = false } = Astro.props;
+const Wrap = group ? 'fieldset' : 'div';
+const Lab = group ? 'legend' : 'label';
+---
+
+<Wrap
+  class:list={['pr-blk', { first }]}
+  data-pr-field={field}
+  aria-describedby={group && hint ? `${id}-hint` : undefined}
+>
+  <Lab class="pr-q" for={group ? undefined : id}>
+    {label}
+    {optional && <span class="pr-opt-l"> (opsional)</span>}
+  </Lab>
+  {sub && (
+    <span class="pr-sublab" aria-hidden="true">
+      {sub}
+    </span>
+  )}
+  <slot />
+  {hint && (
+    <p class="pr-hint" id={`${id}-hint`}>
+      {hint}
+    </p>
+  )}
+  <p class="pr-err" id={`${id}-err`} hidden></p>
+</Wrap>

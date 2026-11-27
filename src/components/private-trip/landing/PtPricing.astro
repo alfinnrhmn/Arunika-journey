@@ -1,0 +1,23 @@
+---
+import { ptPricing as p } from '../../../content/private-trip';
+---
+
+<section class="ptl-price" aria-labelledby="ptl-price-h">
+  <div class="ptl-price-l">
+    <span class="hand">{p.hand}</span>
+    <h2 id="ptl-price-h">
+      {p.titleA} <i>{p.titleI}</i>
+    </h2>
+    <p class="ptl-price-p">{p.text}</p>
+  </div>
+  <dl class="ptl-price-list" aria-label={p.listLabel}>
+    {p.rows.map((r) => (
+      <div class:list={['ptl-price-row', r.desktopOnly && 'ptl-d']}>
+        <dt>{r.k}</dt>
+        <dd>{r.v}</dd>
+      </div>
+    ))}
+  </dl>
+  <p class="ptl-price-basis">{p.basis}</p>
+  <p class="ptl-price-note">{p.note}</p>
+</section>

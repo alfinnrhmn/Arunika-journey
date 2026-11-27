@@ -1,0 +1,26 @@
+---
+// Tombol "Lanjut" langkah 1. Tanpa JavaScript berupa tautan ke bagian langkah 2 di halaman yang sama (kedua
+// langkah tampil bertumpuk); dengan JavaScript tautan itu disembunyikan dan tombol sungguhan (memvalidasi dulu,
+// baru pindah) tampil. Rupa pil gelap dengan panah bulat di desktop, pil penuh di bilah lekat tablet/mobile.
+interface Props {
+  label: string;
+  short: string;
+}
+const { label, short } = Astro.props;
+const arrow = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>`;
+---
+
+<a class="pr-btn" href="#langkah-2" data-pr-nojs>
+  <span class="l">
+    <span class="pr-dsk">{label}</span>
+    <span class="pr-mob">{short}</span>
+  </span>
+  <span class="ic" set:html={arrow} />
+</a>
+<button class="pr-btn" type="button" data-pr-next data-pr-js hidden>
+  <span class="l">
+    <span class="pr-dsk">{label}</span>
+    <span class="pr-mob">{short}</span>
+  </span>
+  <span class="ic" set:html={arrow} />
+</button>

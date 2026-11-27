@@ -1,0 +1,23 @@
+---
+// Pratinjau Konfirmasi Request a Quote. HANYA untuk pengembangan (verifikasi visual): di produksi rute ini
+// mengembalikan 404 karena belum ada backend yang menerbitkan nomor permintaan, dan menampilkan konfirmasi
+// dengan kode contoh akan menipu pengunjung seolah permintaan sudah terkirim. Selalu noindex.
+import Public from '../../../layouts/Public.astro';
+import '../../../styles/pages/private-request.css';
+import RequestConfirm from '../../../components/private-trip/request/RequestConfirm.astro';
+import { confirm as c } from '../../../content/private-request';
+
+if (!import.meta.env.DEV) return Astro.rewrite('/404');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+---
+
+<Public
+  title="Pratinjau Konfirmasi Request a Quote | Arunika Journey"
+  description="Pratinjau pengembangan halaman konfirmasi permintaan."
+  noindex
+>
+  <p class="pr-dev" role="note">
+    {c.devBanner}
+  </p>
+  <RequestConfirm />
+</Public>

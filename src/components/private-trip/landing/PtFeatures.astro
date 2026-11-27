@@ -1,0 +1,20 @@
+---
+import HFIcon from '../../hf/HFIcon.astro';
+import { ptFeatures } from '../../../content/private-trip';
+---
+
+<section class="ptl-feat" aria-label="Keunggulan Private Trip">
+  <ul class="ptl-feat-list">
+    {ptFeatures.map((f) => (
+      <li class="ptl-feat-it">
+        <span class="ptl-feat-ic" aria-hidden="true">
+          <HFIcon name={f.icon} size={24} />
+        </span>
+        <div>
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>

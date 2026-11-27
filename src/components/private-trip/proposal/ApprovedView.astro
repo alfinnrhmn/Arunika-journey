@@ -1,0 +1,128 @@
+---
+// Proposal disetujui: ucapan terima kasih, ringkasan persetujuan, langkah berikutnya (tautan DP dari admin),
+// dan ringkasan harga. Tidak ada pembayaran di halaman ini; DP dibayar lewat tautan yang dikirim admin.
+import HFBadge from '../../hf/HFBadge.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import DetailRow from '../../booking/status/DetailRow.astro';
+import TextStep from '../../booking/status/TextStep.astro';
+import ContactBlock from './ContactBlock.astro';
+import { formatDateShort, formatRupiah } from '../../../lib/format';
+import type { ProposalView } from '../../../content/private-proposal';
+import { dateTimeText, durationText, peopleText } from './lib';
+
+interface Props {
+  view: ProposalView;
+}
+const { view } = Astro.props;
+const { request, proposal, content, dp } = view;
+const destination = request.destination ?? '[diisi klien]';
+const basis = content.priceBasis ?? '[dikonfirmasi klien]';
+const dates =
+  request.startDate && request.endDate
+    ? `${formatDateShort(request.startDate)} sampai ${formatDateShort(request.endDate)}`
+    : '[diisi klien]';
+---
+
+<section class="pp-hero" data-kind="approved">
+  <div class="pp-hero-top">
+    <div class="pp-hero-l">
+      <span class="hand pp-hand">Terima kasih</span>
+      <h1>
+        Proposal Anda <i>disetujui</i>
+      </h1>
+      <p class="pp-lede">
+        Perjalanan {destination} Anda sudah tercatat. Tim kami akan mengirim tautan pembayaran DP.
+        Belum ada pembayaran yang dilakukan.
+      </p>
+    </div>
+    <div class="pp-hero-meta">
+      <HFBadge tone="ok" label="Disetujui" />
+      <span>Nomor permintaan {request.code}</span>
+    </div>
+  </div>
+</section>
+
+<div class="pp-body" data-kind="approved">
+  <div class="pp-main">
+    <section aria-labelledby="pp-ringkas">
+      <div class="pp-sh">
+        <span>01</span>
+        <h2 id="pp-ringkas">Ringkasan persetujuan</h2>
+      </div>
+      <div class="pp-rows">
+        {proposal.approvedAt && (
+          <DetailRow label="Disetujui pada" value={dateTimeText(proposal.approvedAt)} />
+        )}
+        <DetailRow label="Versi proposal" value={`Versi ${proposal.version}`} />
+        <DetailRow label="Perjalanan" value={`${destination} · ${durationText(request)}`} />
+        <DetailRow label="Tanggal" value={dates} />
+        <DetailRow label="Peserta" value={peopleText(request.participants)} />
+        <DetailRow label="Status saat ini" value="Menunggu tautan pembayaran DP" />
+      </div>
+    </section>
+
+    <section aria-labelledby="pp-lanjut">
+      <div class="pp-sh">
+        <span>02</span>
+        <h2 id="pp-lanjut">Langkah berikutnya</h2>
+      </div>
+      <div class="pp-steps">
+        <TextStep
+          num="01"
+          title="Tautan pembayaran DP"
+          desc="Admin mengirim tautan pembayaran DP lewat email dan WhatsApp dalam [ditentukan klien]."
+        />
+        <TextStep
+          num="02"
+          title="Bayar DP"
+          desc={`DP ${formatRupiah(dp.amount)} dibayar sebelum batas waktu di tautan: [ditentukan klien].`}
+        />
+        <TextStep
+          num="03"
+          title="Konfirmasi reservasi"
+          desc="Setelah DP terverifikasi, status berubah menjadi Confirmed dan detail keberangkatan dikirim."
+        />
+      </div>
+    </section>
+  </div>
+
+  <aside class="pp-side" aria-labelledby="pp-harga">
+    <div class="pp-lab" id="pp-harga">
+      Ringkasan harga
+    </div>
+    <div class="pp-ps">
+      <div class="row">
+        <span>
+          Paket {destination} privat · {peopleText(request.participants)}
+        </span>
+        <span>{formatRupiah(proposal.priceTotal)}</span>
+      </div>
+      <div class="row total">
+        <span>Total</span>
+        <strong>{formatRupiah(proposal.priceTotal)}</strong>
+      </div>
+      <div class="dp">
+        <div class="row">
+          <span>DP</span>
+          <strong>{formatRupiah(dp.amount)}</strong>
+        </div>
+        <p>Sisa {formatRupiah(dp.balance)} dilunasi sesuai jadwal pelunasan [diisi klien].</p>
+      </div>
+    </div>
+    <p class="pp-ppn">Harga sudah termasuk PPN</p>
+    <p class="pp-shield" data-card="yes">
+      <HFIcon name="shield" size={16} />
+      <span>
+        <b>Belum Confirmed.</b> Reservasi Anda dikonfirmasi setelah DP kami terima dan verifikasi.
+        Basis hitung (per orang atau per rombongan): {basis}.
+      </span>
+    </p>
+  </aside>
+
+  <div class="pp-after">
+    <HFArrowButton tone="dark" label="Cek status" href="/cek-status?tab=private" />
+    <ContactBlock tone="outline" waLabel="Hubungi lewat WhatsApp" />
+    <span class="pp-fine-inline">Kebijakan batal dan refund: [dikonfirmasi klien].</span>
+  </div>
+</div>

@@ -1,0 +1,348 @@
+---
+// Proposal menunggu persetujuan (dan varian "revisi diminta"): hero, empat angka ringkas, itinerary,
+// fasilitas, akomodasi, rincian harga, syarat, status; kartu harga di kolom kanan (desktop) atau di atas
+// isi (tablet dan mobile). Tombol Setujui dan Minta revisi belum tersambung ke backend, jadi diganti blok
+// kontak WhatsApp (lihat ContactBlock).
+import HFBadge from '../../hf/HFBadge.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import DetailRow from '../../booking/status/DetailRow.astro';
+import TrackStep from '../../booking/status/TrackStep.astro';
+import ContactBlock from './ContactBlock.astro';
+import { formatDateShort, formatRupiah } from '../../../lib/format';
+import type { ProposalView } from '../../../content/private-proposal';
+import {
+  dateText,
+  durationText,
+  peopleText,
+  rangeText,
+  weekdayRange,
+  type ProposalKind,
+} from './lib';
+
+interface Props {
+  view: ProposalView;
+  kind: Extract<ProposalKind, 'review' | 'revision'>;
+}
+const { view, kind } = Astro.props;
+const { request, proposal, content, dp } = view;
+const revision = kind === 'revision';
+const basis = content.priceBasis ?? '[dikonfirmasi klien]';
+const dayWord = (n: number) => `Hari ${n}`;
+const track = [
+  {
+    state: 'done' as const,
+    when: dateText(request.createdAt),
+    title: 'Permintaan diterima',
+    desc: `Nomor ${request.code} tercatat dan dibaca tim kami.`,
+  },
+  {
+    state: 'done' as const,
+    when: proposal.sentAt ? dateText(proposal.sentAt) : 'Selesai',
+    title: 'Proposal dikirim',
+    desc: `Proposal versi ${proposal.version} sudah siap Anda tinjau.`,
+  },
+  revision
+    ? {
+        state: 'current' as const,
+        when: 'Sekarang',
+        title: 'Revisi dikerjakan',
+        desc: 'Permintaan revisi Anda sudah kami terima. Versi baru dikirim setelah selesai.',
+      }
+    : {
+        state: 'current' as const,
+        when: 'Sekarang',
+        title: 'Persetujuan Anda',
+        desc: 'Tinjau proposal ini, lalu sampaikan keputusan Anda ke tim kami.',
+      },
+  {
+    state: 'todo' as const,
+    when: revision ? 'Setelah versi baru dikirim' : 'Setelah Anda menyetujui',
+    title: 'Pembayaran DP',
+    desc: 'Admin mengirim tautan pembayaran DP. Belum ada pembayaran sebelum Anda menyetujui.',
+  },
+];
+---
+
+<section class="pp-hero" data-kind="review">
+  <div class="pp-hero-top">
+    <div class="pp-hero-l">
+      <div class="pp-eb-row">
+        <span class="pp-eb" data-tone="ink">
+          Nomor permintaan {request.code}
+        </span>
+        <HFBadge tone="pending" label={revision ? 'Revisi diminta' : 'Menunggu persetujuan Anda'} />
+      </div>
+      <span class="hand pp-hand">
+        {revision ? 'Revisi sedang kami kerjakan' : 'Disusun khusus untuk Anda'}
+      </span>
+      <h1>
+        {content.title} <i>{content.titleEm}</i>
+      </h1>
+    </div>
+    <p class="pp-hero-r">
+      {proposal.sentAt && (
+        <>
+          Dikirim {dateText(proposal.sentAt)}
+          <br />
+        </>
+      )}
+      <b>Berlaku hingga {dateText(proposal.validUntil)}</b>
+    </p>
+  </div>
+  {revision && (
+    <div class="pp-callout" data-tone="pending">
+      <HFIcon name="clock" size={20} />
+      <div>
+        <p>
+          <b>Permintaan revisi Anda sudah kami terima.</b> Versi baru kami kirim setelah revisi
+          dikerjakan, estimasi [estimasi dari klien]. Harga pada proposal ini belum dikunci dan bisa
+          berubah di versi baru. Belum ada pembayaran.
+        </p>
+        {proposal.revisionNote && (
+          <blockquote class="pp-quote">
+            <span class="pp-lab">Catatan Anda</span>
+            <p>{proposal.revisionNote}</p>
+          </blockquote>
+        )}
+      </div>
+    </div>
+  )}
+</section>
+
+<div class="pp-body" data-kind="review">
+  <aside class="pp-side" aria-labelledby="pp-harga">
+    <div class="pp-side-a">
+      <div class="pp-lab" id="pp-harga">
+        {revision ? 'Harga versi ini' : 'Harga final'}
+      </div>
+      <div class="pp-big">{formatRupiah(proposal.priceTotal)}</div>
+      <p class="pp-sub">
+        untuk {peopleText(request.participants)}. Basis hitung (per orang atau per rombongan):{' '}
+        {basis}.
+      </p>
+      <p class="pp-ppn">Harga sudah termasuk PPN</p>
+      <div class="pp-rows">
+        <div class="pp-dpr">
+          <span>DP saat booking</span>
+          <b>{formatRupiah(dp.amount)}</b>
+        </div>
+        <DetailRow label="Pelunasan" value={formatRupiah(dp.balance)} />
+        <DetailRow label="Proposal berlaku hingga" value={dateText(proposal.validUntil)} />
+      </div>
+    </div>
+    <div class="pp-side-b">
+      <div class="pp-act">
+        <p class="pp-act-t">{revision ? 'Ada tambahan?' : 'Siap menyetujui, atau ingin revisi?'}</p>
+        <ContactBlock
+          lead={
+            revision
+              ? 'Sampaikan tambahan atau pertanyaan Anda ke tim kami.'
+              : 'Persetujuan dan permintaan revisi belum bisa dikirim lewat halaman ini. Sampaikan keputusan Anda ke tim kami.'
+          }
+        />
+      </div>
+      <p class="pp-shield">
+        <HFIcon name="shield" size={16} />
+        <span>
+          <b>Belum ada pembayaran sebelum Anda menyetujui.</b> Kebijakan pembatalan: [dikonfirmasi
+          klien].
+        </span>
+      </p>
+    </div>
+  </aside>
+
+  <dl class="pp-stats" aria-label="Ringkasan perjalanan">
+    <div class="pp-stat">
+      <dt>Destinasi</dt>
+      <dd>{request.destination ?? '[diisi klien]'}</dd>
+      <dd class="n">{content.destinationNote}</dd>
+    </div>
+    <div class="pp-stat">
+      <dt>Durasi</dt>
+      <dd>{durationText(request)}</dd>
+      <dd class="n">{content.paceNote}</dd>
+    </div>
+    <div class="pp-stat">
+      <dt>Peserta</dt>
+      <dd>{peopleText(request.participants)}</dd>
+    </div>
+    <div class="pp-stat">
+      <dt>Tanggal</dt>
+      <dd>{rangeText(request.startDate, request.endDate)}</dd>
+      {weekdayRange(request.startDate, request.endDate) && (
+        <dd class="n">{weekdayRange(request.startDate, request.endDate)}</dd>
+      )}
+    </div>
+  </dl>
+
+  <div class="pp-main">
+    <section aria-labelledby="pp-itin">
+      <div class="pp-sh">
+        <span>01</span>
+        <h2 id="pp-itin">Itinerary hari demi hari</h2>
+      </div>
+      <div class="pp-days">
+        {content.itinerary.map((day) => (
+          <article class="pp-day">
+            <div class="rl">
+              <span class="n">{dayWord(day.dayNo)}</span>
+              <span class="dt">{formatDateShort(day.date)}</span>
+            </div>
+            <div class="bd">
+              <h3>{day.title}</h3>
+              <ol class="pp-times">
+                {day.items.map((it) => (
+                  <li>
+                    <span class="tm">{it.time}</span>
+                    <span class="tx">
+                      <span class="a">{it.title}</span>
+                      <span class="d">{it.detail}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="pp-fas">
+      <div class="pp-sh">
+        <span>02</span>
+        <h2 id="pp-fas">Apa yang termasuk, dan tidak</h2>
+      </div>
+      <div class="pp-incl">
+        <div>
+          <h3 class="pp-lab">Termasuk</h3>
+          <ul class="pp-li" data-kind="check">
+            {content.included.map((t) => (
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="pp-lab">Tidak termasuk</h3>
+          <ul class="pp-li" data-kind="cross">
+            {content.excluded.map((t) => (
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="pp-inap">
+      <div class="pp-sh">
+        <span>03</span>
+        <h2 id="pp-inap">Tempat menginap terpilih</h2>
+      </div>
+      <div class="pp-stays">
+        {content.stays.map((s) => (
+          <article class="pp-stay">
+            <div class="im" aria-hidden="true">
+              <span>Foto akomodasi: [diisi klien]</span>
+            </div>
+            <span class="k">{s.kicker}</span>
+            <h3>{s.name}</h3>
+            <p class="x">{s.description}</p>
+            <p class="f">{s.facts}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="pp-rinci">
+      <div class="pp-sh">
+        <span>04</span>
+        <h2 id="pp-rinci">Rincian harga final</h2>
+      </div>
+      <div class="pp-rows pp-prices" style="margin-top: 12px">
+        {content.priceLines.map((l) => (
+          <DetailRow label={l.label} value={formatRupiah(l.amount)} />
+        ))}
+        <div class="pp-total">
+          <span>Total harga final · {peopleText(request.participants)}</span>
+          <b>{formatRupiah(proposal.priceTotal)}</b>
+        </div>
+      </div>
+      <p class="pp-fine">
+        Harga sudah termasuk PPN. Basis hitung (per orang atau per rombongan): {basis}.
+      </p>
+    </section>
+
+    <section aria-labelledby="pp-syarat">
+      <div class="pp-sh">
+        <span>05</span>
+        <h2 id="pp-syarat">Syarat dan kebijakan</h2>
+      </div>
+      <div class="pp-acc">
+        <details open>
+          <summary>Ketentuan pembayaran</summary>
+          <div class="bd">
+            DP {formatRupiah(dp.amount)} dibayar saat booking, sisa {formatRupiah(dp.balance)}{' '}
+            dilunasi sebelum berangkat. Metode pembayaran dan batas pelunasan: [dikonfirmasi klien].
+          </div>
+        </details>
+        <details>
+          <summary>Pembatalan dan refund</summary>
+          <div class="bd">[Ketentuan pembatalan dan refund: dikonfirmasi klien]</div>
+        </details>
+        <details>
+          <summary>Perubahan itinerary</summary>
+          <div class="bd">
+            Perubahan setelah persetujuan dibahas dengan admin dan dapat memengaruhi harga.
+            [Dikonfirmasi klien]
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section aria-labelledby="pp-status">
+      <div class="pp-sh">
+        <span>06</span>
+        <h2 id="pp-status">Status permintaan Anda</h2>
+      </div>
+      <div class="pp-track">
+        {track.map((t, i) => (
+          <TrackStep
+            state={t.state}
+            when={t.when}
+            title={t.title}
+            desc={t.desc}
+            last={i === track.length - 1}
+          />
+        ))}
+      </div>
+    </section>
+  </div>
+</div>

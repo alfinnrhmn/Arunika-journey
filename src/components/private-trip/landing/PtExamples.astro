@@ -1,0 +1,36 @@
+---
+// Contoh itinerary: kartu foto penuh BUKAN tautan (tidak ada halaman detail; hanya contoh). Desktop 3 kolom,
+// tablet 2 kolom (4 kartu), mobile baris geser. Baris geser bisa difokus agar terbaca dengan papan ketik.
+import { ptExamples as e } from '../../../content/private-trip';
+import { bp } from '../../about/photo';
+---
+
+<section class="ptl-ex" aria-labelledby="ptl-ex-h">
+  <div class="ptl-head ptl-ex-head">
+    <span class="hand">{e.hand}</span>
+    <h2 class="ptl-h1" id="ptl-ex-h">
+      {e.titleA} <i>{e.titleI}</i>
+    </h2>
+    <p class="ptl-sub">{e.text}</p>
+  </div>
+  <div class="ptl-scroll ptl-ex-scroll" tabindex="0" role="region" aria-label={e.scrollLabel}>
+    <ul class="ptl-ex-grid">
+      {e.items.map((it) => (
+        <li class:list={['ptl-tile', it.tabletOnly && 'ptl-tile-tab']}>
+          <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          <div class="ptl-tile-shade" aria-hidden="true"></div>
+          {it.badge && <span class="ptl-tile-badge">{it.badge}</span>}
+          <div class="ptl-tile-tx">
+            <p class="ptl-tile-where">{it.where}</p>
+            <h3>{it.title}</h3>
+            <p class="ptl-tile-meta">{it.meta}</p>
+            <p class="ptl-tile-sched">
+              <span>{e.label}</span>
+              <span class="ptl-tile-chip">{e.chip}</span>
+            </p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

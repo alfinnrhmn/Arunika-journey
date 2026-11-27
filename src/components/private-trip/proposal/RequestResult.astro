@@ -1,0 +1,98 @@
+---
+// Hasil Cek Status untuk permintaan Private Trip (frame "Cek Status: Permintaan Private Trip"): judul dan
+// lencana status, baris ringkas, linimasa, dan tautan ke proposal bila sudah ada. Menerima data berbentuk
+// baris DB (RequestLookupView). Di produksi belum ada data, jadi komponen ini hanya terlihat lewat
+// pratinjau dev; tidak ada tombol yang memakai backend.
+import HFBadge from '../../hf/HFBadge.astro';
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import DetailRow from '../../booking/status/DetailRow.astro';
+import TrackStep from '../../booking/status/TrackStep.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import type { RequestLookupView } from '../../../content/private-proposal';
+import { dateText, durationText, lookupTrack, peopleText, REQUEST_BADGE } from './lib';
+
+interface Props {
+  view: RequestLookupView;
+  /** Tautan ke halaman proposal (kosong bila belum ada proposal). */
+  proposalHref?: string;
+}
+const { view, proposalHref } = Astro.props;
+const { request, proposal, headline } = view;
+const badge = REQUEST_BADGE[request.status];
+const track = lookupTrack(view);
+const hasProposal = !!proposal && request.status !== 'declined' && request.status !== 'converted';
+const action: { label: string; dark: boolean } | null =
+  hasProposal && proposalHref
+    ? request.status === 'proposal_sent'
+      ? { label: 'Tinjau proposal', dark: true }
+      : { label: 'Lihat proposal', dark: false }
+    : null;
+const showPayment = request.status !== 'declined' && request.status !== 'converted';
+---
+
+<section class="pp-rs" aria-labelledby="pp-rs-judul">
+  {view.sample && (
+    <p class="pp-sample" role="note">
+      Pratinjau pengembangan: data contoh, bukan permintaan yang sebenarnya.
+    </p>
+  )}
+  <div class="pp-rs-head">
+    <div>
+      <div class="pp-eb">Permintaan Private Trip · {request.code}</div>
+      <h2 id="pp-rs-judul">
+        {headline.lead} <i>{headline.em}</i>
+      </h2>
+    </div>
+    <HFBadge tone={badge.tone} label={badge.label} />
+  </div>
+  <div class="pp-rs-body">
+    <div class="pp-rs-l">
+      <div class="pp-rows">
+        <DetailRow label="Nomor permintaan" value={request.code} />
+        <DetailRow
+          label="Perjalanan"
+          value={`${request.destination ?? '[diisi klien]'} · ${durationText(request)}`}
+        />
+        <DetailRow label="Peserta" value={peopleText(request.participants)} />
+        {proposal?.sentAt && (
+          <DetailRow label="Proposal dikirim" value={dateText(proposal.sentAt)} />
+        )}
+        {hasProposal && <DetailRow label="Berlaku hingga" value={dateText(proposal.validUntil)} />}
+        {showPayment && <DetailRow label="Pembayaran" value="Belum ada pembayaran" />}
+      </div>
+      {action && (
+        <div class="pp-rs-go">
+          <HFArrowButton
+            tone={action.dark ? 'dark' : 'outline'}
+            label={action.label}
+            href={proposalHref}
+          />
+        </div>
+      )}
+    </div>
+    <div class="pp-rs-r">
+      <div class="bs-track">
+        {track.map((t, i) => (
+          <TrackStep
+            state={t.state}
+            when={t.when}
+            title={t.title}
+            desc={t.desc}
+            last={i === track.length - 1}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+  <p class="pp-rs-note">
+    Butuh kabar lebih cepat?{' '}
+    {whatsappHref ? (
+      <a href={whatsappHref}>Hubungi kami lewat WhatsApp</a>
+    ) : (
+      <>
+        Hubungi kami lewat WhatsApp <b>[nomor: diisi klien]</b>
+      </>
+    )}
+    .
+  </p>
+</section>

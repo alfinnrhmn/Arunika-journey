@@ -1,0 +1,17 @@
+---
+// Halaman proposal pelanggan. TAMPILAN SAJA: belum ada tabel proposal yang dibaca (findProposalView selalu
+// mengembalikan null), jadi untuk kode apa pun halaman ini jujur menjawab "tidak ditemukan" (404 + noindex)
+// dan tidak pernah memajang data. Setelah BE tersambung, cukup findProposalView yang diisi (akses lewat
+// token, bukan hanya kode). Pratinjau tiap keadaan ada di /private-trip/proposal/contoh/[keadaan] (dev saja).
+import ProposalPage from '../../../components/private-trip/proposal/ProposalPage.astro';
+import { findProposalView } from '../../../content/private-proposal';
+
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+
+const kode = (Astro.params.kode ?? '').trim().toUpperCase();
+const view = await findProposalView(kode);
+if (!view) return Astro.rewrite('/404');
+---
+
+<ProposalPage view={view} />

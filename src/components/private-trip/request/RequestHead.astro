@@ -1,0 +1,27 @@
+---
+// Bilah aplikasi untuk tablet dan mobile (< 1280px; desain "hf-hb" frame Request a Quote): tombol kembali,
+// judul, dan bantuan. Di desktop bilah ini disembunyikan dan header situs (HFNavRD) tampil di atas hero.
+// Tombol kembali menuju landing Private Trip; di langkah 2 skrip membelokkannya ke langkah 1.
+// Bantuan: WhatsApp bila nomor sudah ada, selain itu tautan ke halaman Kontak (bukan label WhatsApp palsu).
+import HFIcon from '../../hf/HFIcon.astro';
+import { whatsappHref } from '../../trips/detail/words';
+import { appBar } from '../../../content/private-request';
+
+const helpHref = whatsappHref ?? '/contact';
+---
+
+<header class="pr-bar">
+  <a class="back" href="/private-trip" aria-label={appBar.back} data-pr-back>
+    <HFIcon name="arrow" size={24} />
+  </a>
+  <span class="ttl">{appBar.title}</span>
+  <a
+    class="help"
+    href={helpHref}
+    target={whatsappHref ? '_blank' : undefined}
+    rel={whatsappHref ? 'noopener' : undefined}
+  >
+    <HFIcon name="chat" size={16} />
+    {whatsappHref ? appBar.wa : appBar.contact}
+  </a>
+</header>

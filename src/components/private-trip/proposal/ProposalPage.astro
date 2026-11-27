@@ -1,0 +1,48 @@
+---
+// Halaman Proposal Review (gaya Red Dot). Menerima data berbentuk baris DB (ProposalView) dan memilih
+// tampilan menurut status: review (menunggu persetujuan), revision (revisi diminta), approved, expired.
+// TAMPILAN SAJA: tombol Setujui, Minta revisi, dan Unduh PDF belum tersambung ke backend, jadi tidak
+// ditampilkan; yang ada hanya tautan WhatsApp (bila nomornya sudah diisi klien) dan cetak browser.
+import Public from '../../../layouts/Public.astro';
+import HFNavRD from '../../hf/HFNavRD.astro';
+import '../../../styles/pages/booking-status.css';
+import '../../../styles/pages/private-proposal.css';
+import ReviewView from './ReviewView.astro';
+import ApprovedView from './ApprovedView.astro';
+import ExpiredView from './ExpiredView.astro';
+import ClosedView from './ClosedView.astro';
+import type { ProposalView } from '../../../content/private-proposal';
+import { proposalKind } from './lib';
+
+interface Props {
+  view: ProposalView;
+}
+const { view } = Astro.props;
+const kind = proposalKind(view);
+---
+
+<Public
+  title={`Proposal ${view.request.code} | Arunika Journey`}
+  description="Tinjau proposal Private Trip Anda: itinerary, fasilitas, dan harga final."
+  noindex
+>
+  <HFNavRD tone="solid" cta="Lihat jadwal" ctaHref="/trips" />
+  <main class="pp-page" id="isi">
+    {view.sample && (
+      <p class="pp-sample" role="note">
+        Pratinjau pengembangan: data contoh, bukan permintaan atau harga yang sebenarnya.
+      </p>
+    )}
+    {(kind === 'review' || kind === 'revision') && <ReviewView view={view} kind={kind} />}
+    {kind === 'approved' && <ApprovedView view={view} />}
+    {kind === 'expired' && <ExpiredView view={view} />}
+    {kind === 'closed' && <ClosedView view={view} />}
+  </main>
+  <script>
+    // Tombol cetak hanya berguna dengan JavaScript, jadi baru ditampilkan di sini.
+    document.querySelectorAll<HTMLButtonElement>('[data-print]').forEach((btn) => {
+      btn.hidden = false;
+      btn.addEventListener('click', () => window.print());
+    });
+  </script>
+</Public>

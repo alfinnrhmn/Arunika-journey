@@ -1,0 +1,174 @@
+---
+// Langkah 2 "Data Anda" (frame Request a Quote Langkah 2: desktop, tablet, mobile; varian Red Dot style).
+// Isian: nama, email, konfirmasi email, telepon (opsional), sumber (opsional), mengikuti frame desktop.
+//
+// BELUM ADA BACKEND PENERIMA PERMINTAAN. Karena itu tombol "Kirim permintaan" sengaja TIDAK dipasang; di
+// tempatnya ada blok jujur (`finalNote`) dengan tautan ke /contact. Titik sambungan tahap BE: ganti blok
+// `.pr-final` di bawah dengan tombol submit yang memakai nilai langkah 1 (#pr-form-1) dan langkah 2
+// (#pr-form-2) lalu memanggil endpoint permintaan (kode RQ dibuat server lewat `nextCode`); validasi di
+// validate.ts hanya umpan balik layar, server tetap memvalidasi ulang. Setelah sukses arahkan ke
+// /private-trip/request/konfirmasi dengan kode asli (rute itu kini hanya pratinjau pengembangan).
+import HFIcon from '../../hf/HFIcon.astro';
+import { finalNote, sources, step2 as c } from '../../../content/private-request';
+import RequestField from './RequestField.astro';
+
+const arrow = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>`;
+---
+
+<section class="pr-step" id="langkah-2" data-pr-step="2" aria-labelledby="pr-h-2">
+  <div class="pr-box">
+    <ol class="pr-tabs" aria-label="Langkah pengisian">
+      <li>
+        <a class="pr-tab done" href="#langkah-1" data-pr-prev>
+          <span>1. Perjalanan Anda</span>
+          <span class="ck">
+            <HFIcon name="check" size={16} />
+          </span>
+        </a>
+      </li>
+      <li aria-current="step">
+        <span class="pr-tab on">{c.tab}</span>
+      </li>
+    </ol>
+    <h2 class="pr-h2" id="pr-h-2" tabindex="-1">
+      {c.heading.a} <i>{c.heading.i}</i>
+    </h2>
+    <p class="pr-lead">{c.lead}</p>
+
+    <form class="pr-form" id="pr-form-2" novalidate onsubmit="return false">
+      <RequestField id="pr-nama" field="nama" label={c.name.q} first>
+        <input
+          class="pr-in"
+          id="pr-nama"
+          name="nama"
+          type="text"
+          autocomplete="name"
+          maxlength="100"
+          required
+          placeholder={c.name.placeholder}
+        />
+      </RequestField>
+
+      <RequestField id="pr-email" field="email" label={c.email.q}>
+        <input
+          class="pr-in"
+          id="pr-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          inputmode="email"
+          maxlength="160"
+          required
+          placeholder={c.email.placeholder}
+        />
+      </RequestField>
+
+      <RequestField id="pr-email2" field="email2" label={c.email2.q} hint={c.email2.hint}>
+        <input
+          class="pr-in"
+          id="pr-email2"
+          name="email2"
+          type="email"
+          autocomplete="off"
+          inputmode="email"
+          maxlength="160"
+          required
+          placeholder={c.email2.placeholder}
+          aria-describedby="pr-email2-hint"
+        />
+      </RequestField>
+
+      <RequestField id="pr-telepon" field="telepon" label={c.phone.q} optional hint={c.phone.hint}>
+        <div class="pr-tel">
+          <input
+            class="pr-in pr-pre"
+            value={c.phone.prefix}
+            readonly
+            aria-label="Kode negara"
+            tabindex="-1"
+          />
+          <input
+            class="pr-in"
+            id="pr-telepon"
+            name="telepon"
+            type="tel"
+            autocomplete="tel-national"
+            inputmode="tel"
+            maxlength="20"
+            placeholder={c.phone.placeholder}
+            aria-describedby="pr-telepon-hint"
+          />
+        </div>
+      </RequestField>
+
+      <RequestField id="pr-sumber" field="sumber" label={c.source.q} optional>
+        <select class="pr-in pr-select" id="pr-sumber" name="sumber">
+          <option value="">{c.source.placeholder}</option>
+          {sources.map((s) => (
+            <option value={s.value}>{s.label}</option>
+          ))}
+        </select>
+      </RequestField>
+
+      <div class="pr-info" role="note">
+        <HFIcon name="shield" size={20} />
+        <p>
+          <b>{c.note}</b> {c.after.text}
+        </p>
+      </div>
+
+      <div class="pr-final" role="note">
+        <span class="ic">
+          <HFIcon name="clock" size={20} />
+        </span>
+        <div>
+          <b>{finalNote.title}</b>
+          <p>{finalNote.text}</p>
+        </div>
+      </div>
+
+      <div class="pr-actions two">
+        <a class="pr-ulink pr-back" href="#langkah-1" data-pr-prev>
+          <span aria-hidden="true">&larr;</span> {c.back}
+        </a>
+        <a class="pr-btn" href={finalNote.href}>
+          <span class="l">{finalNote.cta}</span>
+          <span class="ic" set:html={arrow} />
+        </a>
+      </div>
+      <p class="pr-legal">
+        {c.note} {c.privacyLead} <a href={c.privacyHref}>{c.privacyLink}</a>.
+      </p>
+    </form>
+  </div>
+
+  <aside class="pr-aside" aria-label="Ringkasan perjalanan">
+    <div class="pr-card pr-sum" data-pr-summary>
+      <div class="pr-sum-h">
+        <h3 class="pr-card-t">{c.summary.title}</h3>
+        <a class="pr-ulink edit" href="#langkah-1" data-pr-prev>
+          <span class="pr-dsk">{c.summary.edit}</span>
+          <span class="pr-mob">{c.summary.editShort}</span>
+        </a>
+      </div>
+      <p class="pr-sum-sub">{c.summary.sub}</p>
+      <p class="pr-sum-empty" data-pr-nojs>
+        {c.summary.empty}
+      </p>
+      <dl class="pr-rows" data-pr-js hidden>
+        {Object.entries(c.summary.rows).map(([k, label]) => (
+          <div class="pr-row">
+            <dt>{label}</dt>
+            <dd data-pr-sum={k}>{c.summary.blank}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+    <div class="pr-dark pr-after">
+      <h3>
+        {c.after.title} <i>{c.after.titleI}</i>
+      </h3>
+      <p>{c.after.text}</p>
+    </div>
+  </aside>
+</section>
