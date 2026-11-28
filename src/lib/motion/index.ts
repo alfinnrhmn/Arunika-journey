@@ -30,6 +30,8 @@
  * bergerak (inilah sebabnya animasi bawaan desain untuk gambar gunung mati dan diganti modul ini).
  */
 
+import { onSmoothScroll } from './smooth-scroll';
+
 /** Rentang layar yang menampilkan bagian desktop (sama dengan batas kelas hc/hd di home.css). */
 const MOBILE = '(max-width: 767px)';
 const DESKTOP = '(min-width: 1280px)';
@@ -75,6 +77,9 @@ export async function initMotion(root: ParentNode = document): Promise<(() => vo
   ]);
   gsap.registerPlugin(ScrollTrigger);
   ScrollTrigger.config({ ignoreMobileResize: true });
+  // Gulir halus (Lenis) menggeser posisi gulir tiap frame: perbarui ScrollTrigger di setiap langkahnya agar
+  // scrub dan pin tidak tertinggal satu frame (tidak ada efek bila Lenis mati).
+  const offSmooth = onSmoothScroll(() => ScrollTrigger.update());
 
   const mm = gsap.matchMedia();
   mm.add(
@@ -141,6 +146,7 @@ export async function initMotion(root: ParentNode = document): Promise<(() => vo
   show.addEventListener('change', onShow);
 
   return () => {
+    offSmooth();
     window.removeEventListener('load', refresh);
     show.removeEventListener('change', onShow);
     mm.revert();
