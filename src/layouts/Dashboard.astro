@@ -7,12 +7,7 @@ import { countAwaitingVerification } from '../features/payments';
 import { can } from '../server/auth/permissions';
 import { getDb } from '../server/db';
 
-/**
- * Kerangka dashboard (sidebar + topbar) atau, dengan `bare`, halaman polos tanpa kerangka (Masuk dan Sesi
- * berakhir, yang tampil sebelum ada sesi). Kerangka butuh `Astro.locals.staff` dari middleware; halaman yang
- * memakainya wajib memastikan staf ada. Lencana menu Pembayaran dibaca dari server (bukan dari klien), dan
- * hanya untuk peran yang berizin memverifikasi.
- */
+
 interface Props {
   title: string;
   /** Remah roti setelah "Dashboard", mis. ['Operasional', 'Pembayaran']. */
@@ -39,6 +34,9 @@ const badge =
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>{title} · Arunika Dashboard</title>
   </head>
   <body class="d-body">
