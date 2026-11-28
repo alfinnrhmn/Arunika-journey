@@ -58,4 +58,7 @@ const summary = [topikNama ?? 'Semua', result.destinasi?.name].filter(Boolean).j
 
 <script>
   import '../../scripts/journal-filter';
+  import { initParallax } from '../../lib/motion/parallax';
+  // Parallax foto seperti Home: aktif di semua lebar (seperti sebelumnya), mati bila "kurangi gerakan".
+  initParallax('[data-parallax]', '(min-width: 0px)');
 </script>
