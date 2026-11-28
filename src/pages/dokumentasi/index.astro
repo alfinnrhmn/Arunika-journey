@@ -55,3 +55,11 @@ try {
     <DocsCta />
   </main>
 </Public>
+
+<script>
+  // Panorama tiap destinasi membuka dari jendela kecil sampai penuh layar (GSAP, desktop >= 1280px dan mobile),
+  // dan foto dokumentasi bergeser mengikuti gulir seperti Home (desktop >= 1280px). Keduanya mati bila "kurangi gerakan".
+  import '../../scripts/motion';
+  import { initParallax } from '../../lib/motion/parallax';
+  initParallax('[data-parallax]', '(min-width: 1280px)');
+</script>

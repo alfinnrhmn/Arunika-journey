@@ -197,7 +197,13 @@
   border-radius: 6px;
   background: var(--color-night);
 }
-.dc-pano > img {
+.dc-pano-in {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.dc-pano-in > img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -352,10 +358,24 @@
   border-radius: 4px;
   background: var(--color-paper-2);
 }
-.dc-im > img {
+/* Parallax foto dokumentasi (src/lib/motion/parallax.ts): di bawah 1280px mengisi kotak apa adanya; di desktop
+   meluas 9% dan bergeser mengikuti gulir seperti .fpx di Home. */
+.dc-px {
+  position: absolute;
+  inset: 0;
+}
+.dc-px > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+@media (min-width: 1280px) {
+  .dc-px {
+    top: -9%;
+    bottom: -9%;
+    transform: translate3d(0, var(--py, 0px), 0);
+    will-change: transform;
+  }
 }
 .dc-tg,
 .dc-vd {
@@ -1289,7 +1309,31 @@
   }
 }
 
+/* Bukaan panorama (src/lib/motion, data-motion="open"): di desktop dan mobile bingkai setinggi layar, ditahan (pin)
+   selagi foto membuka dari jendela kecil sampai penuh layar, lalu halaman lanjut ke dokumentasi. Tablet
+   (768-1279px) tetap statis. Tanpa JS atau "kurangi gerakan" foto tampil penuh (keadaan akhir). Diletakkan di
+   akhir berkas supaya menimpa ukuran panorama tetap di blok tablet dan mobile. */
+@media (min-width: 1280px), (max-width: 767px) {
+  .dc-pano {
+    height: 100vh;
+    height: 100svh;
+    margin: 0;
+    border-radius: 0;
+    background: var(--color-paper);
+  }
+}
+@media (max-width: 767px) {
+  .dc-pano {
+    /* Tinggi layar terbesar agar tidak ada garis putih di bawah saat bar alamat peramban mengecil. */
+    height: 100vh;
+    height: 100lvh;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .dc-px {
+    transform: none;
+  }
   .dc-hero-tx,
   .dc-hero-ph,
   .dc-hn {
