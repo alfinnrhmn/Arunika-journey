@@ -5,7 +5,9 @@ import { bp } from './photo';
 ---
 
 <section class="ab-cta" aria-labelledby="ab-cta-h">
-  <img class="ab-cta-img" {...bp(c.foto)} loading="lazy" decoding="async" alt={c.alt} />
+  <div class="ab-px" data-parallax>
+    <img class="ab-cta-img" {...bp(c.foto)} loading="lazy" decoding="async" alt={c.alt} />
+  </div>
   <div class="ab-cta-shade" aria-hidden="true"></div>
   <div class="ab-cta-b">
     <h2 id="ab-cta-h">

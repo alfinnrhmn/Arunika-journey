@@ -40,3 +40,9 @@ import { foto } from '../lib/photo';
     <AboutCta />
   </main>
 </Public>
+
+<script>
+  // Foto bergeser mengikuti gulir (parallax) seperti Home (desktop >= 1280px, mati bila "kurangi gerakan").
+  import { initParallax } from '../lib/motion/parallax';
+  initParallax('[data-parallax]', '(min-width: 1280px)');
+</script>

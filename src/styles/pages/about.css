@@ -115,6 +115,22 @@
   color: var(--color-ink);
 }
 
+/* Parallax foto (src/lib/motion/parallax.ts): di bawah 1280px mengisi kotak apa adanya; di desktop meluas 9% dan
+   bergeser mengikuti gulir seperti .fpx di Home. Kotaknya (hero, baris cerita, kartu, ajakan penutup) wajib
+   position: relative dan overflow: hidden. */
+.ab-px {
+  position: absolute;
+  inset: 0;
+}
+@media (min-width: 1280px) {
+  .ab-px {
+    top: -9%;
+    bottom: -9%;
+    transform: translate3d(0, var(--py, 0px), 0);
+    will-change: transform;
+  }
+}
+
 /* ---------- Hero ---------- */
 .ab-hero {
   position: relative;
@@ -309,6 +325,7 @@
   margin-top: 36px;
 }
 .ab-row-ph {
+  position: relative;
   flex: 1;
   min-width: 0;
   height: 640px;
@@ -430,6 +447,7 @@
   background: var(--color-paper-2);
 }
 .ab-card-ph {
+  position: relative;
   height: 240px;
   overflow: hidden;
 }
@@ -570,6 +588,7 @@
   padding-top: 48px;
 }
 .ab-doc-ph {
+  position: relative;
   height: 420px;
   overflow: hidden;
 }
@@ -713,6 +732,7 @@
   height: 100%;
 }
 .ab-art-ph {
+  position: relative;
   height: 300px;
   overflow: hidden;
 }
@@ -1346,6 +1366,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ab-px {
+    transform: none;
+  }
   .ab-hero-tx {
     animation: none;
   }
