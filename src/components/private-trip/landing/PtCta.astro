@@ -1,0 +1,22 @@
+---
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { ptCta as c } from '../../../content/private-trip';
+import { bp } from '../../about/photo';
+---
+
+<section class="ptl-cta" aria-labelledby="ptl-cta-h">
+  <img class="ptl-cta-img" {...bp(c.foto)} loading="lazy" decoding="async" alt={c.alt} />
+  <div class="ptl-cta-shade" aria-hidden="true"></div>
+  <div class="ptl-cta-b">
+    <h2 id="ptl-cta-h">
+      {c.titleA} <i>{c.titleI}</i>
+    </h2>
+    <p>{c.text}</p>
+    <div class="ptl-cta-act">
+      <HFArrowButton tone="light" label={c.primary.label} href={c.primary.href} />
+      <a class="ptl-cta-link" href={c.secondary.href}>
+        {c.secondary.label}
+      </a>
+    </div>
+  </div>
+</section>

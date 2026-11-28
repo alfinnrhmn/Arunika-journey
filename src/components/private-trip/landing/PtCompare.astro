@@ -1,0 +1,43 @@
+---
+// Perbandingan Open Trip vs Private Trip: tabel sungguhan. Mobile mengubah baris menjadi blok bertumpuk;
+// role dipasang eksplisit agar semantik tabel tidak hilang saat tampilan diubah.
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { ptCompare as c } from '../../../content/private-trip';
+---
+
+<section class="ptl-cmp" aria-labelledby="ptl-cmp-h">
+  <div class="ptl-head">
+    <p class="ptl-eyebrow ptl-eyebrow-ink">{c.eyebrow}</p>
+    <h2 class="ptl-h2" id="ptl-cmp-h">
+      {c.titleA} <i>{c.titleI}</i>
+    </h2>
+  </div>
+  <table class="ptl-cmp-t" role="table">
+    <caption class="ptl-sr">{c.caption}</caption>
+    <thead role="rowgroup">
+      <tr role="row">
+        <td role="presentation" class="ptl-cmp-corner"></td>
+        <th role="columnheader" scope="col">
+          {c.head[1]}
+        </th>
+        <th role="columnheader" scope="col">
+          {c.head[2]}
+        </th>
+      </tr>
+    </thead>
+    <tbody role="rowgroup">
+      {c.rows.map((r) => (
+        <tr role="row">
+          <th role="rowheader" scope="row">
+            {r.k}
+          </th>
+          <td role="cell">{r.a}</td>
+          <td role="cell">{r.b}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <div class="ptl-cmp-cta">
+    <HFArrowButton tone="outline" label={c.cta.label} href={c.cta.href} />
+  </div>
+</section>

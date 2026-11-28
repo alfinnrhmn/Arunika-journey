@@ -2,7 +2,8 @@
  * Journal: daftar (/journal) dan detail (/journal/<slug>). Acuan: frame Doop "Journal" dan "Detail Journal"
  * (desktop 1440, tablet 820, mobile 390). Dasar = desktop (>= 1280); tablet (< 1280) dan mobile (< 768)
  * menyesuaikan ke bawah. Kelas berawalan jn-. Gerakan masuk hanya CSS: animasi saat dimuat untuk kepala
- * halaman, dan animasi berbasis gulir (animation-timeline: view()) di balik @supports. Pada leluhur elemen
+ * halaman, dan animasi berbasis gulir (animation-timeline: view()) di balik @supports. Foto bergeser (parallax)
+ * lewat src/lib/motion/parallax.ts (atribut data-parallax mengisi variabel --py), sama seperti Home. Pada leluhur elemen
  * ber-timeline dipakai `overflow: clip`, bukan `hidden` (hidden menjadikannya kontainer gulir dan timeline mati).
  */
 
@@ -180,22 +181,6 @@
     transform: none;
   }
 }
-@keyframes jn-par {
-  from {
-    transform: translate3d(0, -6%, 0);
-  }
-  to {
-    transform: translate3d(0, 6%, 0);
-  }
-}
-@keyframes jn-par-hero {
-  from {
-    transform: translate3d(0, -7%, 0);
-  }
-  to {
-    transform: translate3d(0, 7%, 0);
-  }
-}
 /* Gerakan berbasis gulir: hanya bila peramban mendukung dan pengguna tidak meminta gerakan dikurangi. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -204,24 +189,17 @@
       animation-timeline: view();
       animation-range: entry 0% entry 55%;
     }
-    .jn-px {
-      animation: jn-par linear both;
-      animation-timeline: view();
-    }
-    .jn-hero-px {
-      animation: jn-par-hero linear both;
-      animation-timeline: view();
-    }
     /* Di dalam deretan yang digulir ke samping, timeline tertambat ke deretan itu; matikan. */
     .jn-rail .jn-rv {
-      animation: none;
-    }
-    .jn-rail .jn-px {
       animation: none;
     }
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .jn-px,
+  .jn-hero-px {
+    transform: none;
+  }
   .jn-rise,
   .jn-fade,
   .jn-hero-clip,
@@ -289,6 +267,8 @@
   right: 0;
   top: -12%;
   bottom: -12%;
+  transform: translate3d(0, var(--py, 0px), 0);
+  will-change: transform;
 }
 .jn-hero-zoom {
   position: absolute;
@@ -545,6 +525,8 @@
   right: 0;
   top: -9%;
   bottom: -9%;
+  transform: translate3d(0, var(--py, 0px), 0);
+  will-change: transform;
 }
 .jn-zoom {
   position: absolute;

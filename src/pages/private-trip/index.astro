@@ -1,0 +1,48 @@
+---
+import Public from '../../layouts/Public.astro';
+import '../../styles/pages/private-trip.css';
+import PtHero from '../../components/private-trip/landing/PtHero.astro';
+import PtLead from '../../components/private-trip/landing/PtLead.astro';
+import PtIntro from '../../components/private-trip/landing/PtIntro.astro';
+import PtFeatures from '../../components/private-trip/landing/PtFeatures.astro';
+import PtSteps from '../../components/private-trip/landing/PtSteps.astro';
+import PtExamples from '../../components/private-trip/landing/PtExamples.astro';
+import PtPricing from '../../components/private-trip/landing/PtPricing.astro';
+import PtStay from '../../components/private-trip/landing/PtStay.astro';
+import PtCompare from '../../components/private-trip/landing/PtCompare.astro';
+import PtTestimonial from '../../components/private-trip/landing/PtTestimonial.astro';
+import PtFaq from '../../components/private-trip/landing/PtFaq.astro';
+import PtCta from '../../components/private-trip/landing/PtCta.astro';
+import PtSticky from '../../components/private-trip/landing/PtSticky.astro';
+import { ptHero, ptMeta } from '../../content/private-trip';
+import { foto } from '../../lib/photo';
+---
+
+<Public
+  title={ptMeta.title}
+  description={ptMeta.description}
+  ogImage={foto(ptHero.foto)}
+  ogImageAlt={ptHero.alt}
+>
+  <main class="ptl">
+    <PtHero />
+    <PtLead />
+    <PtIntro />
+    <PtFeatures />
+    <PtSteps />
+    <PtExamples />
+    <PtPricing />
+    <PtStay />
+    <PtCompare />
+    <PtTestimonial />
+    <PtFaq />
+    <PtCta />
+    <PtSticky />
+  </main>
+</Public>
+
+<script>
+  // Foto isi bergeser turun mengikuti gulir seperti foto di Home (desktop >= 1280px, mati bila "kurangi gerakan").
+  import { initParallax } from '../../lib/motion/parallax';
+  initParallax('[data-parallax]', '(min-width: 1280px)');
+</script>

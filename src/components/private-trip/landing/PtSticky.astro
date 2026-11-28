@@ -1,0 +1,27 @@
+---
+// Bilah aksi lekat (mobile saja, < 768px). Sticky di dalam alur <main> (bukan fixed): berhenti di atas footer
+// dan tidak menutupnya. Di tablet dan desktop disembunyikan.
+import { ptSticky as s } from '../../../content/private-trip';
+---
+
+<div class="ptl-sticky">
+  <a class="ptl-sticky-cta" href={s.primary.href}>
+    <span>{s.primary.label}</span>
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12h16M14 6l6 6-6 6"></path>
+    </svg>
+  </a>
+  <a class="ptl-sticky-link" href={s.secondary.href}>
+    {s.secondary.label}
+  </a>
+</div>

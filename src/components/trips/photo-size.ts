@@ -62,6 +62,7 @@ const SIZES: Record<string, [number, number]> = {
   'sikunir-lautan-awan': [1264, 848],
   'tangan-relief-candi': [848, 1264],
   'traveler-haluan-perahu': [896, 1200],
+  'tim-arunika-obrolan': [1500, 1200],
   'traveler-selimut-bromo': [896, 1200],
   'ubud-pendopo-sawah': [1264, 848],
   'warga-tengger-bromo': [1264, 848],

@@ -1,0 +1,37 @@
+---
+// Hero Private Trip: foto penuh dengan gradasi, header publik transparan, judul, teks, CTA Request a Quote.
+// Desktop: judul di atas-tengah, teks dan CTA di bawah-tengah. Tablet/mobile: semuanya di kiri bawah.
+import HFNavRD from '../../hf/HFNavRD.astro';
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import HFIcon from '../../hf/HFIcon.astro';
+import { ptHero as h } from '../../../content/private-trip';
+import { bp } from '../../about/photo';
+---
+
+<section class="ptl-hero">
+  <img class="ptl-hero-img" {...bp(h.foto)} fetchpriority="high" decoding="async" alt={h.alt} />
+  <div class="ptl-hero-shade" aria-hidden="true"></div>
+  <HFNavRD tone="overlay" cta={h.cta.label} ctaHref={h.cta.href} />
+  <div class="ptl-hero-in">
+    <span class="hand ptl-hero-hand">{h.hand}</span>
+    <h1 class="ptl-hero-h1">
+      {h.titleA}
+      <br class="ptl-d" />{' '}
+      <span class="ptl-hero-m">
+        <i>{h.titleI}</i> {h.titleB}
+      </span>
+    </h1>
+    <div class="ptl-hero-bt">
+      <p class="ptl-hero-p">
+        {h.textA} <span class="ptl-hero-p2">{h.textB}</span>
+      </p>
+      <div class="ptl-hero-act">
+        <HFArrowButton tone="light" label={h.cta.label} href={h.cta.href} />
+        <p class="ptl-hero-note">
+          <HFIcon name="shield" size={16} />
+          <span>{h.note}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

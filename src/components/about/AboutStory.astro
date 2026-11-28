@@ -19,7 +19,9 @@ import { bp } from './photo';
         </div>
       </div>
       <div class="ab-row-ph">
-        <img class="cover" {...bp(s.foto)} loading="lazy" decoding="async" alt={s.alt} />
+        <div class="ab-px" data-parallax>
+          <img class="cover" {...bp(s.foto)} loading="lazy" decoding="async" alt={s.alt} />
+        </div>
       </div>
     </div>
   ))}

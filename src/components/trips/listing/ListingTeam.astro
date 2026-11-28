@@ -22,13 +22,20 @@ import { photoSize } from '../photo-size';
     </div>
   </div>
   <div class="tl32">
-    <img
-      class="cover"
-      src={foto('penanjakan-menunggu-fajar')}
-      alt="Rombongan menunggu fajar di Penanjakan"
-      {...photoSize('penanjakan-menunggu-fajar')}
-      loading="lazy"
-      decoding="async"
-    />
+    <div class="tl-px" data-parallax="0.06">
+      <img
+        class="cover"
+        src={foto('tim-arunika-obrolan')}
+        alt="Anggota tim Arunika berbincang akrab dengan dua perempuan sepuh di tepi jalan"
+        {...photoSize('tim-arunika-obrolan')}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
   </div>
 </section>
+
+<script>
+  import { initParallax } from '../../../lib/motion/parallax';
+  initParallax();
+</script>

@@ -1,0 +1,1592 @@
+/* Request a Quote Private Trip (/private-trip/request, langkah 1 dan 2, dan pratinjau Konfirmasi).
+   Desktop 1440 diport dari frame Doop "Request a Quote: Langkah 1 / Langkah 2 / Konfirmasi" varian Red Dot style;
+   tablet 820 dan mobile 390 di bagian bawah berkas. Gaya dasar = desktop (>= 1280); penyesuaian turun memakai
+   max-width. Kelas pr-dsk / pr-mob menampilkan teks atau elemen khusus desktop atau khusus layar kecil. */
+
+.pr-page,
+.pr-cf {
+  font-family: var(--font-ui);
+  color: var(--color-ink-2);
+  background: var(--color-paper);
+}
+.pr-page {
+  position: relative;
+}
+.pr-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+html:has(.pr-page) {
+  scroll-padding-bottom: 112px;
+}
+
+/* ---------------------------------------------------------------- Bilah aplikasi (hanya < 1280) */
+.pr-bar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- Hero (desktop) */
+.pr-hero {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  color: var(--color-paper);
+  text-align: center;
+  background: var(--color-night);
+}
+.pr-page[data-step='2'] .pr-hero {
+  height: 420px;
+}
+.pr-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pr-hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-night) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-night) 25%, transparent) 55%,
+    color-mix(in srgb, var(--color-night) 45%, transparent) 100%
+  );
+}
+.pr-hero-tx {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 70px;
+}
+.pr-page[data-step='2'] .pr-hero-tx {
+  bottom: 56px;
+}
+.pr-hero .pr-eyebrow {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 34px;
+  opacity: 0.9;
+}
+.pr-hero h1 {
+  margin-top: 8px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-paper);
+}
+.pr-progress {
+  display: none;
+}
+.pr-hand {
+  color: var(--color-dawn-deep);
+}
+.pr-page[data-step='1'] [data-for='2'],
+.pr-page[data-step='2'] [data-for='1'] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- Dua langkah */
+html.pr-js .pr-page[data-step='1'] #langkah-2,
+html.pr-js .pr-page[data-step='2'] #langkah-1 {
+  display: none;
+}
+.pr-step {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 0 41px 146px;
+}
+.pr-box {
+  flex: 1;
+  min-width: 0;
+  padding: 48px 64px 64px;
+  background: var(--color-bg);
+}
+.pr-aside {
+  flex: 0 0 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Tab langkah */
+.pr-tabs {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--color-line);
+}
+.pr-tabs li {
+  flex: 1;
+}
+.pr-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 0;
+  font-size: 15px;
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.pr-tab.on {
+  color: var(--color-ink);
+  border-bottom: 2px solid var(--color-ink);
+  margin-bottom: -1px;
+}
+.pr-tab.off {
+  opacity: 0.55;
+}
+.pr-tab.done .ck {
+  display: inline-flex;
+  color: var(--color-status-ok);
+}
+a.pr-tab.done:hover span:first-child {
+  color: var(--color-ink);
+}
+
+/* Fokus terprogram pada <section> langkah (layar kecil, judul tersembunyi): bukan kontrol, tanpa cincin. */
+.pr-step:focus {
+  outline: none;
+}
+
+.pr-h2 {
+  margin-top: 48px;
+  font-size: 48px;
+  line-height: 54px;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-2);
+}
+.pr-lead {
+  margin-top: 14px;
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.pr-fill {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- Isian */
+.pr-blk {
+  margin: 44px 0 0;
+  padding: 0;
+  min-width: 0;
+  border: 0;
+}
+.pr-blk.first {
+  margin-top: 36px;
+}
+.pr-q {
+  display: block;
+  padding: 0;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-2);
+}
+.pr-opt-l {
+  margin-left: 2px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+.pr-sublab {
+  display: none;
+}
+.pr-in {
+  display: block;
+  width: 100%;
+  height: 52px;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-ink-2);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--color-ink);
+  appearance: none;
+}
+.pr-in::placeholder,
+.sin::placeholder {
+  color: var(--color-ink-2);
+  opacity: 0.7;
+}
+.pr-in:focus {
+  border-bottom: 2px solid var(--color-ink);
+  margin-bottom: -1px;
+}
+.pr-in:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+.pr-in[readonly] {
+  color: var(--color-ink-2);
+}
+.pr-select {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%232b2623' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+}
+.pr-ta {
+  height: 120px;
+  min-height: 120px;
+  padding: 12px 0;
+  resize: vertical;
+  line-height: 24px;
+}
+.pr-hint,
+.pr-err {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-2);
+}
+.pr-hint[data-ok] {
+  color: var(--color-status-ok);
+}
+.pr-err {
+  color: var(--color-status-full);
+  font-weight: 500;
+}
+.pr-blk[data-state='error'] .pr-in:not([readonly]),
+.pr-blk[data-state='error'] .pr-search,
+.pr-blk[data-state='error'] .pr-cnt {
+  border-color: var(--color-status-full);
+}
+.pr-blk[data-state='error'] .pr-in:not(.pr-ta):not([readonly]) {
+  border-bottom-width: 2px;
+}
+.pr-form {
+  display: block;
+}
+
+/* Tujuan: kolom cari + chip */
+.pr-search {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  margin-top: 14px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--color-ink-2);
+  color: var(--color-ink-2);
+}
+.pr-search:focus-within {
+  border-bottom: 2px solid var(--color-ink);
+  color: var(--color-ink);
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+.sin {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--color-ink);
+}
+.pr-add {
+  flex: none;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+.pr-add:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.pr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.pr-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--color-ink-2);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+.pr-chip[aria-pressed='true'],
+.pr-chip:has(input:checked) {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.pr-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.pr-chip:has(input:focus-visible) {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* Tanggal, fleksibel */
+.pr-chk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+.pr-chk input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-ink);
+}
+
+/* Peserta */
+.pr-cnts {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+}
+.pr-cnt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 60px;
+  padding: 0 12px 0 20px;
+  border: 1px solid var(--color-line);
+  font-size: 15px;
+  color: var(--color-ink);
+}
+.pr-cnt label small {
+  display: none;
+}
+.pr-cnt .ctl {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.pr-cnt .cb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+.pr-cnt .cb:hover:not(:disabled) {
+  background: var(--color-paper);
+}
+.pr-cnt .cb:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.pr-cnt .cv {
+  width: 64px;
+  height: 40px;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+html.pr-js .pr-cnt .cv {
+  width: 32px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+html.pr-js .pr-cnt .cv::-webkit-outer-spin-button,
+html.pr-js .pr-cnt .cv::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Info (hanya layar kecil) */
+.pr-info {
+  display: none;
+}
+
+/* Aksi */
+.pr-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 56px;
+}
+.pr-note {
+  max-width: 360px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.pr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  height: 56px;
+  padding: 0 6px 0 26px;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  color: var(--color-paper);
+  text-decoration: none;
+  cursor: pointer;
+}
+.pr-btn .ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+.pr-btn:hover {
+  background: color-mix(in srgb, var(--color-ink) 86%, var(--color-paper));
+}
+.pr-btn.ghost {
+  background: transparent;
+  color: var(--color-ink);
+}
+.pr-btn.ghost:hover {
+  background: var(--color-paper);
+}
+.pr-ulink {
+  font-size: 14px;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.pr-back {
+  font-size: 15px;
+}
+.pr-back span {
+  margin-right: 6px;
+}
+
+/* Blok jujur pengganti tombol kirim (langkah 2) */
+.pr-final {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 56px;
+  padding: 24px 28px;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.pr-final .ic {
+  flex: none;
+  margin-top: 1px;
+}
+.pr-final b {
+  display: block;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.pr-final p {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--color-ink-2);
+}
+.pr-actions.two {
+  margin-top: 24px;
+}
+.pr-legal {
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 20px;
+  text-align: right;
+}
+.pr-legal a {
+  color: var(--color-ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Telepon */
+.pr-tel {
+  display: flex;
+  gap: 16px;
+}
+.pr-pre {
+  flex: 0 0 96px;
+  width: 96px;
+}
+
+/* ---------------------------------------------------------------- Kolom samping (desktop) */
+.pr-dark {
+  padding: 36px 36px 40px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.pr-dark h3 {
+  font-size: 34px;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+}
+.pr-dark p {
+  margin-top: 20px;
+  font-size: 15px;
+  line-height: 24px;
+  opacity: 0.78;
+}
+.pr-wa {
+  display: block;
+  margin-top: 28px;
+  padding: 14px 0;
+  border-top: 1px solid rgb(244 243 239 / 25%);
+  border-bottom: 1px solid rgb(244 243 239 / 25%);
+  font-size: 18px;
+  text-align: center;
+  color: var(--color-paper);
+  text-decoration: none;
+}
+.pr-dark .pr-ulink {
+  display: table;
+  margin: 20px auto 0;
+  color: var(--color-paper);
+}
+.pr-card {
+  padding: 32px;
+  background: var(--color-bg);
+}
+.pr-card-t {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 34px;
+  color: var(--color-ink);
+}
+.pr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 22px;
+}
+.pr-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pr-list .ok {
+  margin-top: 3px;
+  color: var(--color-status-ok);
+}
+.pr-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+  font-size: 14px;
+  color: var(--color-ink);
+}
+.pr-trust p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+.pr-trust p + p {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line);
+}
+.pr-sum {
+  display: flex;
+  flex-direction: column;
+  padding: 36px;
+}
+.pr-sum-h {
+  display: contents;
+}
+.pr-sum-h .edit {
+  order: 4;
+  align-self: flex-start;
+  margin-top: 18px;
+}
+.pr-sum-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.pr-sum-empty {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.pr-rows {
+  margin: 20px 0 0;
+  border-top: 1px solid var(--color-line);
+}
+.pr-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+  line-height: 22px;
+}
+.pr-row dt {
+  flex: none;
+  color: var(--color-ink-2);
+}
+.pr-row dd {
+  margin: 0;
+  min-width: 0;
+  font-weight: 500;
+  text-align: right;
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
+}
+.pr-after {
+  padding: 32px 36px;
+}
+.pr-after h3 {
+  font-size: 30px;
+  line-height: 36px;
+}
+.pr-after p {
+  margin-top: 14px;
+  opacity: 0.82;
+}
+
+/* ================================================================ Konfirmasi (pratinjau) */
+.pr-dev {
+  margin: 0;
+  padding: 10px 41px;
+  background: var(--color-status-pending-soft);
+  font-size: 13px;
+  line-height: 20px;
+  text-align: center;
+  color: var(--color-status-pending);
+}
+.pr-cf .hand {
+  color: var(--color-dawn-deep);
+}
+.pr-cf .pr-eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.pr-cf .pr-eyebrow.ink {
+  color: var(--color-ink);
+}
+.pr-cf-top {
+  padding: 96px 41px 0;
+  text-align: center;
+}
+.pr-cf h1 {
+  margin-top: 22px;
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--color-ink-2);
+}
+.pr-cf-lead {
+  max-width: 640px;
+  margin: 28px auto 0;
+  font-size: 18px;
+  line-height: 28px;
+}
+.pr-cf-code {
+  display: inline-block;
+  margin-top: 48px;
+  padding: 22px 32px;
+  background: var(--color-bg);
+  text-align: left;
+}
+.pr-cf-code .in {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.pr-cf-num {
+  margin-top: 6px;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 34px;
+  line-height: 40px;
+  color: var(--color-ink);
+}
+.pr-cf-sent {
+  display: none;
+}
+.pr-cf-eta {
+  display: none;
+}
+.pr-cf-cols {
+  display: flex;
+  align-items: flex-start;
+  gap: 96px;
+  padding: 104px 41px 0;
+}
+.pr-cf-sum {
+  flex: 0 0 560px;
+  min-width: 0;
+}
+.pr-cf-next {
+  flex: 1;
+  min-width: 0;
+}
+.pr-cf-h {
+  margin-top: 14px;
+  font-size: var(--text-subdisplay);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-2);
+}
+.pr-cf-sub {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.pr-cf-sum .pr-rows {
+  margin-top: 32px;
+}
+.pr-tl {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pr-tl-d {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 40px;
+}
+.pr-tl-d li {
+  flex: 1;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-ink);
+}
+.pr-tl-d .n {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--color-dawn-deep);
+}
+.pr-tl-d h3 {
+  margin: 14px 0 0;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+.pr-tl .d {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-ink-2);
+}
+.pr-tl-m {
+  display: none;
+}
+.pr-cf-act {
+  padding: 104px 41px 146px;
+  text-align: center;
+}
+.pr-cf-act .row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+.pr-cf-keep {
+  margin-top: 28px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* ================================================================ Tablet dan di bawahnya (< 1280) */
+@media (max-width: 1279px) {
+  .pr-page {
+    --pr-gut: 32px;
+  }
+
+  /* Header situs diciutkan (tetap ada hanya sebagai target "Lewati ke konten"); bilah aplikasi menggantikannya. */
+  html .pr-page header.hf-rdn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+  }
+  /* Selektor sengaja diperberat: gaya HFNavRD memakai atribut cakupan Astro dan kelas html.hf-js. */
+  html .pr-page header.hf-rdn.hf-rdn > :not(.skip-target):not(.skip-target):not(.skip-target) {
+    display: none;
+  }
+  .pr-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 60px;
+    padding: 0 20px 0 12px;
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .pr-bar .back {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--color-ink);
+  }
+  .pr-bar .back svg {
+    transform: rotate(180deg);
+  }
+  .pr-bar .ttl {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+  .pr-bar .help {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink-2);
+    text-decoration: none;
+  }
+
+  /* Hero menjadi blok teks biasa */
+  .pr-hero,
+  .pr-page[data-step='2'] .pr-hero {
+    height: auto;
+    overflow: visible;
+    text-align: left;
+    background: none;
+    color: var(--color-ink);
+  }
+  .pr-hero-img,
+  .pr-hero-shade {
+    display: none;
+  }
+  .pr-progress {
+    display: block;
+    padding: 16px var(--pr-gut);
+  }
+  .pr-progress .t {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .pr-progress .s {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .pr-progress .s i {
+    flex: 1;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--color-line);
+  }
+  .pr-progress .s i.on {
+    background: var(--color-ink);
+  }
+  .pr-hero-tx,
+  .pr-page[data-step='2'] .pr-hero-tx {
+    position: static;
+    padding: 28px var(--pr-gut) 0;
+  }
+  .pr-hand {
+    font-size: 28px;
+  }
+  .pr-hero h1 {
+    margin-top: 8px;
+    font-size: 40px;
+    line-height: 46px;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-2);
+  }
+
+  /* Satu kolom; kotak dan kolom samping melebur agar urutan bisa diatur */
+  .pr-step {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0 var(--pr-gut) 56px;
+  }
+  .pr-box,
+  .pr-aside {
+    display: contents;
+  }
+  .pr-tabs,
+  .pr-h2,
+  .pr-dark,
+  .pr-aside .pr-card:not(.pr-sum),
+  .pr-after {
+    display: none;
+  }
+  .pr-lead {
+    order: 1;
+    margin-top: 14px;
+    max-width: none;
+    font-size: 15px;
+  }
+  .pr-fill {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-ink);
+  }
+  .pr-sum {
+    order: 3;
+  }
+  .pr-form {
+    order: 4;
+  }
+
+  /* Ringkasan menjadi kartu di atas isian */
+  .pr-sum {
+    margin-top: 28px;
+    padding: 20px;
+  }
+  .pr-sum-h {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .pr-sum .pr-card-t {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .pr-sum-h .edit {
+    order: 0;
+    margin-top: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 4px;
+  }
+  .pr-sum-sub {
+    display: none;
+  }
+
+  /* Isian: kotak 52px, teks 16px, jarak sentuh */
+  .pr-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+  .pr-form > * {
+    grid-column: 1 / -1;
+  }
+  .pr-blk {
+    margin-top: 36px;
+  }
+  .pr-blk.first {
+    margin-top: 32px;
+  }
+  .pr-sum + .pr-form .pr-blk.first {
+    margin-top: 28px;
+  }
+  .pr-q {
+    font-size: 24px;
+    line-height: 30px;
+    color: var(--color-ink);
+  }
+  .pr-sublab {
+    display: block;
+    margin-top: 14px;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .pr-sublab + .pr-in {
+    margin-top: 8px;
+  }
+  .pr-in {
+    height: 52px;
+    margin-top: 14px;
+    padding: 0 16px;
+    border: 1px solid var(--color-ink-2);
+    border-radius: var(--radius-xs);
+    background-color: var(--color-bg);
+  }
+  .pr-in:focus {
+    margin-bottom: 0;
+    border: 1px solid var(--color-ink);
+    border-bottom-width: 1px;
+  }
+  .pr-select {
+    padding-right: 44px;
+    background-position: right 16px center;
+  }
+  .pr-ta {
+    height: auto;
+    min-height: 132px;
+    padding: 14px 16px;
+  }
+  .pr-blk[data-state='error'] .pr-in:not([readonly]) {
+    border-color: var(--color-status-full);
+    box-shadow: inset 0 0 0 1px var(--color-status-full);
+  }
+  .pr-blk[data-state='error'] .pr-in:not(.pr-ta):not([readonly]) {
+    border-bottom-width: 1px;
+  }
+  .pr-hint,
+  .pr-err {
+    font-size: 13px;
+    line-height: 19px;
+  }
+  .pr-search {
+    height: 52px;
+    padding: 0 8px 0 16px;
+    border: 1px solid var(--color-ink-2);
+    border-radius: var(--radius-xs);
+    background: var(--color-bg);
+  }
+  .pr-search:focus-within {
+    border: 1px solid var(--color-ink);
+  }
+  .pr-search .mag {
+    display: none;
+  }
+  .pr-add {
+    height: 44px;
+  }
+  .pr-chips {
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .pr-chk {
+    min-height: 44px;
+    margin-top: 8px;
+    font-size: 15px;
+  }
+  .pr-chk input {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Peserta */
+  .pr-cnt {
+    height: auto;
+    min-height: 64px;
+    padding: 8px 10px 8px 16px;
+    border-radius: var(--radius-xs);
+    background: var(--color-bg);
+  }
+  .pr-cnt label {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 600;
+  }
+  .pr-cnt label small {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 400;
+    color: var(--color-ink-2);
+  }
+  .pr-cnt .ctl {
+    gap: 6px;
+  }
+  .pr-cnt .cb {
+    width: 44px;
+    height: 44px;
+    border-color: var(--color-ink-2);
+  }
+  .pr-cnt .cb:disabled {
+    border-color: var(--color-line);
+    color: var(--color-line);
+    opacity: 1;
+  }
+  html.pr-js .pr-cnt .cv {
+    width: 32px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  /* Info harga */
+  .pr-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 40px;
+    padding: 20px;
+    background: var(--color-bg);
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--color-ink-2);
+  }
+  .pr-info b {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .pr-info .hf-ic {
+    margin-top: 0;
+    color: var(--color-ink);
+  }
+
+  /* Bilah aksi lekat (langkah 1); langkah 2 memakai baris aksi biasa */
+  .pr-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin: 36px calc(var(--pr-gut) * -1) 0;
+    padding: 12px var(--pr-gut) calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-line);
+    background: var(--color-paper);
+  }
+  .pr-note {
+    display: none;
+  }
+  .pr-actions .pr-btn {
+    flex: 1;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 24px;
+  }
+  .pr-btn .ic {
+    width: auto;
+    height: auto;
+    border: 0;
+  }
+  .pr-actions.two .pr-btn {
+    flex: none;
+  }
+  .pr-actions.two {
+    position: static;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+    margin: 24px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .pr-actions.two .pr-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    text-align: center;
+  }
+  .pr-final {
+    margin-top: 40px;
+    padding: 20px;
+  }
+  .pr-legal {
+    margin-top: 16px;
+    text-align: center;
+  }
+  .pr-ulink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .pr-legal a {
+    display: inline;
+  }
+  .pr-pre {
+    flex: 0 0 88px;
+    width: 88px;
+  }
+
+  /* Kolom form tablet: pasangan isian berdampingan (di mobile satu kolom, lihat di bawah) */
+  [data-pr-field='tanggal'],
+  [data-pr-field='durasi'],
+  [data-pr-field='email'],
+  [data-pr-field='email2'],
+  [data-pr-field='telepon'],
+  [data-pr-field='sumber'] {
+    grid-column: span 1;
+  }
+  .pr-cnts {
+    gap: 12px;
+  }
+
+  /* Konfirmasi */
+  .pr-dev {
+    padding: 10px var(--pr-gut, 20px);
+  }
+  .pr-cf {
+    --pr-gut: 32px;
+  }
+  .pr-cf-top {
+    padding: 72px var(--pr-gut) 0;
+  }
+  .pr-cf h1 {
+    font-size: 64px;
+    line-height: 0.98;
+  }
+  .pr-cf-lead {
+    font-size: 18px;
+    line-height: 28px;
+  }
+  .pr-cf-code {
+    display: block;
+    margin-top: 36px;
+    padding: 28px 40px;
+    text-align: center;
+  }
+  .pr-cf-code .in {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .pr-cf-num {
+    font-size: 48px;
+    line-height: 52px;
+  }
+  .pr-cf-sent {
+    display: block;
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .pr-cf-eta {
+    display: block;
+    padding: 56px var(--pr-gut) 0;
+    text-align: left;
+  }
+  .pr-cf-etabox {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-top: 14px;
+    padding: 22px 24px;
+    border: 1px solid var(--color-ink);
+    color: var(--color-ink);
+  }
+  .pr-cf-etabox .hf-ic {
+    margin-top: 6px;
+  }
+  .pr-cf-etabox h2 {
+    font-size: 28px;
+    line-height: 34px;
+    color: var(--color-ink);
+  }
+  .pr-cf-etabox p {
+    margin-top: 6px;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--color-ink-2);
+  }
+  .pr-cf-cols {
+    gap: 40px;
+    padding: 64px var(--pr-gut) 0;
+  }
+  .pr-cf-sum {
+    order: 2;
+    flex: 1;
+  }
+  .pr-cf-next {
+    order: 1;
+  }
+  .pr-cf-h {
+    font-size: 36px;
+    line-height: 40px;
+  }
+  .pr-cf-sum .pr-rows {
+    margin-top: 24px;
+  }
+  .pr-cf-act {
+    padding: 64px var(--pr-gut) 80px;
+  }
+  .pr-cf-act .row {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .pr-cf-act .row .pr-btn {
+    flex: 1 1 240px;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 24px;
+  }
+  .pr-cf-act .row .pr-ulink {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+  .pr-tl-d {
+    display: none;
+  }
+  .pr-tl-m {
+    display: block;
+    margin-top: 28px;
+  }
+  .pr-tl-m li {
+    position: relative;
+    padding: 0 0 28px 52px;
+  }
+  .pr-tl-m li::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 36px;
+    bottom: 4px;
+    width: 1px;
+    background: var(--color-line);
+  }
+  .pr-tl-m li:last-child {
+    padding-bottom: 0;
+  }
+  .pr-tl-m li:last-child::before {
+    display: none;
+  }
+  .pr-tl-m .dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+    background: var(--color-paper);
+    color: var(--color-paper);
+  }
+  .pr-tl-m [data-state='done'] .dot {
+    border-color: var(--color-status-ok);
+    background: var(--color-status-ok);
+  }
+  .pr-tl-m [data-state='now'] .dot {
+    border-color: var(--color-dawn);
+    background: var(--color-dawn-soft);
+    box-shadow: 0 0 0 4px var(--color-dawn-soft);
+  }
+  .pr-tl-m .tag {
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-dawn-deep);
+  }
+  .pr-tl-m h3 {
+    margin: 4px 0 0;
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 400;
+    color: var(--color-ink);
+  }
+}
+
+/* Tablet saja (768 sampai 1279) */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .pr-form > [data-pr-field='tanggal'],
+  .pr-form > [data-pr-field='durasi'],
+  .pr-form > [data-pr-field='email'],
+  .pr-form > [data-pr-field='email2'],
+  .pr-form > [data-pr-field='telepon'],
+  .pr-form > [data-pr-field='sumber'] {
+    grid-column: span 1;
+  }
+  .pr-sum .pr-rows {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+}
+
+/* Mobile (<= 767) */
+@media (max-width: 767px) {
+  .pr-page,
+  .pr-cf {
+    --pr-gut: 20px;
+  }
+  .pr-form > [data-pr-field] {
+    grid-column: 1 / -1;
+  }
+  .pr-progress {
+    padding: 16px 20px;
+  }
+  .pr-hero-tx,
+  .pr-page[data-step='2'] .pr-hero-tx {
+    padding: 20px var(--pr-gut) 0;
+  }
+  .pr-hand {
+    font-size: 26px;
+  }
+  .pr-hero h1 {
+    line-height: 42px;
+  }
+  .pr-cnts {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pr-form {
+    column-gap: 0;
+  }
+  .pr-cf-top {
+    padding-top: 48px;
+  }
+  .pr-cf h1 {
+    font-size: 40px;
+    line-height: 42px;
+  }
+  .pr-cf-lead {
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .pr-cf-code {
+    padding: 24px 20px;
+  }
+  .pr-cf-num {
+    font-size: 36px;
+    line-height: 42px;
+  }
+  .pr-cf-etabox h2 {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .pr-cf-cols {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 56px;
+    padding-top: 56px;
+  }
+  .pr-cf-sum,
+  .pr-cf-next {
+    flex: none;
+    width: 100%;
+  }
+  .pr-cf-h {
+    font-size: 32px;
+    line-height: 36px;
+  }
+  .pr-cf-act .row .pr-btn {
+    flex-basis: 100%;
+  }
+  .pr-dev {
+    padding: 10px 20px;
+  }
+}
+
+/* Teks atau elemen khusus ukuran: desktop >= 1280 menyembunyikan .pr-mob, layar kecil menyembunyikan .pr-dsk. */
+@media (min-width: 1280px) {
+  .pr-page .pr-mob,
+  .pr-cf .pr-mob {
+    display: none;
+  }
+}
+@media (max-width: 1279px) {
+  .pr-page .pr-dsk,
+  .pr-cf .pr-dsk {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pr-chip,
+  .pr-btn,
+  .pr-cnt .cb {
+    transition:
+      background-color 0.25s,
+      border-color 0.25s,
+      color 0.25s;
+  }
+}
+
+/* Elemen ber-`hidden` (kontrol khusus JS, galat kosong) selalu menang atas aturan display di atas. */
+.pr-page [hidden],
+.pr-cf [hidden] {
+  display: none;
+}

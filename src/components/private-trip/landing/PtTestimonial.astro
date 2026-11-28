@@ -1,0 +1,26 @@
+---
+// Testimoni CONTOH di atas latar dawn, foto keluarga di sisi kanan (desktop) atau di atas/kiri (mobile/tablet).
+import { ptTestimonial as t } from '../../../content/private-trip';
+import { bp } from '../../about/photo';
+---
+
+<section class="ptl-testi" aria-labelledby="ptl-testi-h">
+  <h2 class="ptl-h2 ptl-testi-h" id="ptl-testi-h">
+    {t.titleA} <i>{t.titleI}</i>
+    {` ${t.titleB}`}
+  </h2>
+  <figure class="ptl-testi-box">
+    <div class="ptl-testi-tx">
+      <blockquote>{t.quote}</blockquote>
+      <figcaption>
+        <b>{t.by}</b>
+        <span>{t.note}</span>
+      </figcaption>
+    </div>
+    <div class="ptl-testi-ph">
+      <div class="ptl-px" data-parallax>
+        <img class="cover" {...bp(t.foto)} loading="lazy" decoding="async" alt={t.alt} />
+      </div>
+    </div>
+  </figure>
+</section>

@@ -66,7 +66,7 @@ const themeColor = '#ffffff';
     )}
     <title>{title}</title>
   </head>
-  <body id="top">
+  <body id="top" data-smooth={hideFooter ? 'off' : undefined}>
     <a class="hf-skip" href="#konten">
       Lewati ke konten
     </a>
@@ -88,6 +88,10 @@ const themeColor = '#ffffff';
         main.setAttribute('tabindex', '-1');
         link.setAttribute('href', '#' + main.id);
       })();
+    </script>
+    <script>
+      // Gulir halus (Lenis) di semua halaman publik; mati untuk alur fokus, layar sentuh, dan "kurangi gerakan".
+      import '../scripts/smooth-scroll';
     </script>
   </body>
 </html>

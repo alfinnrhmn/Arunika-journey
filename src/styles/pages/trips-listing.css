@@ -234,6 +234,9 @@
   align-items: center;
   gap: 96px;
   padding: 0 41px 146px;
+  /* Teks dan foto satu kelompok rapat yang ikut ke tengah di layar lebar (frame 1440), bukan menempel kiri. */
+  max-width: 1440px;
+  margin-inline: auto;
 }
 .tl27 {
   flex: 1;
@@ -265,9 +268,123 @@
   color: var(--color-ink-2);
 }
 .tl32 {
+  position: relative;
   flex: 0 0 560px;
   height: 640px;
   overflow: hidden;
+}
+/* Parallax foto tim: isi bergeser mengikuti gulir (src/lib/motion/parallax.ts), sama dengan .fpx di Home. */
+.tl-px {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -6%;
+  bottom: -6%;
+  transform: translate3d(0, var(--py, 0px), 0);
+  will-change: transform;
+}
+
+/* ---- Karusel testimoni (gerakan sama dengan testimoni Home: .tslide, .tq) ---- */
+.tl22[hidden] {
+  display: none;
+}
+.tl22 {
+  z-index: 5;
+}
+.tl-slide {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.tl-slide.on {
+  z-index: 2;
+}
+.tl-slide.prev {
+  z-index: 1;
+}
+/* Foto tersingkap dari kanan ke kiri dan membesar-mengecil perlahan. */
+.tl-slide .tl25 {
+  overflow: hidden;
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path 1.1s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.tl-slide.on .tl25,
+.tl-slide.prev .tl25 {
+  clip-path: inset(0 0 0 0);
+}
+.tl-slide .tl25 img {
+  transform: scale(1.08);
+  transition: transform 1.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tl-slide.on .tl25 img {
+  transform: scale(1);
+}
+/* Kutipan dan nama naik belakangan, setelah foto mulai tersingkap. */
+.tl-slide .tl19,
+.tl-slide .tl20 {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tl-slide.on .tl19,
+.tl-slide.on .tl20 {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.45s;
+}
+.tl-nav {
+  padding: 0;
+  background: transparent;
+  color: var(--color-paper);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.tl-nav:hover {
+  background: color-mix(in srgb, var(--color-paper) 18%, transparent);
+}
+.tl-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+/* "Kurangi gerakan": tanpa transisi dan tanpa parallax. */
+@media (prefers-reduced-motion: reduce) {
+  .tl-slide .tl25,
+  .tl-slide .tl25 img,
+  .tl-slide .tl19,
+  .tl-slide .tl20 {
+    transition: none;
+  }
+  .tl-px {
+    top: 0;
+    bottom: 0;
+    transform: none;
+  }
+}
+
+/* Filter menempel selagi daftar paket digulir (desktop, saat filter menjadi sidebar). Header bersifat absolut
+   (ikut tergulir), jadi cukup jarak kecil dari tepi atas. Bila layar lebih pendek dari sidebar, isinya bergulir
+   sendiri di dalam sidebar. */
+@media (min-width: 1024px) {
+  .tl4 > .tl5 {
+    position: sticky;
+    top: 32px;
+    align-self: flex-start;
+    max-height: calc(100dvh - 64px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .tl4 > .tl5 :focus-visible {
+    outline-offset: -2px;
+  }
 }
 .tl33 {
   position: relative;

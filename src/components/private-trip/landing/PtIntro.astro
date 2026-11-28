@@ -1,0 +1,46 @@
+---
+// Pengantar: tulisan tangan + kalimat serif besar di kiri, dua foto bertumpuk di kanan.
+import HFArrowButton from '../../hf/HFArrowButton.astro';
+import { ptIntro as t } from '../../../content/private-trip';
+import { bp } from '../../about/photo';
+---
+
+<section class="ptl-intro" aria-labelledby="ptl-intro-h">
+  <div class="ptl-intro-tx">
+    <h2 class="ptl-intro-hand" id="ptl-intro-h">
+      <span class="hand">{t.hand}</span>
+    </h2>
+    <p class="ptl-intro-p">
+      {t.textA}
+      <span class="ptl-d">{t.textDesktopOnly}</span>
+      {t.textB}
+    </p>
+    <div class="ptl-intro-cta ptl-d">
+      <HFArrowButton tone="outline" label={t.cta.label} href={t.cta.href} />
+    </div>
+  </div>
+  <div class="ptl-intro-ph">
+    <div class="ptl-intro-a">
+      <div class="ptl-px" data-parallax>
+        <img
+          class="cover"
+          {...bp(t.fotoA.foto)}
+          loading="lazy"
+          decoding="async"
+          alt={t.fotoA.alt}
+        />
+      </div>
+    </div>
+    <div class="ptl-intro-b">
+      <div class="ptl-px" data-parallax>
+        <img
+          class="cover"
+          {...bp(t.fotoB.foto)}
+          loading="lazy"
+          decoding="async"
+          alt={t.fotoB.alt}
+        />
+      </div>
+    </div>
+  </div>
+</section>

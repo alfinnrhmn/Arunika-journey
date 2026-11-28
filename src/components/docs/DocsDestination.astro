@@ -19,24 +19,26 @@ const kindLabel = { open: 'Open Trip', private: 'Private Trip' } as const;
 
 <section class="dc-ds" id={dest.id} aria-labelledby={`${dest.id}-h`}>
   <div class="dc-pano" data-flip={flip ? 'yes' : 'no'}>
-    <img
-      class="cover"
-      {...bp(dest.pano.foto)}
-      loading="lazy"
-      decoding="async"
-      alt={dest.pano.alt}
-    />
-    <div class="dc-ov" aria-hidden="true"></div>
-    <div class="dc-pl">
-      <p class="dc-no">{no}</p>
-      <h2 class="dc-nm" id={`${dest.id}-h`}>
-        {dest.name}
-      </h2>
+    <div class="dc-pano-in" data-motion="open">
+      <img
+        class="cover"
+        {...bp(dest.pano.foto)}
+        loading="lazy"
+        decoding="async"
+        alt={dest.pano.alt}
+      />
+      <div class="dc-ov" aria-hidden="true"></div>
+      <div class="dc-pl">
+        <p class="dc-no">{no}</p>
+        <h2 class="dc-nm" id={`${dest.id}-h`}>
+          {dest.name}
+        </h2>
+      </div>
+      <p class="dc-pr">
+        <b>{items.length} dokumentasi</b>
+        Open Trip dan Private Trip
+      </p>
     </div>
-    <p class="dc-pr">
-      <b>{items.length} dokumentasi</b>
-      Open Trip dan Private Trip
-    </p>
   </div>
   <div class="dc-meta" data-flip={flip ? 'yes' : 'no'}>
     <p class="dc-lead">{dest.lead}</p>
@@ -58,7 +60,9 @@ const kindLabel = { open: 'Open Trip', private: 'Private Trip' } as const;
         <li class="dc-it">
           <figure>
             <div class="dc-im">
-              <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+              <div class="dc-px" data-parallax>
+                <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+              </div>
               <span class="dc-tg">{kindLabel[it.kind]}</span>
               {it.format === 'video' && <span class="dc-vd">Video</span>}
               <span class="dc-ovc">{docsCaption}</span>

@@ -6,13 +6,15 @@ import { bp } from './photo';
 ---
 
 <section class="ab-hero">
-  <img
-    class="ab-hero-img"
-    {...bp(aboutHero.foto)}
-    fetchpriority="high"
-    decoding="async"
-    alt={aboutHero.alt}
-  />
+  <div class="ab-px" data-parallax>
+    <img
+      class="ab-hero-img"
+      {...bp(aboutHero.foto)}
+      fetchpriority="high"
+      decoding="async"
+      alt={aboutHero.alt}
+    />
+  </div>
   <div class="ab-hero-shade" aria-hidden="true"></div>
   <HFNavRD tone="overlay" />
   <div class="ab-hero-tx">

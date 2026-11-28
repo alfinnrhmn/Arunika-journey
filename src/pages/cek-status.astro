@@ -5,9 +5,11 @@
 // untuk kode salah maupun verifikasi salah, HTTP 200, agar kode tidak bisa ditebak.
 import Public from '../layouts/Public.astro';
 import '../styles/pages/booking-status.css';
+import '../styles/pages/private-proposal.css';
 import HFNavRD from '../components/hf/HFNavRD.astro';
 import HFArrowButton from '../components/hf/HFArrowButton.astro';
 import TextStep from '../components/booking/status/TextStep.astro';
+import RequestResult from '../components/private-trip/proposal/RequestResult.astro';
 import { getDb } from '../server/db';
 import { clientIp, rateLimit } from '../server/rate-limit';
 import {
@@ -18,6 +20,15 @@ import {
   setAccessCookie,
 } from '../features/booking';
 import { whatsappHref } from '../components/trips/detail/words';
+import {
+  SAMPLE_REQUEST_CODE,
+  REQUEST_LOOKUP_LIVE,
+  findRequestForLookup,
+  isLookupPreviewState,
+  isRequestCode,
+  sampleLookupView,
+  type RequestLookupView,
+} from '../content/private-proposal';
 
 Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 Astro.response.headers.set('Cache-Control', 'private, no-store');
@@ -34,7 +45,58 @@ let digits = '';
 let problem: 'none' | 'failed' | 'missing' | 'limited' = 'none';
 let retryMinutes = 0;
 
-if (Astro.request.method === 'POST') {
+// ---- Permintaan Private Trip (tab ?tab=private) ----
+// TAMPILAN SAJA: belum ada tabel permintaan yang dibaca (findRequestForLookup selalu null), jadi kode RQ yang
+// bentuknya valid pun menampilkan galat "tidak cocok" yang sama dengan kode salah (kode tidak bisa ditebak).
+// Keadaan hasil (proposal siap, dll.) hanya terlihat lewat pratinjau dev: ?tab=private&contoh=siap.
+const privateTab = tab === 'private';
+let rqKode = privateTab && isRequestCode(fromQuery) ? fromQuery : '';
+let rqEmail = '';
+let rqProblem: 'none' | 'failed' | 'missing' | 'limited' = 'none';
+let rqRetryMinutes = 0;
+let rqView: RequestLookupView | null = null;
+let rqProposalHref: string | undefined;
+
+if (privateTab) {
+  const contoh = import.meta.env.DEV ? (Astro.url.searchParams.get('contoh') ?? '') : '';
+  if (isLookupPreviewState(contoh)) {
+    rqView = sampleLookupView(contoh);
+    rqKode = SAMPLE_REQUEST_CODE;
+    rqEmail = 'nama@email.com';
+    const proposalState = { siap: 'menunggu', revisi: 'revisi', disetujui: 'disetujui' } as const;
+    if (contoh === 'kedaluwarsa') rqProposalHref = '/private-trip/proposal/contoh/kedaluwarsa';
+    else if (contoh !== 'diterima')
+      rqProposalHref = `/private-trip/proposal/contoh/${proposalState[contoh]}`;
+  } else if (REQUEST_LOOKUP_LIVE && Astro.request.method === 'POST') {
+    const limit = rateLimit(`cek-rq:${clientIp(Astro.request)}`, 10, 15 * 60_000);
+    let form: FormData | null = null;
+    try {
+      form = await Astro.request.formData();
+    } catch {
+      form = null;
+    }
+    const read = (name: string, max: number) =>
+      String(form?.get(name) ?? '')
+        .trim()
+        .slice(0, max);
+    rqKode = read('kode', 24).toUpperCase();
+    rqEmail = read('email', 254);
+    if (!limit.allowed) {
+      rqProblem = 'limited';
+      rqRetryMinutes = Math.ceil(limit.retryAfter / 60);
+      Astro.response.status = 429;
+      Astro.response.headers.set('Retry-After', String(limit.retryAfter));
+    } else if (!rqEmail) {
+      rqProblem = 'missing';
+    } else {
+      rqView = isRequestCode(rqKode) ? await findRequestForLookup(rqKode, rqEmail) : null;
+      if (rqView) rqProposalHref = `/private-trip/proposal/${rqView.request.code}`;
+      else rqProblem = 'failed';
+    }
+  }
+}
+
+if (Astro.request.method === 'POST' && !privateTab) {
   const limit = rateLimit(`cek:${clientIp(Astro.request)}`, 10, 15 * 60_000);
   // Isian dibaca juga saat dibatasi, hanya agar form tidak kosong lagi; pencarian tidak dijalankan.
   let form: FormData | null = null;
@@ -92,10 +154,17 @@ const bad = problem === 'failed';
       <h1>
         Cek status <i>perjalanan</i> Anda
       </h1>
-      <p>
-        Masukkan kode booking beserta email atau empat digit terakhir WhatsApp yang Anda pakai saat
-        memesan. Tidak perlu masuk akun.
-      </p>
+      {privateTab ? (
+        <p>
+          Masukkan nomor permintaan beserta email yang Anda pakai saat mengirim Request a Quote.
+          Tidak perlu masuk akun.
+        </p>
+      ) : (
+        <p>
+          Masukkan kode booking beserta email atau empat digit terakhir WhatsApp yang Anda pakai
+          saat memesan. Tidak perlu masuk akun.
+        </p>
+      )}
     </section>
 
     <section class="cs-card" aria-labelledby="cs-judul">
@@ -115,7 +184,7 @@ const bad = problem === 'failed';
         </a>
       </nav>
 
-      {tab === 'private' ? (
+      {privateTab && !REQUEST_LOOKUP_LIVE && !rqView ? (
         <div class="cs-private">
           <p class="lead">Pengecekan permintaan Private Trip akan tersedia.</p>
           <p>
@@ -126,6 +195,137 @@ const bad = problem === 'failed';
             Cek status booking Open Trip
           </a>
         </div>
+      ) : privateTab ? (
+        <form method="post" action="/cek-status?tab=private" novalidate>
+          {rqProblem === 'limited' && (
+            <p class="bs-err cs-err" role="alert">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7.5v5.5M12 16.2v.1"></path>
+              </svg>
+              <span>
+                Terlalu banyak percobaan dalam waktu singkat. Tunggu sekitar {rqRetryMinutes} menit,
+                lalu coba lagi.
+              </span>
+            </p>
+          )}
+          <div class="cs-field">
+            <label class="q" for="rq-kode">
+              Nomor permintaan
+            </label>
+            <input
+              id="rq-kode"
+              name="kode"
+              class:list={['in', { err: rqProblem === 'failed' }]}
+              value={rqKode}
+              placeholder="Contoh: RQ-2611-0042"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              maxlength="24"
+              aria-invalid={rqProblem === 'failed' ? 'true' : undefined}
+              aria-describedby={
+                rqProblem === 'failed' ? 'rq-kode-galat rq-kode-info' : 'rq-kode-info'
+              }
+            />
+            {rqProblem === 'failed' && (
+              <p class="bs-err" role="alert" id="rq-kode-galat">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7.5v5.5M12 16.2v.1"></path>
+                </svg>
+                <span>
+                  Nomor permintaan atau email tidak cocok. Periksa kembali; nomor permintaan
+                  berbentuk <b>RQ-2611-0042</b>.
+                </span>
+              </p>
+            )}
+            <p class="hint" id="rq-kode-info">
+              Diberikan saat Anda mengirim Request a Quote.
+            </p>
+          </div>
+          <div class="cs-field">
+            <label class="q" for="rq-email">
+              Email
+            </label>
+            <input
+              id="rq-email"
+              name="email"
+              type="email"
+              class:list={['in', { err: rqProblem === 'failed' || rqProblem === 'missing' }]}
+              value={rqEmail}
+              placeholder="nama@email.com"
+              autocomplete="email"
+              maxlength="254"
+              aria-invalid={rqProblem === 'failed' || rqProblem === 'missing' ? 'true' : undefined}
+              aria-describedby={
+                rqProblem === 'missing' ? 'rq-email-galat rq-email-info' : 'rq-email-info'
+              }
+            />
+            {rqProblem === 'missing' && (
+              <p class="bs-err" role="alert" id="rq-email-galat">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7.5v5.5M12 16.2v.1"></path>
+                </svg>
+                <span>Isi email yang Anda pakai saat mengirim permintaan.</span>
+              </p>
+            )}
+            <p class="hint" id="rq-email-info">
+              Pakai email yang sama dengan saat mengirim permintaan.
+            </p>
+          </div>
+          <div class="cs-submit">
+            <span class="cs-wa-note">
+              Nomor tidak ketemu? Hubungi kami lewat WhatsApp [nomor: diisi klien].
+            </span>
+            <button class="cs-go" type="submit">
+              <span class="l">Cek status</span>
+              <span class="ic">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </form>
       ) : (
         <form method="post" action="/cek-status" novalidate>
           {problem === 'limited' && (
@@ -279,6 +479,8 @@ const bad = problem === 'failed';
       )}
     </section>
 
+    {privateTab && rqView && <RequestResult view={rqView} proposalHref={rqProposalHref} />}
+
     <section class="cs-help" aria-labelledby="cs-bantuan">
       <div class="head">
         <div class="eyebrow">Bantuan</div>
@@ -300,7 +502,11 @@ const bad = problem === 'failed';
         <TextStep
           num="03"
           title="Nomor permintaan Private Trip"
-          desc="Nomor berawalan RQ dikirim ke email Anda setelah Request a Quote terkirim. Pengecekannya di halaman ini menyusul."
+          desc={
+            REQUEST_LOOKUP_LIVE
+              ? 'Nomor berawalan RQ dikirim ke email Anda setelah Request a Quote terkirim. Masukkan di tab Permintaan Private Trip pada halaman ini.'
+              : 'Nomor berawalan RQ dikirim ke email Anda setelah Request a Quote terkirim. Pengecekannya di halaman ini menyusul.'
+          }
         />
       </div>
       <div class="cs-box">

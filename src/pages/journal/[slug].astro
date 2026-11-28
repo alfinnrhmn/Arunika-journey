@@ -90,4 +90,7 @@ const ogImage = story ? `/foto/${story.cover.foto}.webp` : undefined;
 
 <script>
   import '../../scripts/journal-article';
+  import { initParallax } from '../../lib/motion/parallax';
+  // Parallax foto seperti Home: aktif di semua lebar (seperti sebelumnya), mati bila "kurangi gerakan".
+  initParallax('[data-parallax]', '(min-width: 0px)');
 </script>

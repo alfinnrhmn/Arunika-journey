@@ -17,7 +17,9 @@ import { bp } from './photo';
     {d.items.map((it) => (
       <li class="ab-doc">
         <div class="ab-doc-ph">
-          <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          <div class="ab-px" data-parallax>
+            <img class="cover" {...bp(it.foto)} loading="lazy" decoding="async" alt={it.alt} />
+          </div>
         </div>
         <p class="ab-doc-cap">{d.caption}</p>
       </li>

@@ -1,0 +1,33 @@
+---
+// Request a Quote Private Trip, langkah 1 (Perjalanan Anda) dan langkah 2 (Data Anda) dalam satu halaman bertahap.
+// Tanpa JavaScript kedua langkah tampil bertumpuk dan terbaca; dengan JavaScript bergantian (`?langkah=2`).
+// BELUM ADA BACKEND: data tidak dikirim atau disimpan, dan tidak ada tombol kirim (lihat RequestStep2.astro).
+import Public from '../../../layouts/Public.astro';
+import '../../../styles/pages/private-request.css';
+import RequestHead from '../../../components/private-trip/request/RequestHead.astro';
+import RequestHero from '../../../components/private-trip/request/RequestHero.astro';
+import RequestStep1 from '../../../components/private-trip/request/RequestStep1.astro';
+import RequestStep2 from '../../../components/private-trip/request/RequestStep2.astro';
+import { meta } from '../../../content/private-request';
+
+// Hari ini menurut WIB (UTC+7), batas awal kolom tanggal berangkat.
+const min = new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10);
+---
+
+<Public title={meta.title} description={meta.description}>
+  <script is:inline>
+    document.documentElement.classList.add('pr-js');
+  </script>
+  <div class="pr-page" data-step="1" data-min={min}>
+    <RequestHead />
+    <RequestHero />
+    <main class="pr-body" id="pr-body">
+      <RequestStep1 min={min} />
+      <RequestStep2 />
+    </main>
+    <div class="pr-sr" role="status" aria-live="polite" data-pr-live></div>
+  </div>
+  <script>
+    import '../../../components/private-trip/request/request.client.ts';
+  </script>
+</Public>

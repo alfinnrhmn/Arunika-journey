@@ -1,0 +1,16 @@
+---
+// Pratinjau tampilan Proposal Review per keadaan dengan DATA CONTOH. Hanya ada di mode pengembangan
+// (import.meta.env.DEV); di produksi rute ini menjawab 404, jadi data contoh tidak pernah terlihat pelanggan.
+// Keadaan: menunggu | revisi | disetujui | kedaluwarsa.
+import ProposalPage from '../../../../components/private-trip/proposal/ProposalPage.astro';
+import { isPreviewState, sampleProposalView } from '../../../../content/private-proposal';
+
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+const keadaan = Astro.params.keadaan ?? '';
+if (!import.meta.env.DEV || !isPreviewState(keadaan)) return Astro.rewrite('/404');
+const view = sampleProposalView(keadaan);
+---
+
+<ProposalPage view={view} />
